@@ -1,14 +1,14 @@
 import getAgent from "@egjs/agent";
-import { IObject } from "@daybrush/utils";
+import { IObject } from "./utils/";
 import { MoveableInterface } from "./types";
-
 
 export const DIRECTIONS4 = ["n", "w", "s", "e"];
 export const DIRECTIONS = ["n", "w", "s", "e", "nw", "ne", "sw", "se"];
 
-
 function getSVGCursor(scale: number, degree: number) {
-    return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="${32 * scale}px" height="${32 * scale}px" viewBox="0 0 32 32" ><path d="M 16,5 L 12,10 L 14.5,10 L 14.5,22 L 12,22 L 16,27 L 20,22 L 17.5,22 L 17.5,10 L 20, 10 L 16,5 Z" stroke-linejoin="round" stroke-width="1.2" fill="black" stroke="white" style="transform:rotate(${degree}deg);transform-origin: 16px 16px"></path></svg>`;
+    return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="${32 * scale}px" height="${
+        32 * scale
+    }px" viewBox="0 0 32 32" ><path d="M 16,5 L 12,10 L 14.5,10 L 14.5,22 L 12,22 L 16,27 L 20,22 L 17.5,22 L 17.5,10 L 20, 10 L 16,5 Z" stroke-linejoin="round" stroke-width="1.2" fill="black" stroke="white" style="transform:rotate(${degree}deg);transform-origin: 16px 16px"></path></svg>`;
 }
 function getCursorCSS(degree: number) {
     const x1 = getSVGCursor(1, degree);
@@ -30,12 +30,14 @@ function getCursorCSS(degree: number) {
 
 export const agent = getAgent();
 export const IS_WEBKIT = agent.browser.webkit;
-export const IS_WEBKIT605 = IS_WEBKIT && (() => {
-    const navi = typeof window === "undefined" ? { userAgent: "" } : window.navigator;
-    const res = /applewebkit\/([^\s]+)/g.exec(navi.userAgent.toLowerCase());
+export const IS_WEBKIT605 =
+    IS_WEBKIT &&
+    (() => {
+        const navi = typeof window === "undefined" ? { userAgent: "" } : window.navigator;
+        const res = /applewebkit\/([^\s]+)/g.exec(navi.userAgent.toLowerCase());
 
-    return res ? parseFloat(res[1]) < 605 : false;
-})();
+        return res ? parseFloat(res[1]) < 605 : false;
+    })();
 
 const browserName = agent.browser.name;
 const browserVersion = parseInt(agent.browser.version, 10);
@@ -43,22 +45,18 @@ const IS_CHROME = browserName === "chrome";
 const IS_CHROMIUM = agent.browser.chromium;
 const chromiumVersion = parseInt(agent.browser.chromiumVersion, 10) || 0;
 
-export const IS_CHROMIUM109 = (IS_CHROME && browserVersion >= 109)
-    || (IS_CHROMIUM && chromiumVersion >= 109);
+export const IS_CHROMIUM109 = (IS_CHROME && browserVersion >= 109) || (IS_CHROMIUM && chromiumVersion >= 109);
 export const IS_FIREFOX = browserName === "firefox";
-export const IS_SAFARI_ABOVE15
-    = parseInt(agent.browser.webkitVersion, 10) >= 612
-    || browserVersion >= 15;
+export const IS_SAFARI_ABOVE15 = parseInt(agent.browser.webkitVersion, 10) >= 612 || browserVersion >= 15;
 
 export const PREFIX = "moveable-";
 
-
-const directionCSS = DIRECTIONS.map(dir => {
+const directionCSS = DIRECTIONS.map((dir) => {
     let top = "";
     let left = "";
     let originX = "center";
     let originY = "center";
-    const offset =  `calc(var(--moveable-control-padding, 20) * -1px)`;
+    const offset = `calc(var(--moveable-control-padding, 20) * -1px)`;
 
     if (dir.indexOf("n") > -1) {
         top = `top: ${offset};`;
@@ -189,11 +187,15 @@ margin-top: -6px;
 margin-left: -6px;
 pointer-events: none;
 }
-${[0, 15, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165].map(degree => `
+${[0, 15, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165]
+    .map(
+        (degree) => `
 .direction[data-rotation="${degree}"], :global .view-control-rotation${degree} {
 ${getCursorCSS(degree)}
 }
-`).join("\n")}
+`
+    )
+    .join("\n")}
 
 .line.direction:before {
 content: "";
@@ -225,10 +227,14 @@ display: block;
 position: absolute;
 }
 
-${IS_WEBKIT605 ? `:global svg *:before {
+${
+    IS_WEBKIT605
+        ? `:global svg *:before {
 content:"";
 transform-origin: inherit;
-}` : ""}
+}`
+        : ""
+}
 `;
 
 export const NEARBY_POS = [

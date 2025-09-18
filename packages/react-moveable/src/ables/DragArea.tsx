@@ -1,13 +1,9 @@
-import {
-    createWarpMatrix,
-} from "@scena/matrix";
+import { createWarpMatrix } from "@scena/matrix";
 import { ref } from "framework-utils";
 import { getRect, calculateInversePosition, makeMatrixCSS, prefix } from "../utils";
-import {
-    Renderer, GroupableProps, DragAreaProps, MoveableManagerInterface, MoveableGroupInterface,
-} from "../types";
+import { Renderer, GroupableProps, DragAreaProps, MoveableManagerInterface, MoveableGroupInterface } from "../types";
 import { AREA_PIECE, AVOID, AREA_PIECES } from "../classNames";
-import { addClass, removeClass, requestAnimationFrame } from "@daybrush/utils";
+import { addClass, removeClass, requestAnimationFrame } from "../utils/index";
 
 function restoreStyle(moveable: MoveableManagerInterface) {
     const el = moveable.areaElement;
@@ -23,23 +19,19 @@ function restoreStyle(moveable: MoveableManagerInterface) {
 }
 
 function renderPieces(React: Renderer): any {
-    return (<div key="area_pieces" className={AREA_PIECES}>
-        <div className={AREA_PIECE}></div>
-        <div className={AREA_PIECE}></div>
-        <div className={AREA_PIECE}></div>
-        <div className={AREA_PIECE}></div>
-    </div>);
+    return (
+        <div key="area_pieces" className={AREA_PIECES}>
+            <div className={AREA_PIECE}></div>
+            <div className={AREA_PIECE}></div>
+            <div className={AREA_PIECE}></div>
+            <div className={AREA_PIECE}></div>
+        </div>
+    );
 }
 export default {
     name: "dragArea",
-    props: [
-        "dragArea",
-        "passDragArea",
-    ] as const,
-    events: [
-        "click",
-        "clickGroup",
-    ] as const,
+    props: ["dragArea", "passDragArea"] as const,
+    events: ["click", "clickGroup"] as const,
     render(moveable: MoveableManagerInterface<GroupableProps>, React: Renderer): any[] {
         const { target, dragArea, groupable, passDragArea } = moveable.props;
         const { width, height, renderPoses } = moveable.getState();
@@ -62,19 +54,24 @@ export default {
             renderPoses[0],
             renderPoses[1],
             renderPoses[2],
-            renderPoses[3],
+            renderPoses[3]
         );
         const transform = h.length ? makeMatrixCSS(h, true) : "none";
 
         return [
-            <div key="area" ref={ref(moveable, "areaElement")} className={className} style={{
-                top: "0px",
-                left: "0px",
-                width: `${width}px`,
-                height: `${height}px`,
-                transformOrigin: "0 0",
-                transform,
-            }}></div>,
+            <div
+                key="area"
+                ref={ref(moveable, "areaElement")}
+                className={className}
+                style={{
+                    top: "0px",
+                    left: "0px",
+                    width: `${width}px`,
+                    height: `${height}px`,
+                    transformOrigin: "0 0",
+                    transform,
+                }}
+            ></div>,
             renderPieces(React),
         ];
     },
@@ -85,19 +82,9 @@ export default {
         datas.isDragArea = false;
         const areaElement = moveable.areaElement;
         const state = moveable.state;
-        const {
-            moveableClientRect,
-            renderPoses,
-            rootMatrix,
-            is3d,
-        } = state;
+        const { moveableClientRect, renderPoses, rootMatrix, is3d } = state;
         const { left, top } = moveableClientRect;
-        const {
-            left: relativeLeft,
-            top: relativeTop,
-            width,
-            height,
-        } = getRect(renderPoses);
+        const { left: relativeLeft, top: relativeTop, width, height } = getRect(renderPoses);
         const n = is3d ? 4 : 3;
         let [posX, posY] = calculateInversePosition(rootMatrix, [clientX - left, clientY - top], n);
 
@@ -112,8 +99,9 @@ export default {
 
         const children = [].slice.call(areaElement.nextElementSibling!.children) as HTMLElement[];
         rects.forEach((rect, i) => {
-            children[i].style.cssText
-                = `left: ${rect.left}px;top: ${rect.top}px; width: ${rect.width}px; height: ${rect.height}px;`;
+            children[
+                i
+            ].style.cssText = `left: ${rect.left}px;top: ${rect.top}px; width: ${rect.width}px; height: ${rect.height}px;`;
         });
         addClass(areaElement, AVOID);
         state.disableNativeEvent = true;
@@ -145,10 +133,7 @@ export default {
     dragGroup(moveable: MoveableGroupInterface, e: any) {
         return this.drag(moveable, e);
     },
-    dragGroupEnd(
-        moveable: MoveableGroupInterface<DragAreaProps>,
-        e: any,
-    ) {
+    dragGroupEnd(moveable: MoveableGroupInterface<DragAreaProps>, e: any) {
         return this.dragEnd(moveable, e);
     },
     unset(moveable: MoveableManagerInterface<DragAreaProps>) {

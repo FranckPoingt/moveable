@@ -21,21 +21,30 @@ import {
 import Gesto from "gesto";
 import { ref } from "framework-utils";
 import {
-    MoveableManagerProps, MoveableManagerState, Able,
-    RectInfo, Requester, HitRect, MoveableManagerInterface,
+    MoveableManagerProps,
+    MoveableManagerState,
+    Able,
+    RectInfo,
+    Requester,
+    HitRect,
+    MoveableManagerInterface,
     MoveableDefaultOptions,
     GroupableProps,
     MoveableRefType,
 } from "./types";
-import {
-    triggerAble, getTargetAbleGesto,
-    checkMoveableTarget, getControlAbleGesto,
-} from "./gesto/getAbleGesto";
+import { triggerAble, getTargetAbleGesto, checkMoveableTarget, getControlAbleGesto } from "./gesto/getAbleGesto";
 import { createOriginMatrix, multiplies, plus } from "@scena/matrix";
 import {
-    addClass, cancelAnimationFrame, find,
-    getKeys, getWindow, IObject, isNode, removeClass, requestAnimationFrame,
-} from "@daybrush/utils";
+    addClass,
+    cancelAnimationFrame,
+    find,
+    getKeys,
+    getWindow,
+    IObject,
+    isNode,
+    removeClass,
+    requestAnimationFrame,
+} from "./utils/";
 import { renderLine } from "./renderDirections";
 import { fitPoints, getAreaSize, getOverlapSize, isInside } from "overlap-area";
 import EventManager from "./EventManager";
@@ -47,8 +56,10 @@ import { diff } from "@egjs/list-differ";
 import { getPersistState } from "./utils/persist";
 import { setStoreCache } from "./store/Store";
 
-export default class MoveableManager<T = {}>
-    extends React.PureComponent<MoveableManagerProps<T>, MoveableManagerState> {
+export default class MoveableManager<T = {}> extends React.PureComponent<
+    MoveableManagerProps<T>,
+    MoveableManagerState
+> {
     public static defaultProps: Required<MoveableManagerProps> = {
         dragTargetSelf: false,
         target: null,
@@ -103,12 +114,29 @@ export default class MoveableManager<T = {}>
         container: null,
         gestos: {},
         renderLines: [
-            [[0, 0], [0, 0]],
-            [[0, 0], [0, 0]],
-            [[0, 0], [0, 0]],
-            [[0, 0], [0, 0]],
+            [
+                [0, 0],
+                [0, 0],
+            ],
+            [
+                [0, 0],
+                [0, 0],
+            ],
+            [
+                [0, 0],
+                [0, 0],
+            ],
+            [
+                [0, 0],
+                [0, 0],
+            ],
         ],
-        renderPoses: [[0, 0], [0, 0], [0, 0], [0, 0]],
+        renderPoses: [
+            [0, 0],
+            [0, 0],
+            [0, 0],
+            [0, 0],
+        ],
         disableNativeEvent: false,
         posDelta: [0, 0],
         ...getMoveableTargetInfo(null),
@@ -127,8 +155,8 @@ export default class MoveableManager<T = {}>
     public isUnmounted = false;
 
     public events: Record<string, EventManager | null> = {
-        "mouseEnter": null,
-        "mouseLeave": null,
+        mouseEnter: null,
+        mouseLeave: null,
     };
 
     protected _emitter: EventEmitter = new EventEmitter();
@@ -161,7 +189,8 @@ export default class MoveableManager<T = {}>
             parentPosition,
             className,
             target: propsTarget,
-            zoom, cspNonce,
+            zoom,
+            cspNonce,
             translateZ,
             cssStyled: ControlBoxElement,
             groupable,
@@ -173,26 +202,19 @@ export default class MoveableManager<T = {}>
         this.checkUpdate();
         this.updateRenderPoses();
 
-        const [parentLeft, parentTop] = parentPosition as number[] || [0, 0];
-        const {
-            left,
-            top,
-            target: stateTarget,
-            direction,
-            hasFixed,
-            offsetDelta,
-        } = state;
+        const [parentLeft, parentTop] = (parentPosition as number[]) || [0, 0];
+        const { left, top, target: stateTarget, direction, hasFixed, offsetDelta } = state;
         const groupTargets = (props as any).targets;
         const isDragging = this.isDragging();
         const ableAttributes: IObject<boolean> = {};
-        this.getEnabledAbles().forEach(able => {
+        this.getEnabledAbles().forEach((able) => {
             ableAttributes[`data-able-${able.name.toLowerCase()}`] = true;
         });
         const ableClassName = this._getAbleClassName();
-        const isDisplay
-            = (groupTargets && groupTargets.length && (stateTarget || groupable))
-            || propsTarget
-            || (!this._hasFirstTarget && this.state.isPersisted);
+        const isDisplay =
+            (groupTargets && groupTargets.length && (stateTarget || groupable)) ||
+            propsTarget ||
+            (!this._hasFirstTarget && this.state.isPersisted);
         const isVisible = this.controlBox || this.props.firstRenderState || this.props.persistData;
         const translate = [left - parentLeft, top - parentTop];
 
@@ -201,10 +223,10 @@ export default class MoveableManager<T = {}>
             translate[1] += offsetDelta[1];
         }
         const style: Record<string, any> = {
-            "position": hasFixed ? "fixed" : "absolute",
-            "display": isDisplay ? "block" : "none",
-            "visibility": isVisible ? "visible" : "hidden",
-            "transform": `translate3d(${translate[0]}px, ${translate[1]}px, ${translateZ})`,
+            position: hasFixed ? "fixed" : "absolute",
+            display: isDisplay ? "block" : "none",
+            visibility: isVisible ? "visible" : "hidden",
+            transform: `translate3d(${translate[0]}px, ${translate[1]}px, ${translateZ})`,
             "--zoom": zoom,
             "--zoompx": `${zoom}px`,
         };
@@ -218,10 +240,15 @@ export default class MoveableManager<T = {}>
             <ControlBoxElement
                 cspNonce={cspNonce}
                 ref={ref(this, "controlBox")}
-                className={`${prefix("control-box", direction === -1 ? "reverse" : "", isDragging ? "dragging" : "")} ${ableClassName} ${className}`}
+                className={`${prefix(
+                    "control-box",
+                    direction === -1 ? "reverse" : "",
+                    isDragging ? "dragging" : ""
+                )} ${ableClassName} ${className}`}
                 {...ableAttributes}
                 onClick={this._onPreventClick}
-                style={style}>
+                style={style}
+            >
                 {this.renderAbles()}
                 {this._renderLines()}
             </ControlBoxElement>
@@ -232,7 +259,6 @@ export default class MoveableManager<T = {}>
         this.isUnmounted = false;
         const props = this.props;
         const { parentMoveable, container } = props;
-
 
         this._checkUpdateRootContainer();
         this._checkUpdateViewContainer();
@@ -289,15 +315,17 @@ export default class MoveableManager<T = {}>
     public getAble<T extends Able>(ableName: string): T | undefined {
         const ables: Able[] = this.props.ables || [];
 
-        return find(ables, able => able.name === ableName) as T;
+        return find(ables, (able) => able.name === ableName) as T;
     }
     public getContainer(): HTMLElement | SVGElement {
         const { parentMoveable, wrapperMoveable, container } = this.props;
 
-        return container!
-            || (wrapperMoveable && wrapperMoveable.getContainer())
-            || (parentMoveable && parentMoveable.getContainer())
-            || this.controlBox.parentElement!;
+        return (
+            container! ||
+            (wrapperMoveable && wrapperMoveable.getContainer()) ||
+            (parentMoveable && parentMoveable.getContainer()) ||
+            this.controlBox.parentElement!
+        );
     }
     /**
      * Returns the element of the control box.
@@ -399,12 +427,7 @@ export default class MoveableManager<T = {}>
             rect = { width: 0, height: 0, ...el };
         }
 
-        const {
-            left: rectLeft,
-            top: rectTop,
-            width: rectWidth,
-            height: rectHeight,
-        } = rect;
+        const { left: rectLeft, top: rectTop, width: rectWidth, height: rectHeight } = rect;
         const points = fitPoints([pos1, pos2, pos4, pos3], targetClientRect);
         const size = getOverlapSize(points, [
             [rectLeft, rectTop],
@@ -418,7 +441,7 @@ export default class MoveableManager<T = {}>
             return 0;
         }
 
-        return Math.min(100, size / totalSize * 100);
+        return Math.min(100, (size / totalSize) * 100);
     }
     /**
      * Whether the coordinates are inside Moveable
@@ -468,16 +491,14 @@ export default class MoveableManager<T = {}>
         const state = this.state;
         const target = (state.target || props.target) as HTMLElement | SVGElement;
         const container = this.getContainer();
-        const rootContainer = parentMoveable
-            ? (parentMoveable as any)._rootContainer
-            : this._rootContainer;
+        const rootContainer = parentMoveable ? (parentMoveable as any)._rootContainer : this._rootContainer;
         const nextState = getMoveableTargetInfo(
             this.controlBox,
             target,
             container,
             container,
             rootContainer || container,
-            this._getRequestStyles(),
+            this._getRequestStyles()
         );
 
         if (!target && this._hasFirstTarget && props.persistData) {
@@ -491,10 +512,7 @@ export default class MoveableManager<T = {}>
         if (isSingle) {
             setStoreCache();
         }
-        this.updateState(
-            nextState,
-            parentMoveable ? false : isSetState,
-        );
+        this.updateState(nextState, parentMoveable ? false : isSetState);
     }
     /**
      * Check if the moveable state is being dragged.
@@ -566,16 +584,8 @@ export default class MoveableManager<T = {}>
         const poses = getAbsolutePosesByState(this.state);
         const [pos1, pos2, pos3, pos4] = poses;
         const rect = getRect(poses);
-        const {
-            width: offsetWidth,
-            height: offsetHeight,
-        } = state;
-        const {
-            width,
-            height,
-            left,
-            top,
-        } = rect;
+        const { width: offsetWidth, height: offsetHeight } = state;
+        const { width, height, left, top } = rect;
         const statePos = [state.left, state.top];
         const origin = plus(statePos, state.origin);
         const beforeOrigin = plus(statePos, state.beforeOrigin);
@@ -642,11 +652,7 @@ export default class MoveableManager<T = {}>
         }
     }
     public getRotation() {
-        const {
-            pos1,
-            pos2,
-            direction,
-        } = this.state;
+        const { pos1, pos2, direction } = this.state;
 
         return getAbsoluteRotation(pos1, pos2, direction);
     }
@@ -679,11 +685,7 @@ export default class MoveableManager<T = {}>
      * requester.request({ deltaX: 10, deltaY: 10 });
      * requester.requestEnd();
      */
-    public request(
-        ableName: string,
-        param: IObject<any> = {},
-        isInstant?: boolean,
-    ): Requester {
+    public request(ableName: string, param: IObject<any> = {}, isInstant?: boolean): Requester {
         const self = this;
         const props = self.props;
         const manager = props.parentMoveable || props.wrapperMoveable || self;
@@ -705,33 +707,57 @@ export default class MoveableManager<T = {}>
         const ableRequester = requsetAble.request(self);
         const requestInstant = isInstant || param.isInstant;
         const ableType = ableRequester.isControl ? "controlAbles" : "targetAbles";
-        const eventAffix = `${(groupable ? "Group" : "")}${ableRequester.isControl ? "Control" : ""}`;
+        const eventAffix = `${groupable ? "Group" : ""}${ableRequester.isControl ? "Control" : ""}`;
         const moveableAbles: Able[] = [...manager[ableType]];
 
         const requester = {
             request(ableParam: IObject<any>) {
-                triggerAble(self, moveableAbles, ["drag"], eventAffix, "", {
-                    ...ableRequester.request(ableParam),
-                    requestAble: ableName,
-                    isRequest: true,
-                }, requestInstant);
+                triggerAble(
+                    self,
+                    moveableAbles,
+                    ["drag"],
+                    eventAffix,
+                    "",
+                    {
+                        ...ableRequester.request(ableParam),
+                        requestAble: ableName,
+                        isRequest: true,
+                    },
+                    requestInstant
+                );
                 return requester;
             },
             requestEnd() {
-                triggerAble(self, moveableAbles, ["drag"], eventAffix, "End", {
-                    ...ableRequester.requestEnd(),
-                    requestAble: ableName,
-                    isRequest: true,
-                }, requestInstant);
+                triggerAble(
+                    self,
+                    moveableAbles,
+                    ["drag"],
+                    eventAffix,
+                    "End",
+                    {
+                        ...ableRequester.requestEnd(),
+                        requestAble: ableName,
+                        isRequest: true,
+                    },
+                    requestInstant
+                );
                 return requester;
             },
         };
 
-        triggerAble(self, moveableAbles, ["drag"], eventAffix, "Start", {
-            ...ableRequester.requestStart(param),
-            requestAble: ableName,
-            isRequest: true,
-        }, requestInstant);
+        triggerAble(
+            self,
+            moveableAbles,
+            ["drag"],
+            eventAffix,
+            "Start",
+            {
+                ...ableRequester.requestStart(param),
+                requestAble: ableName,
+                isRequest: true,
+            },
+            requestInstant
+        );
 
         return requestInstant ? requester.request(param).requestEnd() : requester;
     }
@@ -765,8 +791,12 @@ export default class MoveableManager<T = {}>
         const {
             originalBeforeOrigin,
             transformOrigin,
-            allMatrix, is3d,
-            pos1, pos2, pos3, pos4,
+            allMatrix,
+            is3d,
+            pos1,
+            pos2,
+            pos3,
+            pos4,
             left: stateLeft,
             top: stateTop,
             isPersisted,
@@ -774,12 +804,7 @@ export default class MoveableManager<T = {}>
         const zoom = props.zoom || 1;
 
         if (!padding && zoom <= 1) {
-            state.renderPoses = [
-                pos1,
-                pos2,
-                pos3,
-                pos4,
-            ];
+            state.renderPoses = [pos1, pos2, pos3, pos4];
             state.renderLines = [
                 [pos1, pos2],
                 [pos2, pos4],
@@ -788,12 +813,7 @@ export default class MoveableManager<T = {}>
             ];
             return;
         }
-        const {
-            left,
-            top,
-            bottom,
-            right,
-        } = getPaddingBox(padding || {});
+        const { left, top, bottom, right } = getPaddingBox(padding || {});
         const n = is3d ? 4 : 3;
 
         // const clipPathInfo = getClipPath(
@@ -821,9 +841,12 @@ export default class MoveableManager<T = {}>
 
         const nextMatrix = multiplies(
             n,
-            createOriginMatrix(absoluteOrigin.map(v => -v), n),
+            createOriginMatrix(
+                absoluteOrigin.map((v) => -v),
+                n
+            ),
             allMatrix,
-            createOriginMatrix(transformOrigin, n),
+            createOriginMatrix(transformOrigin, n)
         );
 
         const renderPos1 = calculatePadding(nextMatrix, pos1, [-left, -top], n);
@@ -831,12 +854,7 @@ export default class MoveableManager<T = {}>
         const renderPos3 = calculatePadding(nextMatrix, pos3, [-left, bottom], n);
         const renderPos4 = calculatePadding(nextMatrix, pos4, [right, bottom], n);
 
-        state.renderPoses = [
-            renderPos1,
-            renderPos2,
-            renderPos3,
-            renderPos4,
-        ];
+        state.renderPoses = [renderPos1, renderPos2, renderPos3, renderPos4];
         state.renderLines = [
             [renderPos1, renderPos2],
             [renderPos2, renderPos4],
@@ -870,10 +888,7 @@ export default class MoveableManager<T = {}>
     public checkUpdate() {
         this._isPropTargetChanged = false;
         const { target, container, parentMoveable } = this.props;
-        const {
-            target: stateTarget,
-            container: stateContainer,
-        } = this.state;
+        const { target: stateTarget, container: stateContainer } = this.state;
 
         if (!stateTarget && !target) {
             return;
@@ -899,12 +914,9 @@ export default class MoveableManager<T = {}>
         this._isPropTargetChanged = isTargetChanged;
     }
     public waitToChangeTarget(): Promise<void> {
-        return new Promise(() => { });
+        return new Promise(() => {});
     }
-    public triggerEvent(
-        name: string,
-        e: any,
-    ): any {
+    public triggerEvent(name: string, e: any): any {
         const props = this.props;
 
         this._emitter.trigger(name, e);
@@ -944,7 +956,7 @@ export default class MoveableManager<T = {}>
             }
             this.updateRect();
         });
-    }
+    };
     public getState(): MoveableManagerState {
         const props = this.props;
         if (props.target || (props as any).targets?.length) {
@@ -968,18 +980,15 @@ export default class MoveableManager<T = {}>
         (this.state as any).isPersisted = false;
         return this.state;
     }
-    public updateSelectors() { }
+    public updateSelectors() {}
     protected unsetAbles() {
-        this.targetAbles.forEach(able => {
+        this.targetAbles.forEach((able) => {
             if (able.unset) {
                 able.unset(this);
             }
         });
     }
-    protected updateAbles(
-        ables: Able[] = this.props.ables!,
-        eventAffix: string = "",
-    ) {
+    protected updateAbles(ables: Able[] = this.props.ables!, eventAffix: string = "") {
         const props = this.props as any;
         const triggerAblesSimultaneously = props.triggerAblesSimultaneously;
         const enabledAbles = this.getEnabledAbles(ables);
@@ -1012,9 +1021,7 @@ export default class MoveableManager<T = {}>
     protected getEnabledAbles(ables: Able[] = this.props.ables!) {
         const props = this.props as any;
 
-        return ables.filter(able => able && (
-            (able.always && props[able.name] !== false)
-            || props[able.name]));
+        return ables.filter((able) => able && ((able.always && props[able.name] !== false) || props[able.name]));
     }
     protected renderAbles() {
         const props = this.props as any;
@@ -1025,21 +1032,27 @@ export default class MoveableManager<T = {}>
 
         this.renderState = {};
 
-        return groupByMap(flat<any>(
-            filterAbles(this.getEnabledAbles(), ["render"], triggerAblesSimultaneously).map(({ render }) => {
-                return render!(this, Renderer) || [];
-            })).filter(el => el), ({ key }) => key).map(group => group[0]);
+        return groupByMap(
+            flat<any>(
+                filterAbles(this.getEnabledAbles(), ["render"], triggerAblesSimultaneously).map(({ render }) => {
+                    return render!(this, Renderer) || [];
+                })
+            ).filter((el) => el),
+            ({ key }) => key
+        ).map((group) => group[0]);
     }
     protected updateCheckInput() {
         this.targetGesto && (this.targetGesto.options.checkInput = this.props.checkInput);
     }
     protected _getRequestStyles() {
-        const styleNames = this.getEnabledAbles().reduce((names, able) => {
-            const ableStyleNames = (able.requestStyle?.() ?? []) as Array<keyof CSSStyleDeclaration>;
+        const styleNames = this.getEnabledAbles().reduce(
+            (names, able) => {
+                const ableStyleNames = (able.requestStyle?.() ?? []) as Array<keyof CSSStyleDeclaration>;
 
-            return [...names, ...ableStyleNames];
-        }, [...(this.props.requestStyles || [])] as Array<keyof CSSStyleDeclaration>);
-
+                return [...names, ...ableStyleNames];
+            },
+            [...(this.props.requestStyles || [])] as Array<keyof CSSStyleDeclaration>
+        );
 
         return styleNames;
     }
@@ -1051,8 +1064,7 @@ export default class MoveableManager<T = {}>
         const hasTargetAble = this.targetAbles.length;
         const hasControlAble = this.controlAbles.length;
         const target = this._dragTarget;
-        const isUnset = (!hasTargetAble && this.targetGesto)
-            || this._isTargetChanged(true);
+        const isUnset = (!hasTargetAble && this.targetGesto) || this._isTargetChanged(true);
 
         if (isUnset) {
             unsetGesto(this, false);
@@ -1080,16 +1092,11 @@ export default class MoveableManager<T = {}>
         this._propTarget = props.target;
         this._originalDragTarget = props.dragTarget || props.target;
         this._dragTarget = getRefTarget(this._originalDragTarget, true);
-
     }
     private _renderLines() {
         const props = this.props;
-        const {
-            zoom,
-            hideDefaultLines,
-            hideChildMoveableDefaultLines,
-            parentMoveable,
-        } = props as MoveableManagerProps<GroupableProps>;
+        const { zoom, hideDefaultLines, hideChildMoveableDefaultLines, parentMoveable } =
+            props as MoveableManagerProps<GroupableProps>;
 
         if (hideDefaultLines || (parentMoveable && hideChildMoveableDefaultLines)) {
             return [];
@@ -1107,7 +1114,7 @@ export default class MoveableManager<T = {}>
         e.stopPropagation();
         e.preventDefault();
         // removeEvent(window, "click", this._onPreventClick, true);
-    }
+    };
     private _isTargetChanged(useDragArea?: boolean) {
         const props = this.props;
         const nextTarget = props.dragTarget || props.target;
@@ -1138,7 +1145,7 @@ export default class MoveableManager<T = {}>
             return;
         }
         const enabledAbles = this.enabledAbles;
-        eventKeys.forEach(eventName => {
+        eventKeys.forEach((eventName) => {
             const ables = filterAbles(enabledAbles, [eventName] as any);
             const hasAbles = ables.length > 0;
             let manager = events[eventName];
@@ -1173,69 +1180,61 @@ export default class MoveableManager<T = {}>
         const viewContainer = this._viewContainer;
 
         if (viewContainer) {
-            this._changeAbleViewClassNames([
-                ...this._getAbleViewClassNames(),
-                this.isDragging() ? VIEW_DRAGGING : "",
-            ]);
+            this._changeAbleViewClassNames([...this._getAbleViewClassNames(), this.isDragging() ? VIEW_DRAGGING : ""]);
         }
     }
     private _changeAbleViewClassNames(classNames: string[]) {
         const viewContainer = this._viewContainer!;
-        const nextClassNames = groupBy(
-            classNames.filter(Boolean),
-            el => el,
-        ).map(([className]) => className);
+        const nextClassNames = groupBy(classNames.filter(Boolean), (el) => el).map(([className]) => className);
         const prevClassNames = this._viewClassNames;
 
-        const {
-            removed,
-            added,
-        } = diff(prevClassNames, nextClassNames);
+        const { removed, added } = diff(prevClassNames, nextClassNames);
 
-        removed.forEach(index => {
+        removed.forEach((index) => {
             removeClass(viewContainer, prevClassNames[index]);
         });
-        added.forEach(index => {
+        added.forEach((index) => {
             addClass(viewContainer, nextClassNames[index]);
         });
 
         this._viewClassNames = nextClassNames;
-
     }
     private _getAbleViewClassNames() {
-        return (this.getEnabledAbles().map(able => {
-            return (able.viewClassName?.(this) || "");
-        }).join(" ") + ` ${this._getAbleClassName("-view")}`).split(/\s+/g);
+        return (
+            this.getEnabledAbles()
+                .map((able) => {
+                    return able.viewClassName?.(this) || "";
+                })
+                .join(" ") + ` ${this._getAbleClassName("-view")}`
+        ).split(/\s+/g);
     }
     private _getAbleClassName(classPrefix = "") {
         const ables = this.getEnabledAbles();
 
         const targetGesto = this.targetGesto;
         const controlGesto = this.controlGesto;
-        const targetGestoData: Record<string, any> = targetGesto?.isFlag()
-            ? targetGesto.getEventData() : {};
-        const controlGestoData: Record<string, any> = controlGesto?.isFlag()
-            ? controlGesto.getEventData() : {};
+        const targetGestoData: Record<string, any> = targetGesto?.isFlag() ? targetGesto.getEventData() : {};
+        const controlGestoData: Record<string, any> = controlGesto?.isFlag() ? controlGesto.getEventData() : {};
 
-        return ables.map(able => {
-            const name = able.name;
-            let className = able.className?.(this) || "";
+        return ables
+            .map((able) => {
+                const name = able.name;
+                let className = able.className?.(this) || "";
 
-            if (
-                targetGestoData[name]?.isEventStart
-                || controlGestoData[name]?.isEventStart
-            ) {
-                className += ` ${prefix(`${name}${classPrefix}-dragging`)}`;
-            }
-            return className.trim();
-        }).filter(Boolean).join(" ");
+                if (targetGestoData[name]?.isEventStart || controlGestoData[name]?.isEventStart) {
+                    className += ` ${prefix(`${name}${classPrefix}-dragging`)}`;
+                }
+                return className.trim();
+            })
+            .filter(Boolean)
+            .join(" ");
     }
     private _updateResizeObserver(prevProps: MoveableDefaultOptions) {
         const props = this.props;
         const target = props.target;
         const win = getWindow(this.getControlBoxElement());
 
-        if (!win.ResizeObserver || !target || !props.useResizeObserver) {
+        if (!(win as any)?.ResizeObserver || !target || !props.useResizeObserver) {
             this._reiszeObserver?.disconnect();
             return;
         }
@@ -1244,7 +1243,7 @@ export default class MoveableManager<T = {}>
             return;
         }
 
-        const observer = new win.ResizeObserver(this.checkUpdateRect);
+        const observer = new (win as any).ResizeObserver(this.checkUpdateRect);
 
         observer.observe(target!, {
             box: "border-box",
@@ -1256,7 +1255,7 @@ export default class MoveableManager<T = {}>
         const target = props.target;
         const win = getWindow(this.getControlBoxElement());
 
-        if (!win.MutationObserver || !target || !props.useMutationObserver) {
+        if (!(win as any)?.MutationObserver || !target || !props.useMutationObserver) {
             this._mutationObserver?.disconnect();
             return;
         }
@@ -1265,13 +1264,28 @@ export default class MoveableManager<T = {}>
             return;
         }
 
-        const observer = new win.MutationObserver(records => {
-            for (const mutation of records) {
-                if (mutation.type === "attributes" && mutation.attributeName === "style") {
-                    this.checkUpdateRect();
+        interface MutationRecord {
+            type: string;
+            attributeName: string | null;
+        }
+
+        interface MutationObserverCallback {
+            (records: MutationRecord[]): void;
+        }
+
+        interface MutationObserverConstructor {
+            new (callback: MutationObserverCallback): MutationObserver;
+        }
+
+        const observer = new ((win as any).MutationObserver as MutationObserverConstructor)(
+            (records: MutationRecord[]) => {
+                for (const mutation of records) {
+                    if (mutation.type === "attributes" && mutation.attributeName === "style") {
+                        this.checkUpdateRect();
+                    }
                 }
             }
-        });
+        );
 
         observer.observe(target!, {
             attributes: true,

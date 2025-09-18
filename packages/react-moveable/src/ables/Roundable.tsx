@@ -1,36 +1,34 @@
 import {
-    prefix, triggerEvent,
-    fillParams, fillEndParams, calculatePosition,
+    prefix,
+    triggerEvent,
+    fillParams,
+    fillEndParams,
+    calculatePosition,
     fillCSSObject,
     catchEvent,
     getComputedStyle,
 } from "../utils";
 import {
-    Renderer, RoundableProps, OnRoundStart,
-    RoundableState, OnRound, ControlPose, OnRoundEnd,
+    Renderer,
+    RoundableProps,
+    OnRoundStart,
+    RoundableState,
+    OnRound,
+    ControlPose,
+    OnRoundEnd,
     MoveableManagerInterface,
     OnRoundGroup,
     MoveableGroupInterface,
     OnRoundGroupStart,
     OnRoundGroupEnd,
 } from "../types";
-import { splitSpace } from "@daybrush/utils";
+import { splitSpace } from "../utils/";
 import { setDragStart, getDragDist, calculatePointerDist } from "../gesto/GestoUtils";
 import { minus, plus } from "@scena/matrix";
-import {
-    getRadiusValues,
-    getRadiusStyles,
-    splitRadiusPoses,
-} from "./roundable/borderRadius";
+import { getRadiusValues, getRadiusStyles, splitRadiusPoses } from "./roundable/borderRadius";
 import { fillChildEvents } from "../groupUtils";
 
-
-function addBorderRadiusByLine(
-    controlPoses: ControlPose[],
-    lineIndex: number,
-    distX: number,
-    distY: number,
-) {
+function addBorderRadiusByLine(controlPoses: ControlPose[], lineIndex: number, distX: number, distY: number) {
     // lineIndex
     // 0 top
     // 1 right
@@ -87,33 +85,27 @@ function addBorderRadiusByLine(
         controlPoseInfo.pos[1] = distY;
     }
 }
-function addBorderRadius(
-    controlPoses: ControlPose[],
-    index: number,
-) {
+function addBorderRadius(controlPoses: ControlPose[], index: number) {
     if (index < 4) {
-        controlPoses.slice(0, index + 1).forEach(info => {
+        controlPoses.slice(0, index + 1).forEach((info) => {
             info.virtual = false;
         });
     } else {
         if (controlPoses[0].virtual) {
             controlPoses[0].virtual = false;
         }
-        controlPoses.slice(4, index + 1).forEach(info => {
+        controlPoses.slice(4, index + 1).forEach((info) => {
             info.virtual = false;
         });
     }
 }
-function removeBorderRadius(
-    controlPoses: ControlPose[],
-    index: number,
-) {
+function removeBorderRadius(controlPoses: ControlPose[], index: number) {
     if (index < 4) {
-        controlPoses.slice(index, 4).forEach(info => {
+        controlPoses.slice(index, 4).forEach((info) => {
             info.virtual = true;
         });
     } else {
-        controlPoses.slice(index).forEach(info => {
+        controlPoses.slice(index).forEach((info) => {
             info.virtual = true;
         });
     }
@@ -123,7 +115,7 @@ function getBorderRadius(
     width: number,
     height: number,
     minCounts: number[] = [0, 0],
-    full?: boolean,
+    full?: boolean
 ) {
     let values: string[] = [];
 
@@ -141,27 +133,12 @@ function triggerRoundEvent(
     e: any,
     dist: number[],
     delta: number[],
-    nextPoses: ControlPose[],
+    nextPoses: ControlPose[]
 ) {
     const state = moveable.state;
-    const {
-        width,
-        height,
-    } = state;
-    const {
-        raws,
-        styles,
-        radiusPoses,
-    } = getRadiusStyles(
-        nextPoses,
-        moveable.props.roundRelative!,
-        width,
-        height,
-    );
-    const {
-        horizontals,
-        verticals,
-    } = splitRadiusPoses(radiusPoses, raws);
+    const { width, height } = state;
+    const { raws, styles, radiusPoses } = getRadiusStyles(nextPoses, moveable.props.roundRelative!, width, height);
+    const { horizontals, verticals } = splitRadiusPoses(radiusPoses, raws);
     const borderRadius = styles.join(" ");
 
     state.borderRadiusState = borderRadius;
@@ -173,37 +150,35 @@ function triggerRoundEvent(
         height,
         delta,
         dist,
-        ...fillCSSObject({
-            borderRadius,
-        }, e),
+        ...fillCSSObject(
+            {
+                borderRadius,
+            },
+            e
+        ),
     });
     triggerEvent(moveable, "onRound", params);
 
     return params;
 }
 
-
 function getStyleBorderRadius(moveable: MoveableManagerInterface<RoundableProps, RoundableState>) {
-    const {
-        style,
-    } = moveable.getState();
+    const { style } = moveable.getState();
     let borderRadius = style.borderRadius || "";
 
     if (!borderRadius && moveable.props.groupable) {
         const firstMoveable = moveable.moveables![0];
         const firstTarget = moveable.getTargets()[0];
 
-
         if (firstTarget) {
             if (firstMoveable?.props.target === firstTarget) {
                 borderRadius = moveable.moveables![0]?.state.style.borderRadius ?? "";
                 style.borderRadius = borderRadius;
             } else {
-                borderRadius = getComputedStyle(firstTarget).borderRadius;
+                borderRadius = getComputedStyle(firstTarget)?.borderRadius || "";
                 style.borderRadius = borderRadius;
             }
         }
-
     }
     return borderRadius;
 }
@@ -224,14 +199,7 @@ export default {
         "roundPadding",
         "isDisplayShadowRoundControls",
     ] as const,
-    events: [
-        "roundStart",
-        "round",
-        "roundEnd",
-        "roundGroupStart",
-        "roundGroup",
-        "roundGroupEnd",
-    ] as const,
+    events: ["roundStart", "round", "roundEnd", "roundGroupStart", "roundGroup", "roundGroupEnd"] as const,
     css: [
         `.control.border-radius {
 background: #d66;
@@ -262,16 +230,7 @@ cursor: pointer;
         return ["borderRadius"];
     },
     render(moveable: MoveableManagerInterface<RoundableProps, RoundableState>, React: Renderer): any {
-        const {
-            target,
-            width,
-            height,
-            allMatrix,
-            is3d,
-            left,
-            top,
-            borderRadiusState,
-        } = moveable.getState();
+        const { target, width, height, allMatrix, is3d, left, top, borderRadiusState } = moveable.getState();
 
         const {
             minRoundControls = [0, 0],
@@ -288,12 +247,7 @@ cursor: pointer;
 
         const borderRadius = borderRadiusState || getStyleBorderRadius(moveable);
         const n = is3d ? 4 : 3;
-        const radiusValues = getBorderRadius(
-            borderRadius,
-            width, height,
-            minRoundControls,
-            true,
-        );
+        const radiusValues = getBorderRadius(borderRadius, width, height, minRoundControls, true);
 
         if (!radiusValues) {
             return null;
@@ -311,7 +265,6 @@ cursor: pointer;
             horizontalCount += Math.abs(horizontal);
             verticalCount += Math.abs(vertical);
 
-
             if (horizontal && direction.indexOf("n") > -1) {
                 originalPos[1] -= roundPadding;
             }
@@ -325,34 +278,40 @@ cursor: pointer;
                 originalPos[0] += roundPadding;
             }
             const pos = minus(calculatePosition(allMatrix, originalPos, n), basePos);
-            const isDisplayVerticalShadow
-                = isDisplayShadowRoundControls
-                && isDisplayShadowRoundControls !== "horizontal";
+            const isDisplayVerticalShadow =
+                isDisplayShadowRoundControls && isDisplayShadowRoundControls !== "horizontal";
             const isDisplay = v.vertical
                 ? verticalCount <= maxRoundControls[1] && (isDisplayVerticalShadow || !v.virtual)
                 : horizontalCount <= maxRoundControls[0] && (isDisplayShadowRoundControls || !v.virtual);
 
-            return <div key={`borderRadiusControl${i}`}
-                className={prefix(
-                    "control", "border-radius",
-                    v.vertical ? "vertical" : "",
-                    v.virtual ? "virtual" : "",
-                )}
-                data-radius-index={i}
-                style={{
-                    display: isDisplay ? "block" : "none",
-                    transform: `translate(${pos[0]}px, ${pos[1]}px) scale(${zoom})`,
-                }}></div>;
+            return (
+                <div
+                    key={`borderRadiusControl${i}`}
+                    className={prefix(
+                        "control",
+                        "border-radius",
+                        v.vertical ? "vertical" : "",
+                        v.virtual ? "virtual" : ""
+                    )}
+                    data-radius-index={i}
+                    style={{
+                        display: isDisplay ? "block" : "none",
+                        transform: `translate(${pos[0]}px, ${pos[1]}px) scale(${zoom})`,
+                    }}
+                ></div>
+            );
         });
     },
     dragControlCondition(moveable: any, e: any) {
         if (!e.inputEvent || e.isRequest) {
             return false;
         }
-        const className = (e.inputEvent.target.getAttribute("class") || "");
+        const className = e.inputEvent.target.getAttribute("class") || "";
 
-        return className.indexOf("border-radius") > -1
-            || (className.indexOf("moveable-line") > -1 && className.indexOf("moveable-direction") > -1);
+        return (
+            className.indexOf("border-radius") > -1 ||
+            (className.indexOf("moveable-line") > -1 && className.indexOf("moveable-direction") > -1)
+        );
     },
     dragGroupControlCondition(moveable: any, e: any) {
         return this.dragControlCondition(moveable, e);
@@ -360,7 +319,7 @@ cursor: pointer;
     dragControlStart(moveable: MoveableManagerInterface<RoundableProps, RoundableState>, e: any) {
         const { inputEvent, datas } = e;
         const inputTarget = inputEvent.target;
-        const className = (inputTarget.getAttribute("class") || "");
+        const className = inputTarget.getAttribute("class") || "";
         const isControl = className.indexOf("border-radius") > -1;
         const isLine = className.indexOf("moveable-line") > -1 && className.indexOf("moveable-direction") > -1;
         const controlIndex = isControl ? parseInt(inputTarget.getAttribute("data-radius-index"), 10) : -1;
@@ -384,8 +343,7 @@ cursor: pointer;
 
         const params = fillParams<OnRoundStart>(moveable, e, {});
 
-        const result = triggerEvent(
-            moveable, "onRoundStart", params);
+        const result = triggerEvent(moveable, "onRoundStart", params);
 
         if (result === false) {
             return false;
@@ -398,35 +356,18 @@ cursor: pointer;
 
         setDragStart(moveable, e);
 
-        const {
-            roundRelative,
-            minRoundControls = [0, 0],
-        } = moveable.props;
+        const { roundRelative, minRoundControls = [0, 0] } = moveable.props;
         const state = moveable.state;
-        const {
-            width,
-            height,
-        } = state;
+        const { width, height } = state;
 
         datas.isRound = true;
         datas.prevDist = [0, 0];
         const borderRadius = getStyleBorderRadius(moveable);
-        const controlPoses = getBorderRadius(
-            borderRadius || "",
-            width,
-            height,
-            minRoundControls,
-            true,
-        ) || [];
+        const controlPoses = getBorderRadius(borderRadius || "", width, height, minRoundControls, true) || [];
 
         datas.controlPoses = controlPoses;
 
-        state.borderRadiusState = getRadiusStyles(
-            controlPoses,
-            roundRelative!,
-            width,
-            height,
-        ).styles.join(" ");
+        state.borderRadiusState = getRadiusStyles(controlPoses, roundRelative!, width, height).styles.join(" ");
         return params;
     },
     dragControl(moveable: MoveableManagerInterface<RoundableProps, RoundableState>, e: any) {
@@ -441,9 +382,7 @@ cursor: pointer;
         const [distX, distY] = getDragDist(e);
         const dist = [distX, distY];
         const delta = minus(dist, datas.prevDist);
-        const {
-            maxRoundControls = [4, 4],
-        } = moveable.props;
+        const { maxRoundControls = [4, 4] } = moveable.props;
         const { width, height } = moveable.state;
         const selectedControlPose = controlPoses[index];
 
@@ -457,12 +396,9 @@ cursor: pointer;
         // 0: [0] maxCount === 3
         // 1: [1, 3] maxCount === 3
 
-        const dists = controlPoses.map(pose => {
+        const dists = controlPoses.map((pose) => {
             const { horizontal, vertical } = pose;
-            const poseDist = [
-                horizontal * selectedHorizontal * dist[0],
-                vertical * selectedVertical * dist[1],
-            ];
+            const poseDist = [horizontal * selectedHorizontal * dist[0], vertical * selectedVertical * dist[1]];
             if (horizontal) {
                 if (maxRoundControls[0] === 1) {
                     return poseDist;
@@ -470,7 +406,7 @@ cursor: pointer;
                     return poseDist;
                 }
             } else if (maxRoundControls[1] === 0) {
-                poseDist[1] = vertical * selectedHorizontal * dist[0] / width * height;
+                poseDist[1] = ((vertical * selectedHorizontal * dist[0]) / width) * height;
 
                 return poseDist;
             } else if (selectedVertical) {
@@ -492,24 +428,18 @@ cursor: pointer;
         });
 
         if (index < 4) {
-            nextPoses.slice(0, index + 1).forEach(info => {
+            nextPoses.slice(0, index + 1).forEach((info) => {
                 info.virtual = false;
             });
         } else {
-            nextPoses.slice(4, index + 1).forEach(info => {
+            nextPoses.slice(4, index + 1).forEach((info) => {
                 info.virtual = false;
             });
         }
 
         datas.prevDist = [distX, distY];
 
-        return triggerRoundEvent(
-            moveable,
-            e,
-            dist,
-            delta,
-            nextPoses,
-        );
+        return triggerRoundEvent(moveable, e, dist, delta, nextPoses);
     },
     dragControlEnd(moveable: MoveableManagerInterface<RoundableProps, RoundableState>, e: any) {
         const state = moveable.state;
@@ -519,17 +449,10 @@ cursor: pointer;
         if (!datas.isRound) {
             return false;
         }
-        const {
-            isControl,
-            controlIndex,
-            isLine,
-            lineIndex,
-        } = datas;
+        const { isControl, controlIndex, isLine, lineIndex } = datas;
         const controlPoses = datas.controlPoses as ControlPose[];
         const length = controlPoses.filter(({ virtual }) => virtual).length;
-        const {
-            roundClickable = true,
-        } = moveable.props;
+        const { roundClickable = true } = moveable.props;
 
         if (isDouble && roundClickable) {
             if (isControl && (roundClickable === true || roundClickable === "control")) {
@@ -541,13 +464,7 @@ cursor: pointer;
             }
 
             if (length !== controlPoses.filter(({ virtual }) => virtual).length) {
-                triggerRoundEvent(
-                    moveable,
-                    e,
-                    [0, 0],
-                    [0, 0],
-                    controlPoses,
-                );
+                triggerRoundEvent(moveable, e, [0, 0], [0, 0], controlPoses);
             }
         }
         const params = fillEndParams<OnRoundEnd>(moveable, e, {});
@@ -586,7 +503,6 @@ cursor: pointer;
     dragGroupControl(moveable: MoveableGroupInterface<RoundableProps, RoundableState>, e: any) {
         const result = this.dragControl(moveable, e);
 
-
         if (!result) {
             return false;
         }
@@ -603,9 +519,12 @@ cursor: pointer;
                     target: targets[i],
                     moveable: moveables[i],
                     currentTarget: moveables[i],
-                    ...fillCSSObject({
-                        borderRadius: result.borderRadius,
-                    }, ev),
+                    ...fillCSSObject(
+                        {
+                            borderRadius: result.borderRadius,
+                        },
+                        ev
+                    ),
                 };
             }),
             ...result,
@@ -619,7 +538,7 @@ cursor: pointer;
         const targets = moveable.props.targets!;
         const events = fillChildEvents(moveable, "roundable", e);
 
-        catchEvent(moveable, "onRound", parentEvent => {
+        catchEvent(moveable, "onRound", (parentEvent) => {
             const nextParams: OnRoundGroup = {
                 targets: moveable.props.targets!,
                 events: events.map((ev, i) => {
@@ -628,9 +547,12 @@ cursor: pointer;
                         target: targets[i],
                         moveable: moveables[i],
                         currentTarget: moveables[i],
-                        ...fillCSSObject({
-                            borderRadius: parentEvent.borderRadius,
-                        }, ev),
+                        ...fillCSSObject(
+                            {
+                                borderRadius: parentEvent.borderRadius,
+                            },
+                            ev
+                        ),
                     };
                 }),
                 ...parentEvent,
@@ -754,7 +676,6 @@ cursor: pointer;
  * moveable.isDisplayShadowRoundControls = true;
  */
 
-
 /**
  * The padding value of the position of the round control
  * @name Moveable.Roundable#roundPadding
@@ -790,14 +711,13 @@ cursor: pointer;
  * });
  */
 
-
 /**
  * When drag or double click the border area or controls, the `round` event is called.
  * @memberof Moveable.Roundable
  * @event round
  * @param {Moveable.Roundable.OnRound} - Parameters for the `round` event
  * @example
-  * import Moveable from "moveable";
+ * import Moveable from "moveable";
  *
  * const moveable = new Moveable(document.body, {
  *     roundable: true,
@@ -811,7 +731,6 @@ cursor: pointer;
  *     console.log(e);
  * });
  */
-
 
 /**
  * When drag end the border area or controls, the `roundEnd` event is called.
@@ -819,7 +738,7 @@ cursor: pointer;
  * @event roundEnd
  * @param {Moveable.Roundable.onRoundEnd} - Parameters for the `roundEnd` event
  * @example
-  * import Moveable from "moveable";
+ * import Moveable from "moveable";
  *
  * const moveable = new Moveable(document.body, {
  *     roundable: true,
@@ -833,7 +752,6 @@ cursor: pointer;
  *     console.log(e);
  * });
  */
-
 
 /**
  * When drag start the clip area or controls, the `roundGroupStart` event is called.
@@ -858,7 +776,6 @@ cursor: pointer;
  * });
  */
 
-
 /**
  * When drag or double click the border area or controls, the `roundGroup` event is called.
  * @memberof Moveable.Roundable
@@ -881,7 +798,6 @@ cursor: pointer;
  *     console.log(e);
  * });
  */
-
 
 /**
  * When drag end the border area or controls, the `roundGroupEnd` event is called.

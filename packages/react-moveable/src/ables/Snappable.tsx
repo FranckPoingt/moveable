@@ -27,15 +27,8 @@ import {
     abs,
     watchValue,
 } from "../utils";
-import {
-    find,
-    findIndex, hasClass, throttle,
-} from "@daybrush/utils";
-import {
-    getDragDist,
-    scaleMatrix,
-    getPosByDirection,
-} from "../gesto/GestoUtils";
+import { find, findIndex, hasClass, throttle } from "../utils/";
+import { getDragDist, scaleMatrix, getPosByDirection } from "../gesto/GestoUtils";
 import { minus, rotate, plus } from "@scena/matrix";
 import { dragControlCondition as rotatableDragControlCondtion } from "./Rotatable";
 import { FLOAT_POINT_NUM } from "../consts";
@@ -45,47 +38,25 @@ import {
     checkRotateInnerBounds,
     checkInnerBoundPoses,
 } from "./snappable/innerBounds";
-import {
-    checkBoundPoses,
-    checkRotateBounds,
-    getBounds,
-} from "./snappable/bounds";
-import {
-    checkSnaps,
-    getSnapInfosByDirection,
-    getNearOffsetInfo,
-    getCheckSnapDirections,
-} from "./snappable/snap";
-import {
-    renderSnapPoses,
-    renderGuidelines,
-    renderDashedGuidelines,
-    renderGapGuidelines,
-} from "./snappable/render";
-import {
-    getInitialBounds,
-    hasGuidelines,
-} from "./snappable/utils";
-import {
-    checkMaxBounds,
-    checkMoveableSnapBounds,
-    getSnapBoundInfo,
-} from "./snappable/snapBounds";
+import { checkBoundPoses, checkRotateBounds, getBounds } from "./snappable/bounds";
+import { checkSnaps, getSnapInfosByDirection, getNearOffsetInfo, getCheckSnapDirections } from "./snappable/snap";
+import { renderSnapPoses, renderGuidelines, renderDashedGuidelines, renderGapGuidelines } from "./snappable/render";
+import { getInitialBounds, hasGuidelines } from "./snappable/utils";
+import { checkMaxBounds, checkMoveableSnapBounds, getSnapBoundInfo } from "./snappable/snapBounds";
 import { getTotalGuidelines } from "./snappable/getTotalGuidelines";
 import {
-    NAME_snapRotationThreshold, NAME_snapRotationDegrees,
-    NAME_snapHorizontalThreshold, NAME_snapVerticalThreshold,
+    NAME_snapRotationThreshold,
+    NAME_snapRotationDegrees,
+    NAME_snapHorizontalThreshold,
+    NAME_snapVerticalThreshold,
 } from "./snappable/names";
-
 
 export interface SnapPoses {
     vertical: number[];
     horizontal: number[];
 }
 
-export function checkSnapInfo(
-    moveable: MoveableManagerInterface<SnappableProps, SnappableState>
-) {
+export function checkSnapInfo(moveable: MoveableManagerInterface<SnappableProps, SnappableState>) {
     const state = moveable.state;
     const container = state.container;
     const snapContainer = moveable.props.snapContainer || container!;
@@ -160,19 +131,8 @@ export function getSizeOffsetInfo(
     const directions = getCheckSnapDirections(direction, fixedDirection, keepRatio);
     const innerBoundLineInfos = getCheckInnerBoundLineInfos(moveable, poses, direction, keepRatio);
     const offsets = [
-        ...getSnapBoundInfo(
-            moveable,
-            poses,
-            directions,
-            keepRatio,
-            isRequest,
-            datas
-        ),
-        ...getInnerBoundInfo(
-            moveable,
-            innerBoundLineInfos,
-            datas
-        ),
+        ...getSnapBoundInfo(moveable, poses, directions, keepRatio, isRequest, datas),
+        ...getInnerBoundInfo(moveable, innerBoundLineInfos, datas),
     ];
     const widthOffsetInfo = getNearOffsetInfo(offsets, 0);
     const heightOffsetInfo = getNearOffsetInfo(offsets, 1);
@@ -216,14 +176,8 @@ export function recheckSizeByTwoDirection(
             distX: -verticalOffset,
             distY: -horizontalOffset,
         });
-        const nextWidth = Math.min(
-            maxWidth || Infinity,
-            width + direction[0] * nextWidthOffset
-        );
-        const nextHeight = Math.min(
-            maxHeight || Infinity,
-            height + direction[1] * nextHeightOffset
-        );
+        const nextWidth = Math.min(maxWidth || Infinity, width + direction[0] * nextWidthOffset);
+        const nextHeight = Math.min(maxHeight || Infinity, height + direction[1] * nextHeightOffset);
 
         return [nextWidth - width, nextHeight - height];
     }
@@ -248,10 +202,7 @@ export function checkSizeDist(
 
     for (let i = 0; i < 2; ++i) {
         const nextPoses = getNextPoses(widthOffset, heightOffset);
-        const {
-            width: widthOffsetInfo,
-            height: heightOffsetInfo,
-        } = getSizeOffsetInfo(
+        const { width: widthOffsetInfo, height: heightOffsetInfo } = getSizeOffsetInfo(
             moveable,
             nextPoses,
             direction,
@@ -265,7 +216,6 @@ export function checkSizeDist(
         let nextWidthOffset = widthOffsetInfo.offset;
         let nextHeightOffset = heightOffsetInfo.offset;
 
-
         if (i === 1) {
             if (!isWidthBound) {
                 nextWidthOffset = 0;
@@ -278,15 +228,12 @@ export function checkSizeDist(
             return [0, 0];
         }
         if (keepRatio) {
-            const widthDist =
-                abs(nextWidthOffset) * (width ? 1 / width : 1);
-            const heightDist =
-                abs(nextHeightOffset) * (height ? 1 / height : 1);
+            const widthDist = abs(nextWidthOffset) * (width ? 1 / width : 1);
+            const heightDist = abs(nextHeightOffset) * (height ? 1 / height : 1);
             const isGetWidthOffset =
                 isWidthBound && isHeightBound
                     ? widthDist < heightDist
-                    : isHeightBound ||
-                    (!isWidthBound && widthDist < heightDist);
+                    : isHeightBound || (!isWidthBound && widthDist < heightDist);
             if (isGetWidthOffset) {
                 // width : height = ? : heightOffset
                 nextWidthOffset = (width * nextHeightOffset) / height;
@@ -300,17 +247,11 @@ export function checkSizeDist(
     }
 
     if (!keepRatio && direction[0] && direction[1]) {
-        const { maxWidth, maxHeight } = checkMaxBounds(
-            moveable,
-            poses,
-            direction,
-            fixedPosition,
-            datas
-        );
+        const { maxWidth, maxHeight } = checkMaxBounds(moveable, poses, direction, fixedPosition, datas);
 
         const [nextWidthOffset, nextHeightOffset] = recheckSizeByTwoDirection(
             moveable,
-            getNextPoses(widthOffset, heightOffset).map(pos => pos.map(p => throttle(p, FLOAT_POINT_NUM))),
+            getNextPoses(widthOffset, heightOffset).map((pos) => pos.map((p) => throttle(p, FLOAT_POINT_NUM))),
             width + widthOffset,
             height + heightOffset,
             maxWidth,
@@ -329,7 +270,7 @@ export function checkSizeDist(
 
 export function absDegree(deg: number) {
     if (deg < 0) {
-        deg = deg % 360 + 360;
+        deg = (deg % 360) + 360;
     }
     deg %= 360;
     return deg;
@@ -342,7 +283,6 @@ export function bumpDegree(baseDeg: number, snapDeg: number) {
     snapDeg = absDegree(snapDeg);
 
     const count = Math.floor(baseDeg / 360);
-
 
     const deg1 = count * 360 + 360 - snapDeg;
     const deg2 = count * 360 + snapDeg;
@@ -363,7 +303,7 @@ export function checkSnapRotate(
     moveable: MoveableManagerInterface<SnappableProps & RotatableProps, any>,
     rect: RectInfo,
     dist: number,
-    rotation: number,
+    rotation: number
 ) {
     const props = moveable.props;
     const snapRotationThreshold = props[NAME_snapRotationThreshold] ?? 5;
@@ -379,13 +319,7 @@ export function checkSnapRotate(
         // console.log(pos1, pos2, pos3, pos4, origin, rad, prevPoses, nextPoses);
         const result = [
             ...checkRotateBounds(moveable, prevPoses, nextPoses, origin2, dist),
-            ...checkRotateInnerBounds(
-                moveable,
-                prevPoses,
-                nextPoses,
-                origin2,
-                dist
-            ),
+            ...checkRotateInnerBounds(moveable, prevPoses, nextPoses, origin2, dist),
         ];
         result.sort((a, b) => abs(a - dist) - abs(b - dist));
         const isSnap = result.length > 0;
@@ -398,15 +332,12 @@ export function checkSnapRotate(
         }
     }
     if (snapRotationDegrees?.length && snapRotationThreshold) {
-
-
         const sorted = snapRotationDegrees.slice().sort((a, b) => {
             return getMinDegreeDistance(a, rotation) - getMinDegreeDistance(b, rotation);
         });
         const firstDegree = sorted[0];
 
         if (getMinDegreeDistance(firstDegree, rotation) <= snapRotationThreshold) {
-
             return {
                 isSnap: true,
                 dist: dist + bumpDegree(rotation, firstDegree) - rotation,
@@ -417,7 +348,6 @@ export function checkSnapRotate(
         isSnap: false,
         dist,
     };
-
 }
 
 export function checkSnapResize(
@@ -470,10 +400,7 @@ export function checkSnapScale(
         moveable,
         (widthOffset: number, heightOffset: number) => {
             return getNextFixedPoses(
-                scaleMatrix(
-                    datas,
-                    plus(scale, [widthOffset / startOffsetWidth, heightOffset / startOffsetHeight]),
-                ),
+                scaleMatrix(datas, plus(scale, [widthOffset / startOffsetWidth, heightOffset / startOffsetHeight])),
                 startOffsetWidth,
                 startOffsetHeight,
                 fixedDirection,
@@ -491,21 +418,16 @@ export function checkSnapScale(
     return [sizeDist[0] / startOffsetWidth, sizeDist[1] / startOffsetHeight];
 }
 
-export function startCheckSnapDrag(
-    moveable: MoveableManagerInterface<any, any>,
-    datas: any
-) {
+export function startCheckSnapDrag(moveable: MoveableManagerInterface<any, any>, datas: any) {
     datas.absolutePoses = getAbsolutePosesByState(moveable.state);
 }
 
-
-
 function getSnapGuidelines(posInfos: SnapPosInfo[]) {
-    const guidelines: Array<{ guideline: SnapGuideline, posInfo: SnapPosInfo }> = [];
+    const guidelines: Array<{ guideline: SnapGuideline; posInfo: SnapPosInfo }> = [];
 
     posInfos.forEach((posInfo) => {
         posInfo.guidelineInfos.forEach(({ guideline }) => {
-            if (find(guidelines, info => info.guideline === guideline)) {
+            if (find(guidelines, (info) => info.guideline === guideline)) {
                 return;
             }
             guideline.direction = "";
@@ -529,17 +451,13 @@ function addBoundGuidelines(
     horizontalSnapPoses: SnappableRenderType[],
     externalBounds?: BoundType | false | null
 ) {
-    const {
-        vertical: verticalBoundInfos,
-        horizontal: horizontalBoundInfos,
-    } = checkBoundPoses(
+    const { vertical: verticalBoundInfos, horizontal: horizontalBoundInfos } = checkBoundPoses(
         getBounds(moveable, externalBounds),
         verticalPoses,
         horizontalPoses
     );
 
     const boundMap = getInitialBounds();
-
 
     verticalBoundInfos.forEach((info) => {
         if (info.isBound) {
@@ -576,12 +494,7 @@ function addBoundGuidelines(
     } = checkInnerBoundPoses(moveable);
 
     verticalInnerBoundPoses.forEach((innerPos) => {
-        if (
-            findIndex(
-                verticalSnapPoses,
-                ({ type, pos }) => type === "bounds" && pos === innerPos
-            ) >= 0
-        ) {
+        if (findIndex(verticalSnapPoses, ({ type, pos }) => type === "bounds" && pos === innerPos) >= 0) {
             return;
         }
         verticalSnapPoses.push({
@@ -591,12 +504,7 @@ function addBoundGuidelines(
     });
 
     horizontalInnerBoundPoses.forEach((innerPos) => {
-        if (
-            findIndex(
-                horizontalSnapPoses,
-                ({ type, pos }) => type === "bounds" && pos === innerPos
-            ) >= 0
-        ) {
+        if (findIndex(horizontalSnapPoses, ({ type, pos }) => type === "bounds" && pos === innerPos) >= 0) {
             return;
         }
         horizontalSnapPoses.push({
@@ -612,8 +520,6 @@ function addBoundGuidelines(
 }
 
 const directionCondition = getDirectionCondition("", ["resizable", "scalable"]);
-
-
 
 /**
  * @namespace Moveable.Snappable
@@ -698,42 +604,18 @@ color: #f55;
 }
 `,
     ],
-    render(
-        moveable: MoveableManagerInterface<SnappableProps, SnappableState>,
-        React: Renderer
-    ): any[] {
+    render(moveable: MoveableManagerInterface<SnappableProps, SnappableState>, React: Renderer): any[] {
         const state = moveable.state;
-        const {
-            top: targetTop,
-            left: targetLeft,
-            pos1,
-            pos2,
-            pos3,
-            pos4,
-            snapRenderInfo,
-        } = state;
-        const {
-            snapRenderThreshold = 1,
-        } = moveable.props;
+        const { top: targetTop, left: targetLeft, pos1, pos2, pos3, pos4, snapRenderInfo } = state;
+        const { snapRenderThreshold = 1 } = moveable.props;
 
         if (!snapRenderInfo || !snapRenderInfo.render || !hasGuidelines(moveable, "")) {
             // reset store
-            watchValue(
-                moveable,
-                "boundMap",
-                getInitialBounds(),
-                v => JSON.stringify(v),
-            );
-            watchValue(
-                moveable,
-                "innerBoundMap",
-                getInitialBounds(),
-                v => JSON.stringify(v),
-            );
+            watchValue(moveable, "boundMap", getInitialBounds(), (v) => JSON.stringify(v));
+            watchValue(moveable, "innerBoundMap", getInitialBounds(), (v) => JSON.stringify(v));
             return [];
         }
         state.guidelines = getTotalGuidelines(moveable);
-
 
         const minLeft = Math.min(pos1[0], pos2[0], pos3[0], pos4[0]);
         const minTop = Math.min(pos1[1], pos2[1], pos3[1], pos4[1]);
@@ -750,9 +632,7 @@ color: #f55;
         const { width, height, top, left, bottom, right } = getRect(poses);
         const targetRect = { left, right, top, bottom, center: (left + right) / 2, middle: (top + bottom) / 2 };
         const hasExternalPoses = externalPoses.length > 0;
-        const externalRect = hasExternalPoses
-            ? getRect(externalPoses)
-            : ({} as ReturnType<typeof getRect>);
+        const externalRect = hasExternalPoses ? getRect(externalPoses) : ({} as ReturnType<typeof getRect>);
 
         if (!snapRenderInfo.request) {
             if (snapRenderInfo.direction) {
@@ -762,7 +642,7 @@ color: #f55;
                         poses,
                         snapRenderInfo.direction,
                         snapRenderThreshold,
-                        snapRenderThreshold,
+                        snapRenderThreshold
                     )
                 );
             }
@@ -776,10 +656,8 @@ color: #f55;
             }
             if (hasExternalPoses) {
                 if (snapRenderInfo.center) {
-                    (externalRect as any).middle =
-                        (externalRect.top + externalRect.bottom) / 2;
-                    (externalRect as any).center =
-                        (externalRect.left + externalRect.right) / 2;
+                    (externalRect as any).middle = (externalRect.top + externalRect.bottom) / 2;
+                    (externalRect as any).center = (externalRect.left + externalRect.right) / 2;
                 }
                 snapInfos.push(checkSnaps(moveable, externalRect, snapRenderThreshold, snapRenderThreshold));
             }
@@ -789,24 +667,30 @@ color: #f55;
                     horizontal: { posInfos: horizontalPosInfos },
                 } = snapInfo;
                 verticalSnapPoses.push(
-                    ...verticalPosInfos.filter(({ guidelineInfos }) => {
-                        return guidelineInfos.some(({ guideline }) => !guideline.hide);
-                    }).map(
-                        (posInfo) => ({
-                            type: "snap",
-                            pos: posInfo.pos,
-                        } as const)
-                    )
+                    ...verticalPosInfos
+                        .filter(({ guidelineInfos }) => {
+                            return guidelineInfos.some(({ guideline }) => !guideline.hide);
+                        })
+                        .map(
+                            (posInfo) =>
+                                ({
+                                    type: "snap",
+                                    pos: posInfo.pos,
+                                } as const)
+                        )
                 );
                 horizontalSnapPoses.push(
-                    ...horizontalPosInfos.filter(({ guidelineInfos }) => {
-                        return guidelineInfos.some(({ guideline }) => !guideline.hide);
-                    }).map(
-                        (posInfo) => ({
-                            type: "snap",
-                            pos: posInfo.pos,
-                        } as const)
-                    )
+                    ...horizontalPosInfos
+                        .filter(({ guidelineInfos }) => {
+                            return guidelineInfos.some(({ guideline }) => !guideline.hide);
+                        })
+                        .map(
+                            (posInfo) =>
+                                ({
+                                    type: "snap",
+                                    pos: posInfo.pos,
+                                } as const)
+                        )
                 );
 
                 verticalGuidelines.push(...getSnapGuidelines(verticalPosInfos));
@@ -814,10 +698,7 @@ color: #f55;
             });
         }
 
-        const {
-            boundMap,
-            innerBoundMap,
-        } = addBoundGuidelines(
+        const { boundMap, innerBoundMap } = addBoundGuidelines(
             moveable,
             [left, right],
             [top, bottom],
@@ -835,10 +716,12 @@ color: #f55;
             );
         }
         const allGuidelines = [...verticalGuidelines, ...horizontalGuidelines];
-        const elementGuidelines = allGuidelines.filter(guideline => guideline.element && !guideline.gapRects);
-        const gapGuidelines = allGuidelines.filter(guideline => guideline.gapRects).sort((a, b) => {
-            return a.gap! - b.gap!;
-        });
+        const elementGuidelines = allGuidelines.filter((guideline) => guideline.element && !guideline.gapRects);
+        const gapGuidelines = allGuidelines
+            .filter((guideline) => guideline.gapRects)
+            .sort((a, b) => {
+                return a.gap! - b.gap!;
+            });
 
         triggerEvent(
             moveable,
@@ -851,19 +734,13 @@ color: #f55;
             true
         );
 
-        const nextBoundMap = watchValue(
-            moveable,
-            "boundMap",
-            boundMap,
-            v => JSON.stringify(v),
-            getInitialBounds(),
-        );
+        const nextBoundMap = watchValue(moveable, "boundMap", boundMap, (v) => JSON.stringify(v), getInitialBounds());
         const nextInnerBoundMap = watchValue(
             moveable,
             "innerBoundMap",
             innerBoundMap,
-            v => JSON.stringify(v),
-            getInitialBounds(),
+            (v) => JSON.stringify(v),
+            getInitialBounds()
         );
 
         if (boundMap === nextBoundMap || innerBoundMap === nextInnerBoundMap) {
@@ -878,24 +755,10 @@ color: #f55;
             );
         }
 
-
-
         // verticalSnapPoses.
         return [
-            ...renderDashedGuidelines(
-                moveable,
-                elementGuidelines,
-                [minLeft, minTop],
-                targetRect,
-                React,
-            ),
-            ...renderGapGuidelines(
-                moveable,
-                gapGuidelines,
-                [minLeft, minTop],
-                targetRect,
-                React,
-            ),
+            ...renderDashedGuidelines(moveable, elementGuidelines, [minLeft, minTop], targetRect, React),
+            ...renderGapGuidelines(moveable, gapGuidelines, [minLeft, minTop], targetRect, React),
             ...renderGuidelines(
                 moveable,
                 "horizontal",
@@ -904,40 +767,12 @@ color: #f55;
                 targetRect,
                 React
             ),
-            ...renderGuidelines(
-                moveable,
-                "vertical",
-                verticalGuidelines,
-                [targetLeft, targetTop],
-                targetRect,
-                React
-            ),
-            ...renderSnapPoses(
-                moveable,
-                "horizontal",
-                horizontalSnapPoses,
-                minLeft,
-                targetTop,
-                width,
-                0,
-                React
-            ),
-            ...renderSnapPoses(
-                moveable,
-                "vertical",
-                verticalSnapPoses,
-                minTop,
-                targetLeft,
-                height,
-                1,
-                React
-            ),
+            ...renderGuidelines(moveable, "vertical", verticalGuidelines, [targetLeft, targetTop], targetRect, React),
+            ...renderSnapPoses(moveable, "horizontal", horizontalSnapPoses, minLeft, targetTop, width, 0, React),
+            ...renderSnapPoses(moveable, "vertical", verticalSnapPoses, minTop, targetLeft, height, 1, React),
         ];
     },
-    dragStart(
-        moveable: MoveableManagerInterface<SnappableProps, SnappableState>,
-        e: any
-    ) {
+    dragStart(moveable: MoveableManagerInterface<SnappableProps, SnappableState>, e: any) {
         moveable.state.snapRenderInfo = {
             request: e.isRequest,
             snap: true,
@@ -945,9 +780,7 @@ color: #f55;
         };
         checkSnapInfo(moveable);
     },
-    drag(
-        moveable: MoveableManagerInterface<SnappableProps, SnappableState>
-    ) {
+    drag(moveable: MoveableManagerInterface<SnappableProps, SnappableState>) {
         const state = moveable.state;
         if (!checkSnapInfo(moveable)) {
             state.guidelines = getTotalGuidelines(moveable);
@@ -956,14 +789,10 @@ color: #f55;
             state.snapRenderInfo.render = true;
         }
     },
-    pinchStart(
-        moveable: MoveableManagerInterface<SnappableProps, SnappableState>
-    ) {
+    pinchStart(moveable: MoveableManagerInterface<SnappableProps, SnappableState>) {
         this.unset(moveable);
     },
-    dragEnd(
-        moveable: MoveableManagerInterface<SnappableProps, SnappableState>
-    ) {
+    dragEnd(moveable: MoveableManagerInterface<SnappableProps, SnappableState>) {
         this.unset(moveable);
     },
     dragControlCondition(moveable: MoveableManagerInterface, e: any) {
@@ -974,49 +803,33 @@ color: #f55;
             return hasClass(e.inputEvent.target, prefix("snap-control"));
         }
     },
-    dragControlStart(
-        moveable: MoveableManagerInterface<SnappableProps, SnappableState>
-    ) {
+    dragControlStart(moveable: MoveableManagerInterface<SnappableProps, SnappableState>) {
         moveable.state.snapRenderInfo = null;
         checkSnapInfo(moveable);
     },
-    dragControl(
-        moveable: MoveableManagerInterface<SnappableProps, SnappableState>
-    ) {
+    dragControl(moveable: MoveableManagerInterface<SnappableProps, SnappableState>) {
         this.drag(moveable);
     },
-    dragControlEnd(
-        moveable: MoveableManagerInterface<SnappableProps, SnappableState>
-    ) {
+    dragControlEnd(moveable: MoveableManagerInterface<SnappableProps, SnappableState>) {
         this.unset(moveable);
     },
     dragGroupStart(moveable: any, e: any) {
         this.dragStart(moveable, e);
     },
-    dragGroup(
-        moveable: MoveableGroupInterface<SnappableProps, SnappableState>
-    ) {
+    dragGroup(moveable: MoveableGroupInterface<SnappableProps, SnappableState>) {
         this.drag(moveable);
     },
-    dragGroupEnd(
-        moveable: MoveableGroupInterface<SnappableProps, SnappableState>
-    ) {
+    dragGroupEnd(moveable: MoveableGroupInterface<SnappableProps, SnappableState>) {
         this.unset(moveable);
     },
-    dragGroupControlStart(
-        moveable: MoveableGroupInterface<SnappableProps, SnappableState>
-    ) {
+    dragGroupControlStart(moveable: MoveableGroupInterface<SnappableProps, SnappableState>) {
         moveable.state.snapRenderInfo = null;
         checkSnapInfo(moveable);
     },
-    dragGroupControl(
-        moveable: MoveableManagerInterface<SnappableProps, SnappableState>
-    ) {
+    dragGroupControl(moveable: MoveableManagerInterface<SnappableProps, SnappableState>) {
         this.drag(moveable);
     },
-    dragGroupControlEnd(
-        moveable: MoveableGroupInterface<SnappableProps, SnappableState>
-    ) {
+    dragGroupControlEnd(moveable: MoveableGroupInterface<SnappableProps, SnappableState>) {
         this.unset(moveable);
     },
     unset(moveable: any) {
@@ -1028,7 +841,6 @@ color: #f55;
         state.elementRects = [];
     },
 };
-
 
 /**
  * Whether or not target can be snapped to the guideline. (default: false)
@@ -1226,7 +1038,6 @@ color: #f55;
  *
  * moveable.isDisplayInnerSnapDigit = true;
  */
-
 
 /**
  * You can set the text format of the distance shown in the guidelines. (default: self)

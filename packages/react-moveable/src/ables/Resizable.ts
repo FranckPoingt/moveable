@@ -21,27 +21,30 @@ import {
     getNextTransforms,
 } from "../gesto/GestoUtils";
 import {
-    ResizableProps, OnResizeGroup, OnResizeGroupEnd,
-    OnResizeGroupStart, DraggableProps, OnDrag, OnResizeStart, SnappableState,
-    OnResize, OnResizeEnd, MoveableManagerInterface, MoveableGroupInterface, SnappableProps,
-    OnBeforeResize, OnBeforeResizeGroup, ResizableRequestParam,
+    ResizableProps,
+    OnResizeGroup,
+    OnResizeGroupEnd,
+    OnResizeGroupStart,
+    DraggableProps,
+    OnDrag,
+    OnResizeStart,
+    SnappableState,
+    OnResize,
+    OnResizeEnd,
+    MoveableManagerInterface,
+    MoveableGroupInterface,
+    SnappableProps,
+    OnBeforeResize,
+    OnBeforeResizeGroup,
+    ResizableRequestParam,
 } from "../types";
 import { getRenderDirections } from "../renderDirections";
-import {
-    fillChildEvents,
-    startChildDist,
-    triggerChildAbles,
-} from "../groupUtils";
+import { fillChildEvents, startChildDist, triggerChildAbles } from "../groupUtils";
 import Draggable from "./Draggable";
 import { calculate, convertDimension, createRotateMatrix, plus } from "@scena/matrix";
 import CustomGesto, { setCustomDrag } from "../gesto/CustomGesto";
 import { checkSnapResize } from "./Snappable";
-import {
-    calculateBoundSize,
-    isString, convertUnitSize,
-    throttle,
-    isNumber,
-} from "@daybrush/utils";
+import { calculateBoundSize, isString, convertUnitSize, throttle, isNumber } from "../utils/";
 import { TINY_NUM } from "../consts";
 import { parseMat } from "css-to-mat";
 import { getFixedDirectionInfo, getOffsetFixedPositionInfo } from "../utils/getFixedDirection";
@@ -82,27 +85,11 @@ export default {
     render: getRenderDirections("resizable"),
     dragControlCondition: directionCondition,
     viewClassName: getDirectionViewClassName("resizable"),
-    dragControlStart(
-        moveable: MoveableManagerInterface<ResizableProps & DraggableProps, SnappableState>,
-        e: any,
-    ) {
-        const {
-            inputEvent,
-            isPinch,
-            isGroup,
-            parentDirection,
-            parentGesto,
-            datas,
-            parentFixedDirection,
-            parentEvent,
-        } = e;
+    dragControlStart(moveable: MoveableManagerInterface<ResizableProps & DraggableProps, SnappableState>, e: any) {
+        const { inputEvent, isPinch, isGroup, parentDirection, parentGesto, datas, parentFixedDirection, parentEvent } =
+            e;
 
-        const direction = getTotalDirection(
-            parentDirection,
-            isPinch,
-            inputEvent,
-            datas,
-        );
+        const direction = getTotalDirection(parentDirection, isPinch, inputEvent, datas);
 
         const state = moveable.state;
         const { target, width, height, gestos } = state;
@@ -125,26 +112,18 @@ export default {
 
         datas.minSize = [0, 0];
 
-
         datas.startWidth = state.inlineCSSWidth || state.cssWidth;
         datas.startHeight = state.inlineCSSHeight || state.cssHeight;
         datas.maxSize = [Infinity, Infinity];
 
         if (!isGroup) {
-            datas.minSize = [
-                state.minOffsetWidth,
-                state.minOffsetHeight,
-            ];
-            datas.maxSize = [
-                state.maxOffsetWidth,
-                state.maxOffsetHeight,
-            ];
+            datas.minSize = [state.minOffsetWidth, state.minOffsetHeight];
+            datas.maxSize = [state.maxOffsetWidth, state.maxOffsetHeight];
         }
         const transformOrigin = moveable.props.transformOrigin || "% %";
 
-        datas.transformOrigin = transformOrigin && isString(transformOrigin)
-            ? transformOrigin.split(" ")
-            : transformOrigin;
+        datas.transformOrigin =
+            transformOrigin && isString(transformOrigin) ? transformOrigin.split(" ") : transformOrigin;
 
         datas.startOffsetMatrix = state.offsetMatrix;
         datas.startTransformOrigin = state.transformOrigin;
@@ -154,7 +133,6 @@ export default {
         function setRatio(ratio: number) {
             datas.ratio = ratio && isFinite(ratio) ? ratio : 0;
         }
-
 
         datas.startPositions = getAbsolutePosesByState(moveable.state);
 
@@ -172,17 +150,11 @@ export default {
             datas.fixedPosition = result.fixedPosition;
             datas.fixedOffset = result.fixedOffset;
         }
-        function setMin(minSize: Array<string | number>)  {
-            datas.minSize = [
-                convertUnitSize(`${minSize[0]}`, 0) || 0,
-                convertUnitSize(`${minSize[1]}`, 0) || 0,
-            ];
+        function setMin(minSize: Array<string | number>) {
+            datas.minSize = [convertUnitSize(`${minSize[0]}`, 0) || 0, convertUnitSize(`${minSize[1]}`, 0) || 0];
         }
         function setMax(maxSize: Array<string | number>) {
-            const nextMaxSize = [
-                maxSize[0] || Infinity,
-                maxSize[1] || Infinity,
-            ];
+            const nextMaxSize = [maxSize[0] || Infinity, maxSize[1] || Infinity];
             if (!isNumber(nextMaxSize[0]) || isFinite(nextMaxSize[0])) {
                 nextMaxSize[0] = convertUnitSize(`${nextMaxSize[0]}`, 0) || Infinity;
             }
@@ -214,10 +186,7 @@ export default {
             setOrigin: (origin: Array<string | number>) => {
                 datas.transformOrigin = origin;
             },
-            dragStart: Draggable.dragStart(
-                moveable,
-                new CustomGesto().dragStart([0, 0], e),
-            ),
+            dragStart: Draggable.dragStart(moveable, new CustomGesto().dragStart([0, 0], e)),
         });
         const result = parentEvent || triggerEvent(moveable, "onResizeStart", params);
 
@@ -232,10 +201,7 @@ export default {
         }
         return datas.isResize ? params : false;
     },
-    dragControl(
-        moveable: MoveableManagerInterface<ResizableProps & DraggableProps & SnappableProps>,
-        e: any,
-    ) {
+    dragControl(moveable: MoveableManagerInterface<ResizableProps & DraggableProps & SnappableProps>, e: any) {
         const {
             datas,
             parentFlag,
@@ -269,13 +235,8 @@ export default {
             return;
         }
         if (resolveMatrix) {
-            const {
-                is3d,
-            } = moveable.state;
-            const {
-                startOffsetMatrix,
-                startTransformOrigin,
-            } = datas;
+            const { is3d } = moveable.state;
+            const { startOffsetMatrix, startTransformOrigin } = datas;
             const n = is3d ? 4 : 3;
             let targetMatrix = parseMat(getNextTransforms(e));
             const targetN = Math.sqrt(targetMatrix.length);
@@ -284,12 +245,7 @@ export default {
                 targetMatrix = convertDimension(targetMatrix, targetN, n);
             }
 
-            const nextAllMatrix = getNextMatrix(
-                startOffsetMatrix,
-                targetMatrix,
-                startTransformOrigin,
-                n,
-            );
+            const nextAllMatrix = getNextMatrix(startOffsetMatrix, targetMatrix, startTransformOrigin, n);
             const poses = calculatePoses(nextAllMatrix, startOffsetWidth, startOffsetHeight, n);
 
             datas.startPositions = poses;
@@ -297,12 +253,7 @@ export default {
             datas.nextAllMatrix = nextAllMatrix;
         }
         const props = getProps(moveable.props, "resizable");
-        const {
-            resizeFormat,
-            throttleResize = parentFlag ? 0 : 1,
-            parentMoveable,
-            keepRatioFinally,
-        } = props;
+        const { resizeFormat, throttleResize = parentFlag ? 0 : 1, parentMoveable, keepRatioFinally } = props;
         const direction = datas.direction;
         let sizeDirection = direction;
         let distWidth = 0;
@@ -320,10 +271,14 @@ export default {
             distWidth = nextSize.distWidth;
             distHeight = nextSize.distHeight;
 
-            let nextWidth = (sizeDirection[0] - fixedDirection[0]) || keepRatio
-                ? Math.max(startOffsetWidth + distWidth, TINY_NUM) : startOffsetWidth;
-            let nextHeight = (sizeDirection[1] - fixedDirection[1]) || keepRatio
-                ? Math.max(startOffsetHeight + distHeight, TINY_NUM) : startOffsetHeight;
+            let nextWidth =
+                sizeDirection[0] - fixedDirection[0] || keepRatio
+                    ? Math.max(startOffsetWidth + distWidth, TINY_NUM)
+                    : startOffsetWidth;
+            let nextHeight =
+                sizeDirection[1] - fixedDirection[1] || keepRatio
+                    ? Math.max(startOffsetHeight + distHeight, TINY_NUM)
+                    : startOffsetHeight;
 
             if (keepRatio && startOffsetWidth && startOffsetHeight) {
                 // startOffsetWidth : startOffsetHeight = nextWidth : nextHeight
@@ -341,29 +296,38 @@ export default {
         if (!parentEvent) {
             datas.setFixedDirection(datas.fixedDirection);
 
-            triggerEvent(moveable, "onBeforeResize", fillParams<OnBeforeResize>(moveable, e, {
-                startFixedDirection: datas.startFixedDirection,
-                startFixedPosition: datas.startFixedPosition,
-                setFixedDirection(nextFixedDirection: number[]) {
-                    datas.setFixedDirection(nextFixedDirection);
+            triggerEvent(
+                moveable,
+                "onBeforeResize",
+                fillParams<OnBeforeResize>(
+                    moveable,
+                    e,
+                    {
+                        startFixedDirection: datas.startFixedDirection,
+                        startFixedPosition: datas.startFixedPosition,
+                        setFixedDirection(nextFixedDirection: number[]) {
+                            datas.setFixedDirection(nextFixedDirection);
 
-                    [boundingWidth, boundingHeight] = getNextBoundingSize();
+                            [boundingWidth, boundingHeight] = getNextBoundingSize();
 
-                    return [boundingWidth, boundingHeight];
-                },
-                setFixedPosition(nextFixedPosition: number[]) {
-                    datas.setFixedPosition(nextFixedPosition);
+                            return [boundingWidth, boundingHeight];
+                        },
+                        setFixedPosition(nextFixedPosition: number[]) {
+                            datas.setFixedPosition(nextFixedPosition);
 
-                    [boundingWidth, boundingHeight] = getNextBoundingSize();
+                            [boundingWidth, boundingHeight] = getNextBoundingSize();
 
-                    return [boundingWidth, boundingHeight];
-                },
-                boundingWidth,
-                boundingHeight,
-                setSize(size: number[]) {
-                    [boundingWidth, boundingHeight] = size;
-                },
-            }, true));
+                            return [boundingWidth, boundingHeight];
+                        },
+                        boundingWidth,
+                        boundingHeight,
+                        setSize(size: number[]) {
+                            [boundingWidth, boundingHeight] = size;
+                        },
+                    },
+                    true
+                )
+            );
         }
 
         let fixedPosition = dragClient;
@@ -386,7 +350,7 @@ export default {
                 direction,
                 fixedPosition,
                 !useSnap && isRequest,
-                datas,
+                datas
             );
         }
         if (parentDist) {
@@ -415,17 +379,13 @@ export default {
                 // pre-compute before maintaining the ratio
                 computeSize();
             }
-            if (
-                (sizeDirection[0] && !sizeDirection[1])
-                || (snapDist[0] && !snapDist[1])
-                || (isNoSnap && isWidth)
-            ) {
+            if ((sizeDirection[0] && !sizeDirection[1]) || (snapDist[0] && !snapDist[1]) || (isNoSnap && isWidth)) {
                 boundingWidth += snapDist[0];
                 boundingHeight = boundingWidth / ratio;
             } else if (
-                (!sizeDirection[0] && sizeDirection[1])
-                || (!snapDist[0] && snapDist[1])
-                || (isNoSnap && !isWidth)
+                (!sizeDirection[0] && sizeDirection[1]) ||
+                (!snapDist[0] && snapDist[1]) ||
+                (isNoSnap && !isWidth)
             ) {
                 boundingHeight += snapDist[1];
                 boundingWidth = boundingHeight * ratio;
@@ -442,7 +402,7 @@ export default {
             [boundingWidth, boundingHeight],
             minSize,
             maxSize,
-            keepRatio ? ratio : false,
+            keepRatio ? ratio : false
         );
         computeSize();
 
@@ -467,15 +427,15 @@ export default {
             boundingHeight,
             fixedPosition,
             transformOrigin,
-            datas,
+            datas
         );
 
-        if (!parentMoveable && delta.every(num => !num) && inverseDelta.every(num => !num)) {
+        if (!parentMoveable && delta.every((num) => !num) && inverseDelta.every((num) => !num)) {
             return;
         }
         const drag = Draggable.drag(
             moveable,
-            setCustomDrag(e, moveable.state, inverseDelta, !!isPinch, false, "draggable"),
+            setCustomDrag(e, moveable.state, inverseDelta, !!isPinch, false, "draggable")
         ) as OnDrag;
         const transform = drag.transform;
 
@@ -495,37 +455,29 @@ export default {
             delta,
             isPinch: !!isPinch,
             drag,
-            ...fillAfterTransform({
-                style: {
-                    width: `${nextWidth}px`,
-                    height: `${nextHeight}px`,
+            ...fillAfterTransform(
+                {
+                    style: {
+                        width: `${nextWidth}px`,
+                        height: `${nextHeight}px`,
+                    },
+                    transform,
                 },
-                transform,
-            }, drag, e),
+                drag,
+                e
+            ),
         });
         !parentEvent && triggerEvent(moveable, "onResize", params);
         return params;
     },
-    dragControlAfter(
-        moveable: MoveableManagerInterface<ResizableProps & DraggableProps>,
-        e: any,
-    ) {
+    dragControlAfter(moveable: MoveableManagerInterface<ResizableProps & DraggableProps>, e: any) {
         const datas = e.datas;
-        const {
-            isResize,
-            startOffsetWidth,
-            startOffsetHeight,
-            prevWidth,
-            prevHeight,
-        } = datas;
+        const { isResize, startOffsetWidth, startOffsetHeight, prevWidth, prevHeight } = datas;
 
         if (!isResize || moveable.props.checkResizableError === false) {
             return;
         }
-        const {
-            width,
-            height,
-        } = moveable.state;
+        const { width, height } = moveable.state;
         const errorWidth = width - (startOffsetWidth + prevWidth);
         const errorHeight = height - (startOffsetHeight + prevHeight);
         const isErrorWidth = abs(errorWidth) > 3;
@@ -545,10 +497,7 @@ export default {
             return this.dragControl(moveable, e);
         }
     },
-    dragControlEnd(
-        moveable: MoveableManagerInterface<ResizableProps & DraggableProps>,
-        e: any,
-    ) {
+    dragControlEnd(moveable: MoveableManagerInterface<ResizableProps & DraggableProps>, e: any) {
         const { datas, parentEvent } = e;
         if (!datas.isResize) {
             return;
@@ -562,30 +511,27 @@ export default {
     dragGroupControlCondition: directionCondition,
     dragGroupControlStart(moveable: MoveableGroupInterface<any, any>, e: any) {
         const { datas } = e;
-        const params = this.dragControlStart(moveable, {...e, isGroup: true });
+        const params = this.dragControlStart(moveable, { ...e, isGroup: true });
 
         if (!params) {
             return false;
         }
         const originalEvents = fillChildEvents(moveable, "resizable", e);
-        const {
-            startOffsetWidth: parentStartOffsetWidth,
-            startOffsetHeight: parentStartOffsetHeight,
-        } = datas;
+        const { startOffsetWidth: parentStartOffsetWidth, startOffsetHeight: parentStartOffsetHeight } = datas;
 
         function updateGroupMin() {
             const originalMinSize = datas.minSize;
-            originalEvents.forEach(ev => {
+            originalEvents.forEach((ev) => {
                 const {
                     minSize: childMinSize,
                     startOffsetWidth: childStartOffsetWidth,
                     startOffsetHeight: childStartOffsetHeight,
                 } = ev.datas;
 
-                const parentMinWidth = parentStartOffsetWidth
-                    * (childStartOffsetWidth ? childMinSize[0] / childStartOffsetWidth : 0);
-                const parentMinHeight = parentStartOffsetHeight
-                    * (childStartOffsetHeight ? childMinSize[1] / childStartOffsetHeight : 0);
+                const parentMinWidth =
+                    parentStartOffsetWidth * (childStartOffsetWidth ? childMinSize[0] / childStartOffsetWidth : 0);
+                const parentMinHeight =
+                    parentStartOffsetHeight * (childStartOffsetHeight ? childMinSize[1] / childStartOffsetHeight : 0);
 
                 originalMinSize[0] = Math.max(originalMinSize[0], parentMinWidth);
                 originalMinSize[1] = Math.max(originalMinSize[1], parentMinHeight);
@@ -594,32 +540,25 @@ export default {
 
         function updateGroupMax() {
             const originalMaxSize = datas.maxSize;
-            originalEvents.forEach(ev => {
+            originalEvents.forEach((ev) => {
                 const {
                     maxSize: childMaxSize,
                     startOffsetWidth: childStartOffsetWidth,
                     startOffsetHeight: childStartOffsetHeight,
                 } = ev.datas;
 
-                const parentMaxWidth = parentStartOffsetWidth
-                    * (childStartOffsetWidth ? childMaxSize[0] / childStartOffsetWidth : 0);
-                const parentMaxHeight = parentStartOffsetHeight
-                    * (childStartOffsetHeight ? childMaxSize[1] / childStartOffsetHeight : 0);
+                const parentMaxWidth =
+                    parentStartOffsetWidth * (childStartOffsetWidth ? childMaxSize[0] / childStartOffsetWidth : 0);
+                const parentMaxHeight =
+                    parentStartOffsetHeight * (childStartOffsetHeight ? childMaxSize[1] / childStartOffsetHeight : 0);
 
                 originalMaxSize[0] = Math.min(originalMaxSize[0], parentMaxWidth);
                 originalMaxSize[1] = Math.min(originalMaxSize[1], parentMaxHeight);
             });
         }
-        const events = triggerChildAbles(
-            moveable,
-            this,
-            "dragControlStart",
-            e,
-            (child, ev) => {
-                return startChildDist(moveable, child, datas, ev);
-            },
-        );
-
+        const events = triggerChildAbles(moveable, this, "dragControlStart", e, (child, ev) => {
+            return startChildDist(moveable, child, datas, ev);
+        });
 
         updateGroupMin();
         updateGroupMax();
@@ -637,7 +576,7 @@ export default {
         const nextParams: OnResizeGroupStart = {
             ...params,
             targets: moveable.props.targets!,
-            events: events.map(ev => {
+            events: events.map((ev) => {
                 return {
                     ...ev,
                     setMin: (minSize: Array<number | string>) => {
@@ -672,58 +611,49 @@ export default {
         }
         const props = getProps(moveable.props, "resizable");
 
-        catchEvent(moveable, "onBeforeResize", parentEvent => {
-            triggerEvent(moveable, "onBeforeResizeGroup", fillParams<OnBeforeResizeGroup>(moveable, e, {
-                ...parentEvent,
-                targets: props.targets!,
-            }, true));
+        catchEvent(moveable, "onBeforeResize", (parentEvent) => {
+            triggerEvent(
+                moveable,
+                "onBeforeResizeGroup",
+                fillParams<OnBeforeResizeGroup>(
+                    moveable,
+                    e,
+                    {
+                        ...parentEvent,
+                        targets: props.targets!,
+                    },
+                    true
+                )
+            );
         });
 
-
-        const params = this.dragControl(moveable, {...e, isGroup: true });
+        const params = this.dragControl(moveable, { ...e, isGroup: true });
 
         if (!params) {
             return;
         }
-        const {
-            boundingWidth,
-            boundingHeight,
-            dist,
-        } = params;
+        const { boundingWidth, boundingHeight, dist } = params;
 
         const keepRatio = props.keepRatio;
 
-        const parentScale = [
-            boundingWidth / (boundingWidth - dist[0]),
-            boundingHeight / (boundingHeight - dist[1]),
-        ];
+        const parentScale = [boundingWidth / (boundingWidth - dist[0]), boundingHeight / (boundingHeight - dist[1])];
         const fixedPosition = datas.fixedPosition;
 
-        const events = triggerChildAbles(
-            moveable,
-            this,
-            "dragControl",
-            e,
-            (_, ev) => {
-                const [clientX, clientY] = calculate(
-                    createRotateMatrix(moveable.rotation / 180 * Math.PI, 3),
-                    [
-                        ev.datas.originalX * parentScale[0],
-                        ev.datas.originalY * parentScale[1],
-                        1,
-                    ],
-                    3,
-                );
+        const events = triggerChildAbles(moveable, this, "dragControl", e, (_, ev) => {
+            const [clientX, clientY] = calculate(
+                createRotateMatrix((moveable.rotation / 180) * Math.PI, 3),
+                [ev.datas.originalX * parentScale[0], ev.datas.originalY * parentScale[1], 1],
+                3
+            );
 
-                return {
-                    ...ev,
-                    parentDist: null,
-                    parentScale,
-                    dragClient: plus(fixedPosition, [clientX, clientY]),
-                    parentKeepRatio: keepRatio,
-                };
-            },
-        );
+            return {
+                ...ev,
+                parentDist: null,
+                parentScale,
+                dragClient: plus(fixedPosition, [clientX, clientY]),
+                parentKeepRatio: keepRatio,
+            };
+        });
         const nextParams: OnResizeGroup = {
             targets: props.targets!,
             events,
@@ -794,7 +724,8 @@ export default {
                 useSnap = e.useSnap!;
 
                 return {
-                    datas, parentDirection: e.direction || [1, 1],
+                    datas,
+                    parentDirection: e.direction || [1, 1],
                     parentIsWidth: e?.horizontal ?? true,
                     useSnap,
                 };
@@ -810,7 +741,6 @@ export default {
                 } else if ("deltaHeight" in e) {
                     distHeight += e.deltaHeight!;
                 }
-
 
                 return {
                     datas,
@@ -964,49 +894,49 @@ export default {
  */
 
 /**
-* When the group resize starts, the `resizeGroupStart` event is called.
-* @memberof Moveable.Resizable
-* @event resizeGroupStart
-* @param {Moveable.Resizable.OnResizeGroupStart} - Parameters for the `resizeGroupStart` event
-* @example
-* import Moveable from "moveable";
-*
-* const moveable = new Moveable(document.body, {
-*     target: [].slice.call(document.querySelectorAll(".target")),
-*     resizable: true
-* });
-* moveable.on("resizeGroupStart", ({ targets }) => {
-*     console.log("onResizeGroupStart", targets);
-* });
-*/
+ * When the group resize starts, the `resizeGroupStart` event is called.
+ * @memberof Moveable.Resizable
+ * @event resizeGroupStart
+ * @param {Moveable.Resizable.OnResizeGroupStart} - Parameters for the `resizeGroupStart` event
+ * @example
+ * import Moveable from "moveable";
+ *
+ * const moveable = new Moveable(document.body, {
+ *     target: [].slice.call(document.querySelectorAll(".target")),
+ *     resizable: true
+ * });
+ * moveable.on("resizeGroupStart", ({ targets }) => {
+ *     console.log("onResizeGroupStart", targets);
+ * });
+ */
 
 /**
-* When the group resize, the `resizeGroup` event is called.
-* @memberof Moveable.Resizable
-* @event resizeGroup
-* @param {Moveable.Resizable.onResizeGroup} - Parameters for the `resizeGroup` event
-* @example
-* import Moveable from "moveable";
-*
-* const moveable = new Moveable(document.body, {
-*     target: [].slice.call(document.querySelectorAll(".target")),
-*     resizable: true
-* });
-* moveable.on("resizeGroup", ({ targets, events }) => {
-*     console.log("onResizeGroup", targets);
-*     events.forEach(ev => {
-*         const offset = [
-*             direction[0] < 0 ? -ev.delta[0] : 0,
-*             direction[1] < 0 ? -ev.delta[1] : 0,
-*         ];
-*         // ev.drag is a drag event that occurs when the group resize.
-*         const left = offset[0] + ev.drag.beforeDist[0];
-*         const top = offset[1] + ev.drag.beforeDist[1];
-*         const width = ev.width;
-*         const top = ev.top;
-*     });
-* });
-*/
+ * When the group resize, the `resizeGroup` event is called.
+ * @memberof Moveable.Resizable
+ * @event resizeGroup
+ * @param {Moveable.Resizable.onResizeGroup} - Parameters for the `resizeGroup` event
+ * @example
+ * import Moveable from "moveable";
+ *
+ * const moveable = new Moveable(document.body, {
+ *     target: [].slice.call(document.querySelectorAll(".target")),
+ *     resizable: true
+ * });
+ * moveable.on("resizeGroup", ({ targets, events }) => {
+ *     console.log("onResizeGroup", targets);
+ *     events.forEach(ev => {
+ *         const offset = [
+ *             direction[0] < 0 ? -ev.delta[0] : 0,
+ *             direction[1] < 0 ? -ev.delta[1] : 0,
+ *         ];
+ *         // ev.drag is a drag event that occurs when the group resize.
+ *         const left = offset[0] + ev.drag.beforeDist[0];
+ *         const top = offset[1] + ev.drag.beforeDist[1];
+ *         const width = ev.width;
+ *         const top = ev.top;
+ *     });
+ * });
+ */
 
 /**
  * When the group resize finishes, the `resizeGroupEnd` event is called.

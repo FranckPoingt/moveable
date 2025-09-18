@@ -1,18 +1,20 @@
-import { find, getWindow } from "@daybrush/utils";
+import { find, getWindow } from "../utils/";
 import { getClientRect } from "../utils";
 import { MoveableClientRect } from "../types";
 import { getMatrixStackInfo, MatrixStackInfo } from "../utils/getMatrixStackInfo";
 
-let cacheStyleMap: Map<Element, {
-    style: CSSStyleDeclaration;
-    cached: Record<string, any>;
-}> | null = null;
+let cacheStyleMap: Map<
+    Element,
+    {
+        style: CSSStyleDeclaration;
+        cached: Record<string, any>;
+    }
+> | null = null;
 let clientRectStyleMap: Map<Element, MoveableClientRect> | null = null;
 
-let matrixContainerInfos: Array<[
-    [SVGElement | HTMLElement, SVGElement | HTMLElement | null | undefined],
-    MatrixStackInfo
-]> | null = null;
+let matrixContainerInfos: Array<
+    [[SVGElement | HTMLElement, SVGElement | HTMLElement | null | undefined], MatrixStackInfo]
+> | null = null;
 
 export type GetStyle = (propertyName: string) => any;
 export function setStoreCache(useCache?: boolean) {
@@ -45,10 +47,10 @@ export function getCachedClientRect(el: HTMLElement | SVGElement): MoveableClien
 
 export function getCachedMatrixContainerInfo(
     target: SVGElement | HTMLElement,
-    container?: SVGElement | HTMLElement | null,
+    container?: SVGElement | HTMLElement | null
 ) {
     if (matrixContainerInfos) {
-        const result = find(matrixContainerInfos, info => info[0][0] == target && info[0][1] == container);
+        const result = find(matrixContainerInfos, (info) => info[0][0] == target && info[0][1] == container);
 
         if (result) {
             return result[1];
@@ -65,7 +67,7 @@ export function getCachedStyle(element: Element): GetStyle {
     let cache = cacheStyleMap?.get(element);
 
     if (!cache) {
-        const nextStyle = getWindow(element).getComputedStyle(element);
+        const nextStyle = getWindow(element)!.getComputedStyle(element);
 
         if (!cacheStyleMap) {
             return (property: string) => {

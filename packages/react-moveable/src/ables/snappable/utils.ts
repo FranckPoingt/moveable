@@ -1,5 +1,5 @@
-import { TINY_NUM } from "@daybrush/utils";
-import { throttle } from "@daybrush/utils";
+import { TINY_NUM } from "../../utils";
+import { throttle } from "../../utils";
 import {
     MoveableClientRect, MoveableManagerInterface,
     SnapDirectionPoses,

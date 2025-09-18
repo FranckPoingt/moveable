@@ -1,7 +1,5 @@
 import { rotate, wait } from "@/stories/utils/testing";
 import { add } from "../../utils/story";
-import { expect } from "@storybook/jest";
-
 
 export default {
     title: "Advanced Rotatable",
@@ -29,7 +27,9 @@ export const AdvancedSetRotation = add("customize the rotation value ", {
         await wait();
 
         const target = canvasElement.querySelector<HTMLElement>(".target.rotatable")!;
-        const rotationControl = canvasElement.querySelector<HTMLElement>(`.moveable-control-box .moveable-rotation-control`)!;
+        const rotationControl = canvasElement.querySelector<HTMLElement>(
+            `.moveable-control-box .moveable-rotation-control`
+        )!;
 
         await rotate({
             target: rotationControl,

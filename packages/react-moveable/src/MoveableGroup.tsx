@@ -5,7 +5,10 @@ import { getControlAbleGesto, getTargetAbleGesto } from "./gesto/getAbleGesto";
 import Groupable from "./ables/Groupable";
 import { MIN_NUM, MAX_NUM, TINY_NUM } from "./consts";
 import {
-    getAbsolutePosesByState, equals, unsetGesto, rotatePosesInfo,
+    getAbsolutePosesByState,
+    equals,
+    unsetGesto,
+    rotatePosesInfo,
     convertTransformOriginArray,
     isDeepArrayEquals,
     sign,
@@ -13,22 +16,25 @@ import {
 } from "./utils";
 import { minus, plus } from "@scena/matrix";
 import { getIntersectionPointsByConstants, getMinMaxs } from "overlap-area";
-import { find, isArray, throttle } from "@daybrush/utils";
+import { find, isArray, throttle } from "./utils/";
 import { getMoveableTargetInfo } from "./utils/getMoveableTargetInfo";
 import { solveC, solveConstantsDistance } from "./Snappable/utils";
 import { setStoreCache } from "./store/Store";
 
 function getMaxPos(poses: number[][][], index: number) {
-    return Math.max(...poses.map(([pos1, pos2, pos3, pos4]) => {
-        return Math.max(pos1[index], pos2[index], pos3[index], pos4[index]);
-    }));
+    return Math.max(
+        ...poses.map(([pos1, pos2, pos3, pos4]) => {
+            return Math.max(pos1[index], pos2[index], pos3[index], pos4[index]);
+        })
+    );
 }
 function getMinPos(poses: number[][][], index: number) {
-    return Math.min(...poses.map(([pos1, pos2, pos3, pos4]) => {
-        return Math.min(pos1[index], pos2[index], pos3[index], pos4[index]);
-    }));
+    return Math.min(
+        ...poses.map(([pos1, pos2, pos3, pos4]) => {
+            return Math.min(pos1[index], pos2[index], pos3[index], pos4[index]);
+        })
+    );
 }
-
 
 function getGroupRect(parentPoses: number[][][], rotation: number): GroupRect {
     let pos1 = [0, 0];
@@ -56,19 +62,24 @@ function getGroupRect(parentPoses: number[][][], rotation: number): GroupRect {
     const fixedRotation = throttle(rotation, TINY_NUM);
 
     if (fixedRotation % 90) {
-        const rad = fixedRotation / 180 * Math.PI;
+        const rad = (fixedRotation / 180) * Math.PI;
         const a1 = Math.tan(rad);
         const a2 = -1 / a1;
         // ax = y  // -ax + y = 0 // 0 => 1
         // -ax = y // ax + y = 0  // 0 => 3
         const a1MinMax = [MAX_NUM, MIN_NUM];
-        const a1MinMaxPos = [[0, 0], [0, 0]];
+        const a1MinMaxPos = [
+            [0, 0],
+            [0, 0],
+        ];
         const a2MinMax = [MAX_NUM, MIN_NUM];
-        const a2MinMaxPos = [[0, 0], [0, 0]];
+        const a2MinMaxPos = [
+            [0, 0],
+            [0, 0],
+        ];
 
-        parentPoses.forEach(poses => {
-            poses.forEach(pos => {
-
+        parentPoses.forEach((poses) => {
+            poses.forEach((pos) => {
                 // const b1 = pos[1] - a1 * pos[0];
                 // const b2 = pos[1] - a2 * pos[0];
 
@@ -144,7 +155,6 @@ function getGroupRect(parentPoses: number[][][], rotation: number): GroupRect {
             width = maxY - minY;
             height = maxX - minX;
         }
-
     }
     if (fixedRotation % 360 > 180) {
         // 1 2   4 3
@@ -174,30 +184,32 @@ type CheckedMoveableManager = { finded: boolean; manager: MoveableManager };
 
 function findMoveableGroups(
     moveables: CheckedMoveableManager[],
-    childTargetGroups: MoveableTargetGroupsType,
+    childTargetGroups: MoveableTargetGroupsType
 ): SelfGroup {
-    const groups = childTargetGroups.map(targetGroup => {
-        if (isArray(targetGroup)) {
-            const childMoveableGroups = findMoveableGroups(moveables, targetGroup);
-            const length = childMoveableGroups.length;
+    const groups = childTargetGroups
+        .map((targetGroup) => {
+            if (isArray(targetGroup)) {
+                const childMoveableGroups = findMoveableGroups(moveables, targetGroup);
+                const length = childMoveableGroups.length;
 
-            if (length > 1) {
-                return childMoveableGroups;
-            } else if (length === 1) {
-                return childMoveableGroups[0];
+                if (length > 1) {
+                    return childMoveableGroups;
+                } else if (length === 1) {
+                    return childMoveableGroups[0];
+                } else {
+                    return null;
+                }
             } else {
+                const checked = find(moveables, ({ manager }) => manager.props.target === targetGroup)!;
+
+                if (checked) {
+                    checked.finded = true;
+                    return checked.manager;
+                }
                 return null;
             }
-        } else {
-            const checked = find(moveables, ({ manager }) => manager.props.target === targetGroup)!;
-
-            if (checked) {
-                checked.finded = true;
-                return checked.manager;
-            }
-            return null;
-        }
-    }).filter(Boolean);
+        })
+        .filter(Boolean);
 
     if (groups.length === 1 && isArray(groups[0])) {
         return groups[0];
@@ -244,19 +256,16 @@ class MoveableGroup extends MoveableManager<GroupableProps> {
             return;
         }
         setStoreCache(true);
-        this.moveables.forEach(moveable => {
+        this.moveables.forEach((moveable) => {
             moveable.updateRect(type, false, false);
         });
 
         const props = this.props;
         const moveables = this.moveables;
         const target = state.target! || props.target!;
-        const checkeds = moveables.map(moveable => ({ finded: false, manager: moveable }));
+        const checkeds = moveables.map((moveable) => ({ finded: false, manager: moveable }));
         const targetGroups = this.props.targetGroups || [];
-        const moveableGroups = findMoveableGroups(
-            checkeds,
-            targetGroups,
-        );
+        const moveableGroups = findMoveableGroups(checkeds, targetGroups);
         const useDefaultGroupRotate = props.useDefaultGroupRotate;
 
         moveableGroups.push(...checkeds.filter(({ finded }) => !finded).map(({ manager }) => manager));
@@ -274,7 +283,7 @@ class MoveableGroup extends MoveableManager<GroupableProps> {
         }
 
         function getMoveableGroupRect(group: SelfGroup, parentRotation: number, isRoot?: boolean): GroupRect {
-            const posesRotations = group.map(moveable => {
+            const posesRotations = group.map((moveable) => {
                 if (isArray(moveable)) {
                     const rect = getMoveableGroupRect(moveable, parentRotation);
                     const poses = [rect.pos1, rect.pos2, rect.pos3, rect.pos4];
@@ -292,7 +301,7 @@ class MoveableGroup extends MoveableManager<GroupableProps> {
 
             let groupRotation = 0;
             const firstRotation = rotations[0];
-            const isSameRotation = rotations.every(nextRotation => {
+            const isSameRotation = rotations.every((nextRotation) => {
                 return Math.abs(firstRotation - nextRotation) < 0.1;
             });
 
@@ -302,10 +311,7 @@ class MoveableGroup extends MoveableManager<GroupableProps> {
                 groupRotation = !useDefaultGroupRotate && !isRoot && isSameRotation ? firstRotation : parentRotation;
             }
             const groupPoses = posesRotations.map(({ poses }) => poses);
-            const groupRect = getGroupRect(
-                groupPoses,
-                groupRotation,
-            );
+            const groupRect = getGroupRect(groupPoses, groupRotation);
 
             return groupRect;
         }
@@ -317,7 +323,6 @@ class MoveableGroup extends MoveableManager<GroupableProps> {
             this.transformOrigin = props.defaultGroupOrigin || "50% 50%";
             this.scale = [1, 1];
         }
-
 
         this._targetGroups = targetGroups;
         this.renderGroupRects = renderGroupRects;
@@ -333,21 +338,20 @@ class MoveableGroup extends MoveableManager<GroupableProps> {
                 [width, height],
             ],
             convertTransformOriginArray(transformOrigin, width, height),
-            this.rotation / 180 * Math.PI,
+            (this.rotation / 180) * Math.PI
         );
 
         const { minX: deltaX, minY: deltaY } = getMinMaxs(posesInfo.result);
-        const rotateScale = ` rotate(${rotation}deg)`
-            + ` scale(${sign(scale[0])}, ${sign(scale[1])})`;
+        const rotateScale = ` rotate(${rotation}deg)` + ` scale(${sign(scale[0])}, ${sign(scale[1])})`;
         const transform = `translate(${-deltaX}px, ${-deltaY}px)${rotateScale}`;
 
-        this.controlBox.style.transform
-            = `translate3d(${minX}px, ${minY}px, ${this.props.translateZ || 0})`;
+        this.controlBox.style.transform = `translate3d(${minX}px, ${minY}px, ${this.props.translateZ || 0})`;
 
-        target.style.cssText += `left:0px;top:0px;`
-            + `transform-origin:${transformOrigin};`
-            + `width:${width}px;height:${height}px;`
-            + `transform: ${transform}`;
+        target.style.cssText +=
+            `left:0px;top:0px;` +
+            `transform-origin:${transformOrigin};` +
+            `width:${width}px;height:${height}px;` +
+            `transform: ${transform}`;
         state.width = width;
         state.height = height;
 
@@ -358,15 +362,10 @@ class MoveableGroup extends MoveableManager<GroupableProps> {
             this.controlBox,
             this.getContainer(),
             this._rootContainer || container,
-            [],
+            []
         );
         const pos = [info.left!, info.top!];
-        const [
-            pos1,
-            pos2,
-            pos3,
-            pos4,
-        ] = getAbsolutePosesByState(info); // info.left + info.pos(1 ~ 4)
+        const [pos1, pos2, pos3, pos4] = getAbsolutePosesByState(info); // info.left + info.pos(1 ~ 4)
 
         const minPos = getMinMaxs([pos1, pos2, pos3, pos4]);
         const delta = [minPos.minX, minPos.minY];
@@ -384,9 +383,7 @@ class MoveableGroup extends MoveableManager<GroupableProps> {
         info.beforeOrigin = minus(plus(pos, info.beforeOrigin!), delta);
         info.originalBeforeOrigin = plus(pos, info.originalBeforeOrigin!);
         info.transformOrigin = minus(plus(pos, info.transformOrigin!), delta);
-        target.style.transform
-            = `translate(${-deltaX - delta[0]}px, ${-deltaY - delta[1]}px)`
-            + rotateScale;
+        target.style.transform = `translate(${-deltaX - delta[0]}px, ${-deltaY - delta[1]}px)` + rotateScale;
 
         setStoreCache();
         this.updateState(
@@ -396,13 +393,13 @@ class MoveableGroup extends MoveableManager<GroupableProps> {
                 direction,
                 beforeDirection: direction,
             },
-            isSetState,
+            isSetState
         );
     }
     public getRect(): RectInfo {
         return {
             ...super.getRect(),
-            children: this.moveables.map(child => child.getRect()),
+            children: this.moveables.map((child) => child.getRect()),
         };
     }
     public triggerEvent(name: string, e: any, isManager?: boolean): any {
@@ -418,7 +415,6 @@ class MoveableGroup extends MoveableManager<GroupableProps> {
 
             return [...names, ...ableStyleNames];
         }, [] as Array<keyof CSSStyleDeclaration>);
-
 
         return styleNames;
     }
@@ -437,7 +433,6 @@ class MoveableGroup extends MoveableManager<GroupableProps> {
     protected _updateEvents() {
         const state = this.state;
         const props = this.props;
-
 
         const prevTarget = this._prevDragTarget;
         const nextTarget = props.dragTarget || this.areaElement;
@@ -471,20 +466,19 @@ class MoveableGroup extends MoveableManager<GroupableProps> {
             state.container = props.container;
         }
 
-
         if (
-            isContainerChanged
-            || isTargetChanged
-            || this.transformOrigin !== (props.defaultGroupOrigin || "50% 50%")
-            || changed.length
-            || targets.length && !isDeepArrayEquals(this._targetGroups, props.targetGroups || [])
+            isContainerChanged ||
+            isTargetChanged ||
+            this.transformOrigin !== (props.defaultGroupOrigin || "50% 50%") ||
+            changed.length ||
+            (targets.length && !isDeepArrayEquals(this._targetGroups, props.targetGroups || []))
         ) {
             this.updateRect();
             this._hasFirstTargets = true;
         }
         this._isPropTargetChanged = !!isTargetChanged;
     }
-    protected _updateObserver() { }
+    protected _updateObserver() {}
 }
 
 /**
@@ -516,7 +510,6 @@ class MoveableGroup extends MoveableManager<GroupableProps> {
  *
  * moveable.defaultGroupOrigin = "20% 40%";
  */
-
 
 /**
  * Whether to hide the line in child moveable for group corresponding to the rect of the target.

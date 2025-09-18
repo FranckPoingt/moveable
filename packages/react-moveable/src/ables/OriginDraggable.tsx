@@ -1,12 +1,23 @@
 import {
-    prefix, triggerEvent,
-    fillParams, calculatePoses, getRect, fillEndParams, convertCSSSize, fillCSSObject,
+    prefix,
+    triggerEvent,
+    fillParams,
+    calculatePoses,
+    getRect,
+    fillEndParams,
+    convertCSSSize,
+    fillCSSObject,
 } from "../utils";
 import {
-    OnDragOriginStart, OnDragOrigin,
-    OnDragOriginEnd, MoveableManagerInterface, DraggableProps, OriginDraggableProps, MoveableGroupInterface,
+    OnDragOriginStart,
+    OnDragOrigin,
+    OnDragOriginEnd,
+    MoveableManagerInterface,
+    DraggableProps,
+    OriginDraggableProps,
+    MoveableGroupInterface,
 } from "../types";
-import { hasClass, IObject } from "@daybrush/utils";
+import { hasClass, IObject } from "../utils/";
 import { setDragStart, getDragDist, getNextMatrix } from "../gesto/GestoUtils";
 import { minus, plus } from "@scena/matrix";
 import Draggable from "./Draggable";
@@ -19,15 +30,8 @@ import CustomGesto, { setCustomDrag } from "../gesto/CustomGesto";
  */
 export default {
     name: "originDraggable",
-    props: [
-        "originDraggable",
-        "originRelative",
-    ] as const,
-    events: [
-        "dragOriginStart",
-        "dragOrigin",
-        "dragOriginEnd",
-    ] as const,
+    props: ["originDraggable", "originRelative"] as const,
+    events: ["dragOriginStart", "dragOrigin", "dragOriginEnd"] as const,
     css: [
         `:host[data-able-origindraggable] .control.origin {
 pointer-events: auto;
@@ -45,10 +49,7 @@ pointer-events: auto;
         setDragStart(moveable, e);
 
         const params = fillParams<OnDragOriginStart>(moveable, e, {
-            dragStart: Draggable.dragStart(
-                moveable,
-                new CustomGesto().dragStart([0, 0], e),
-            ),
+            dragStart: Draggable.dragStart(moveable, new CustomGesto().dragStart([0, 0], e)),
         });
         const result = triggerEvent(moveable, "onDragOriginStart", params);
 
@@ -72,16 +73,8 @@ pointer-events: auto;
         }
         const [distX, distY] = getDragDist(e);
         const state = moveable.state;
-        const {
-            width,
-            height,
-            offsetMatrix,
-            targetMatrix,
-            is3d,
-        } = state;
-        const {
-            originRelative = true,
-        } = moveable.props;
+        const { width, height, offsetMatrix, targetMatrix, is3d } = state;
+        const { originRelative = true } = moveable.props;
         const n = is3d ? 4 : 3;
         let dist = [distX, distY];
 
@@ -95,30 +88,19 @@ pointer-events: auto;
         const targetOrigin = plus(datas.startTargetOrigin, dist);
         const delta = minus(dist, datas.prevOrigin);
 
-        const nextMatrix = getNextMatrix(
-            offsetMatrix,
-            targetMatrix,
-            origin,
-            n,
-        );
+        const nextMatrix = getNextMatrix(offsetMatrix, targetMatrix, origin, n);
 
         const rect = moveable.getRect();
         const nextRect = getRect(calculatePoses(nextMatrix, width, height, n));
 
-        const dragDelta = [
-            rect.left - nextRect.left,
-            rect.top - nextRect.top,
-        ];
+        const dragDelta = [rect.left - nextRect.left, rect.top - nextRect.top];
 
         datas.prevOrigin = dist;
         const transformOrigin = [
             convertCSSSize(targetOrigin[0], width, originRelative),
             convertCSSSize(targetOrigin[1], height, originRelative),
         ].join(" ");
-        const result = Draggable.drag(
-            moveable,
-            setCustomDrag(e, moveable.state, dragDelta, !!isPinch, false),
-        )!;
+        const result = Draggable.drag(moveable, setCustomDrag(e, moveable.state, dragDelta, !!isPinch, false))!;
         const params = fillParams<OnDragOrigin>(moveable, e, {
             width,
             height,
@@ -127,10 +109,13 @@ pointer-events: auto;
             delta,
             transformOrigin,
             drag: result,
-            ...fillCSSObject({
-                transformOrigin,
-                transform: result.transform,
-            }, e),
+            ...fillCSSObject(
+                {
+                    transformOrigin,
+                    transform: result.transform,
+                },
+                e
+            ),
             afterTransform: result.transform,
         });
         triggerEvent(moveable, "onDragOrigin", params);
@@ -142,8 +127,7 @@ pointer-events: auto;
         if (!datas.isDragOrigin) {
             return false;
         }
-        triggerEvent(moveable, "onDragOriginEnd",
-            fillEndParams<OnDragOriginEnd>(moveable, e, {}));
+        triggerEvent(moveable, "onDragOriginEnd", fillEndParams<OnDragOriginEnd>(moveable, e, {}));
         return true;
     },
     dragGroupControlCondition(moveable: any, e: any) {
@@ -283,73 +267,73 @@ pointer-events: auto;
  */
 
 /**
-* When drag start the origin, the `dragOriginStart` event is called.
-* @memberof Moveable.OriginDraggable
-* @event dragOriginStart
-* @param {Moveable.OriginDraggable.OnDragOriginStart} - Parameters for the `dragOriginStart` event
-* @example
-* import Moveable from "moveable";
-*
-* const moveable = new Moveable(document.body, {
-*     originDraggable: true,
-* });
-* let translate = [0, 0];
-* moveable.on("dragOriginStart", e => {
-*     e.dragStart && e.dragStart.set(translate);
-* }).on("dragOrigin", e => {
-*     translate = e.drag.beforeTranslate;
-*     e.target.style.cssText
-*         = `transform-origin: ${e.transformOrigin};`
-*         + `transform: translate(${translate[0]}px, ${translate[1]}px)`;
-* }).on("dragOriginEnd", e => {
-*     console.log(e);
-* });
-*/
+ * When drag start the origin, the `dragOriginStart` event is called.
+ * @memberof Moveable.OriginDraggable
+ * @event dragOriginStart
+ * @param {Moveable.OriginDraggable.OnDragOriginStart} - Parameters for the `dragOriginStart` event
+ * @example
+ * import Moveable from "moveable";
+ *
+ * const moveable = new Moveable(document.body, {
+ *     originDraggable: true,
+ * });
+ * let translate = [0, 0];
+ * moveable.on("dragOriginStart", e => {
+ *     e.dragStart && e.dragStart.set(translate);
+ * }).on("dragOrigin", e => {
+ *     translate = e.drag.beforeTranslate;
+ *     e.target.style.cssText
+ *         = `transform-origin: ${e.transformOrigin};`
+ *         + `transform: translate(${translate[0]}px, ${translate[1]}px)`;
+ * }).on("dragOriginEnd", e => {
+ *     console.log(e);
+ * });
+ */
 
 /**
-* When drag the origin, the `dragOrigin` event is called.
-* @memberof Moveable.OriginDraggable
-* @event dragOrigin
-* @param {Moveable.OriginDraggable.OnDragOrigin} - Parameters for the `dragOrigin` event
-* @example
-* import Moveable from "moveable";
-*
-* const moveable = new Moveable(document.body, {
-*     originDraggable: true,
-* });
-* let translate = [0, 0];
-* moveable.on("dragOriginStart", e => {
-*     e.dragStart && e.dragStart.set(translate);
-* }).on("dragOrigin", e => {
-*     translate = e.drag.beforeTranslate;
-*     e.target.style.cssText
-*         = `transform-origin: ${e.transformOrigin};`
-*         + `transform: translate(${translate[0]}px, ${translate[1]}px)`;
-* }).on("dragOriginEnd", e => {
-*     console.log(e);
-* });
-*/
+ * When drag the origin, the `dragOrigin` event is called.
+ * @memberof Moveable.OriginDraggable
+ * @event dragOrigin
+ * @param {Moveable.OriginDraggable.OnDragOrigin} - Parameters for the `dragOrigin` event
+ * @example
+ * import Moveable from "moveable";
+ *
+ * const moveable = new Moveable(document.body, {
+ *     originDraggable: true,
+ * });
+ * let translate = [0, 0];
+ * moveable.on("dragOriginStart", e => {
+ *     e.dragStart && e.dragStart.set(translate);
+ * }).on("dragOrigin", e => {
+ *     translate = e.drag.beforeTranslate;
+ *     e.target.style.cssText
+ *         = `transform-origin: ${e.transformOrigin};`
+ *         + `transform: translate(${translate[0]}px, ${translate[1]}px)`;
+ * }).on("dragOriginEnd", e => {
+ *     console.log(e);
+ * });
+ */
 
 /**
-* When drag end the origin, the `dragOriginEnd` event is called.
-* @memberof Moveable.OriginDraggable
-* @event dragOriginEnd
-* @param {Moveable.OriginDraggable.OnDragOriginEnd} - Parameters for the `dragOriginEnd` event
-* @example
-* import Moveable from "moveable";
-*
-* const moveable = new Moveable(document.body, {
-*     originDraggable: true,
-* });
-* let translate = [0, 0];
-* moveable.on("dragOriginStart", e => {
-*     e.dragStart && e.dragStart.set(translate);
-* }).on("dragOrigin", e => {
-*     translate = e.drag.beforeTranslate;
-*     e.target.style.cssText
-*         = `transform-origin: ${e.transformOrigin};`
-*         + `transform: translate(${translate[0]}px, ${translate[1]}px)`;
-* }).on("dragOriginEnd", e => {
-*     console.log(e);
-* });
-*/
+ * When drag end the origin, the `dragOriginEnd` event is called.
+ * @memberof Moveable.OriginDraggable
+ * @event dragOriginEnd
+ * @param {Moveable.OriginDraggable.OnDragOriginEnd} - Parameters for the `dragOriginEnd` event
+ * @example
+ * import Moveable from "moveable";
+ *
+ * const moveable = new Moveable(document.body, {
+ *     originDraggable: true,
+ * });
+ * let translate = [0, 0];
+ * moveable.on("dragOriginStart", e => {
+ *     e.dragStart && e.dragStart.set(translate);
+ * }).on("dragOrigin", e => {
+ *     translate = e.drag.beforeTranslate;
+ *     e.target.style.cssText
+ *         = `transform-origin: ${e.transformOrigin};`
+ *         + `transform: translate(${translate[0]}px, ${translate[1]}px)`;
+ * }).on("dragOriginEnd", e => {
+ *     console.log(e);
+ * });
+ */

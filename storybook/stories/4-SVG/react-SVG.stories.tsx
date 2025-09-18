@@ -1,7 +1,6 @@
 import { add } from "../utils/story";
 import "../common.css";
 import "../templates/default.css";
-import { expect } from "@storybook/jest";
 import { wait } from "../utils/testing";
 
 export default {

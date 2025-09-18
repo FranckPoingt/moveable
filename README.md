@@ -7,16 +7,7 @@
  <img src="https://img.shields.io/badge/language-typescript-blue.svg?style=flat-square"/>
  <a href="https://github.com/daybrush/moveable/blob/master/LICENSE" target="_blank"><img src="https://img.shields.io/github/license/daybrush/moveable.svg?style=flat-square&label=license&color=08CE5D"/></a>
  <a href="https://github.com/daybrush/moveable/tree/master/packages/react-moveable" target="_blank"> <img alt="React" src="https://img.shields.io/static/v1.svg?label=&message=React&style=flat-square&color=61daeb" /></a>
- <a href="https://github.com/daybrush/moveable/tree/master/packages/preact-moveable" target="_blank"><img alt="Preact" src="https://img.shields.io/static/v1.svg?label=&message=Preact&style=flat-square&color=673ab8" /></a>
- <a href="https://github.com/daybrush/moveable/tree/master/packages/ngx-moveable" target="_blank"><img alt="Angular" src="https://img.shields.io/static/v1.svg?label=&message=Angular&style=flat-square&color=C82B38" /></a>
- <a href="https://github.com/daybrush/moveable/tree/master/packages/vue-moveable" target="_blank"><img
-    alt="Vue"
-    src="https://img.shields.io/static/v1.svg?label=&message=Vue&style=flat-square&color=3fb984" /></a>
- <a href="https://github.com/daybrush/moveable/tree/master/packages/vue3-moveable" target="_blank"><img
-    alt="Vue 3"
-    src="https://img.shields.io/static/v1.svg?label=&message=Vue%203&style=flat-square&color=3fb984" /></a>
- <a href="https://github.com/daybrush/moveable/tree/master/packages/svelte-moveable" target="_blank"><img alt="Svelte" src="https://img.shields.io/static/v1.svg?label=&message=Svelte&style=flat-square&color=C82B38" /></a>
- <a href="https://github.com/daybrush/moveable/tree/master/packages/lit-moveable" target="_blank"><img alt="Lit" src="https://img.shields.io/static/v1.svg?label=&message=Lit&style=flat-square&color=61daeb" /></a>
+ <img src="https://img.shields.io/badge/Node.js-18+-brightgreen.svg?style=flat-square"/>
 </p>
 <p align="middle">Moveable is Draggable, Resizable, Scalable, Rotatable, Warpable, Pinchable, Groupable, Snappable</p>
 <p align="middle">
@@ -96,174 +87,265 @@
 
 
 ## ⚙️ Installation
-### npm
+
+### Vanilla JavaScript
 ```sh
-$ npm i moveable
+npm install moveable
 ```
 
-### scripts
+### React
+```sh
+npm install react-moveable
+```
+
+### CDN (Vanilla JS)
 ```html
 <script src="//daybrush.com/moveable/release/latest/dist/moveable.min.js"></script>
 ```
 
-## 📄 Documents
+## Requirements
+- **Node.js**: 18.0.0 or higher
+- **TypeScript**: 5.0.0 or higher (if using TypeScript)
+- **React**: 19.0.0 or higher (for React usage)
 
-* [**Moveable Handbook**](https://github.com/daybrush/moveable/blob/master/handbook/handbook.md)
-* [**How to use Group**](https://github.com/daybrush/moveable/blob/master/handbook/handbook.md#toc-group)
-* [**How to use custom CSS**](https://github.com/daybrush/moveable/blob/master/handbook/handbook.md#toc-custom-css)
-* [**How to make custom able**](https://github.com/daybrush/moveable/blob/master/packages/react-moveable/src/ables/README.md)
-* [API Documentation](https://daybrush.com/moveable/release/latest/doc/)
+## 📄 Documentation
 
-## 🚀 How to use
-* All classes of moveable control box and able elements have a `moveable-` prefix. So please don't put `moveable-` class name in target.
-```ts
+### TypeScript Support
+Moveable is built with TypeScript and provides full type definitions out of the box.
+
+```typescript
+import Moveable, { OnDrag, OnResize, OnRotate, OnScale } from "moveable";
+// or for React
+import Moveable from "react-moveable";
+import type { MoveableProps } from "react-moveable";
+```
+
+### Core References
+* [**API Documentation**](https://daybrush.com/moveable/release/latest/doc/) - Complete API reference with TypeScript types
+* [**Storybook**](https://daybrush.com/moveable/storybook/) - Interactive examples and documentation
+* [**Type Definitions**](https://github.com/daybrush/moveable/blob/master/packages/react-moveable/src/types.ts) - Core TypeScript interfaces
+
+### Advanced Guides
+* [**Creating Custom Ables**](https://github.com/daybrush/moveable/blob/master/packages/react-moveable/src/ables/README.md) - How to extend Moveable with custom behaviors
+* [**Group Management**](https://github.com/daybrush/moveable/blob/master/packages/helper/README.md) - Working with multiple targets
+* [**Snapping & Guidelines**](https://github.com/daybrush/moveable/blob/master/packages/snappable/README.md) - Advanced snapping features
+
+## 🚀 Quick Start
+
+> All moveable control box elements use the `moveable-` CSS class prefix. Avoid using `moveable-` in your target elements.
+
+### Vanilla JavaScript
+
+```typescript
 import Moveable from "moveable";
 
 const moveable = new Moveable(document.body, {
-    target: document.querySelector(".target"),
-    // If the container is null, the position is fixed. (default: parentElement(document.body))
-    container: document.body,
+    target: document.querySelector<HTMLElement>(".target")!,
     draggable: true,
     resizable: true,
     scalable: true,
     rotatable: true,
     warpable: true,
-    // Enabling pinchable lets you use events that
-    // can be used in draggable, resizable, scalable, and rotateable.
-    pinchable: true, // ["resizable", "scalable", "rotatable"]
     origin: true,
     keepRatio: true,
-    // Resize, Scale Events at edges.
-    edge: false,
-    throttleDrag: 0,
-    throttleResize: 0,
-    throttleScale: 0,
-    throttleRotate: 0,
-});
-/* draggable */
-moveable.on("dragStart", ({ target, clientX, clientY }) => {
-    console.log("onDragStart", target);
-}).on("drag", ({
-    target, transform,
-    left, top, right, bottom,
-    beforeDelta, beforeDist, delta, dist,
-    clientX, clientY,
-}) => {
-    console.log("onDrag left, top", left, top);
-    target!.style.left = `${left}px`;
-    target!.style.top = `${top}px`;
-    // console.log("onDrag translate", dist);
-    // target!.style.transform = transform;
-}).on("dragEnd", ({ target, isDrag, clientX, clientY }) => {
-    console.log("onDragEnd", target, isDrag);
 });
 
-/* resizable */
-moveable.on("resizeStart", ({ target, clientX, clientY }) => {
-    console.log("onResizeStart", target);
-}).on("resize", ({ target, width, height, dist, delta, clientX, clientY }) => {
-    console.log("onResize", target);
-    delta[0] && (target!.style.width = `${width}px`);
-    delta[1] && (target!.style.height = `${height}px`);
-}).on("resizeEnd", ({ target, isDrag, clientX, clientY }) => {
-    console.log("onResizeEnd", target, isDrag);
+// Handle drag events
+moveable.on("drag", ({ target, transform, left, top }) => {
+    target.style.left = `${left}px`;
+    target.style.top = `${top}px`;
 });
 
-/* scalable */
-moveable.on("scaleStart", ({ target, clientX, clientY }) => {
-    console.log("onScaleStart", target);
-}).on("scale", ({
-    target, scale, dist, delta, transform, clientX, clientY,
-}: OnScale) => {
-    console.log("onScale scale", scale);
-    target!.style.transform = transform;
-}).on("scaleEnd", ({ target, isDrag, clientX, clientY }) => {
-    console.log("onScaleEnd", target, isDrag);
+// Handle resize events
+moveable.on("resize", ({ target, width, height, delta }) => {
+    if (delta[0]) target.style.width = `${width}px`;
+    if (delta[1]) target.style.height = `${height}px`;
 });
 
-/* rotatable */
-moveable.on("rotateStart", ({ target, clientX, clientY }) => {
-    console.log("onRotateStart", target);
-}).on("rotate", ({ target, beforeDelta, delta, dist, transform, clientX, clientY }) => {
-    console.log("onRotate", dist);
-    target!.style.transform = transform;
-}).on("rotateEnd", ({ target, isDrag, clientX, clientY }) => {
-    console.log("onRotateEnd", target, isDrag);
+// Handle rotation and scaling with transform
+moveable.on("rotate", ({ target, transform }) => {
+    target.style.transform = transform;
 });
 
-/* warpable */
-this.matrix = [
-    1, 0, 0, 0,
-    0, 1, 0, 0,
-    0, 0, 1, 0,
-    0, 0, 0, 1,
+moveable.on("scale", ({ target, transform }) => {
+    target.style.transform = transform;
+});
+```
+
+### React
+
+```tsx
+import { useRef, useState } from "react";
+import Moveable from "react-moveable";
+
+function App() {
+    const targetRef = useRef<HTMLDivElement>(null);
+    const [target, setTarget] = useState<HTMLElement | null>(null);
+
+    return (
+        <div className="container">
+            <div
+                ref={targetRef}
+                className="target"
+                style={{
+                    width: "100px",
+                    height: "100px",
+                    background: "red",
+                    position: "absolute",
+                }}
+                onClick={() => setTarget(targetRef.current)}
+            >
+                Target
+            </div>
+
+            <Moveable
+                target={target}
+                draggable
+                resizable
+                scalable
+                rotatable
+                keepRatio={false}
+                origin={false}
+                edge={false}
+                zoom={1}
+                onDrag={({ target, transform, left, top }) => {
+                    target.style.left = `${left}px`;
+                    target.style.top = `${top}px`;
+                }}
+                onResize={({ target, width, height, delta }) => {
+                    if (delta[0]) target.style.width = `${width}px`;
+                    if (delta[1]) target.style.height = `${height}px`;
+                }}
+                onScale={({ target, transform }) => {
+                    target.style.transform = transform;
+                }}
+                onRotate={({ target, transform }) => {
+                    target.style.transform = transform;
+                }}
+            />
+        </div>
+    );
+}
+```
+
+### TypeScript Usage Patterns
+
+#### Event Handlers with Types
+```typescript
+import Moveable, { OnDrag, OnResize, OnRotate } from "moveable";
+
+const moveable = new Moveable(document.body, {
+    target: document.querySelector<HTMLElement>(".target")!,
+    draggable: true,
+    resizable: true,
+    rotatable: true,
+});
+
+// Typed event handlers
+moveable.on("drag", (e: OnDrag) => {
+    const { target, left, top, transform } = e;
+    target.style.left = `${left}px`;
+    target.style.top = `${top}px`;
+});
+
+moveable.on("resize", (e: OnResize) => {
+    const { target, width, height, delta } = e;
+    if (delta[0]) target.style.width = `${width}px`;
+    if (delta[1]) target.style.height = `${height}px`;
+});
+```
+
+#### Advanced Features
+
+##### Groupable (Multiple targets)
+```typescript
+const moveable = new Moveable(document.body, {
+    target: [
+        document.querySelector<HTMLElement>(".target1")!,
+        document.querySelector<HTMLElement>(".target2")!,
+    ],
+    draggable: true,
+    resizable: true,
+});
+```
+
+##### Snappable (Guidelines)
+```typescript
+import type { SnapGuideline } from "moveable";
+
+const guidelines: SnapGuideline[] = [
+    { type: "horizontal", pos: 100, className: "my-guideline" },
+    { type: "vertical", pos: 100, className: "my-guideline" },
 ];
-moveable.on("warpStart", ({ target, clientX, clientY }) => {
-    console.log("onWarpStart", target);
-}).on("warp", ({
-    target,
-    clientX,
-    clientY,
-    delta,
-    dist,
-    multiply,
-    transform,
-}) => {
-    console.log("onWarp", target);
-    // target.style.transform = transform;
-    this.matrix = multiply(this.matrix, delta);
-    target.style.transform = `matrix3d(${this.matrix.join(",")})`;
-}).on("warpEnd", ({ target, isDrag, clientX, clientY }) => {
-    console.log("onWarpEnd", target, isDrag);
-});
 
-/* pinchable */
-// Enabling pinchable lets you use events that
-// can be used in draggable, resizable, scalable, and rotateable.
-moveable.on("pinchStart", ({ target, clientX, clientY }) => {
-    // pinchStart event occur before dragStart, rotateStart, scaleStart, resizeStart
-    console.log("onPinchStart");
-}).on("pinch", ({ target, clientX, clientY, datas }) => {
-    // pinch event occur before drag, rotate, scale, resize
-    console.log("onPinch");
-}).on("pinchEnd", ({ isDrag, target, clientX, clientY, datas }) => {
-    // pinchEnd event occur before dragEnd, rotateEnd, scaleEnd, resizeEnd
-    console.log("onPinchEnd");
+const moveable = new Moveable(document.body, {
+    target: document.querySelector<HTMLElement>(".target")!,
+    snappable: true,
+    snapDirections: { top: true, left: true, bottom: true, right: true },
+    guidelines,
 });
 ```
 
 
 ## 📦 Packages
-* [**moveable**](https://github.com/daybrush/moveable/blob/master/packages/moveable): A Vanilla Component that create Moveable, Draggable, Resizable, Scalable, Rotatable, Warpable, Pinchable.
-* [**react-moveable**](https://github.com/daybrush/moveable/blob/master/packages/react-moveable): A React Component that create Moveable, Draggable, Resizable, Scalable, Rotatable, Warpable, Pinchable.
-* [**preact-moveable**](https://github.com/daybrush/moveable/blob/master/packages/preact-moveable): A Preact Component that create Moveable, Draggable, Resizable, Scalable, Rotatable, Warpable, Pinchable.
-* [**ngx-moveable**](https://github.com/daybrush/moveable/blob/master/packages/ngx-moveable): An Angular Component that create Moveable, Draggable, Resizable, Scalable, Rotatable, Warpable, Pinchable.
-* [**svelte-moveable**](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable): A Svelte Component that create Moveable, Draggable, Resizable, Scalable, Rotatable, Warpable, Pinchable.
-* [**lit-moveable**](https://github.com/daybrush/moveable/blob/master/packages/lit-moveable): A Lit Component that create Moveable, Draggable, Resizable, Scalable, Rotatable, Warpable, Pinchable.
-* [**vue-moveable**](https://github.com/daybrush/moveable/blob/master/packages/vue-moveable): A Vue Component that create Moveable, Draggable, Resizable, Scalable, Rotatable, Warpable, Pinchable.
-* [**vue3-moveable**](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable): A Vue 3 Component that create Moveable, Draggable, Resizable, Scalable, Rotatable, Warpable, Pinchable.
 
-## ⚙️ Developments
-The `moveable` repo is managed as a [monorepo](https://github.com/lerna/lerna) with `yarn`.
+### Core Packages
+* [**react-moveable**](https://github.com/daybrush/moveable/blob/master/packages/react-moveable) - React component with TypeScript support
+* [**moveable**](https://github.com/daybrush/moveable/blob/master/packages/moveable) - Vanilla JavaScript library
 
-```sh
-yarn config set registry https://registry.npmjs.org/
+### Utility Packages
+* [**helper**](https://github.com/daybrush/moveable/blob/master/packages/helper) - Group management utilities
+* [**snappable**](https://github.com/daybrush/moveable/blob/master/packages/snappable) - Snapping and guideline utilities
+
+### Package Status
+As of 2025, this repository has been modernized and simplified. Previous framework wrappers (Angular, Vue, Svelte, Preact, Lit) have been removed to focus on the core React implementation and vanilla JavaScript version.
+
+## ⚙️ Development
+
+This repository is managed as a modern npm workspace monorepo with TypeScript 5.0+ and Node.js 18+.
+
+### Getting Started
+
+```bash
+# Install dependencies
+npm install
+
+# Build all packages
+npm run packages:build
+
+# Start Storybook for development and testing
+npm run storybook
+
+# Run linting
+npm run lint
+
+# Run type checking
+npm run test:type
 ```
 
-The main project was made with `react` and I used [`croact`](https://github.com/daybrush/croact) to make it lighter with umd.
+### Development Workflow
 
-For development and testing, check in [packages/react-moveable](https://github.com/daybrush/moveable/blob/master/packages/react-moveable).
+1. **Main development** happens in `packages/react-moveable/`
+2. **Storybook** serves as both documentation and test runner
+3. **Changesets** are used for version management and publishing
+4. **ESLint 9** with flat config for modern linting
 
-### `npm run storybook`
+Open [http://localhost:6006](http://localhost:6006) to view Storybook in development mode.
 
+### Package Management
+
+We use **changesets** for version management:
+
+```bash
+# Add a changeset (describe your changes)
+npm run changeset
+
+# Version packages (updates versions and changelogs)
+npm run changeset:version
+
+# Publish packages
+npm run changeset:publish
 ```
-$ yarn
-$ npm run packages:build
-$ npm run storybook
-```
-
-Runs the app in the development mode.<br/>
-Open [http://localhost:6006](http://localhost:6006) to view it in the browser.
 
 The page will reload if you make edits.<br/>
 You will also see any lint errors in the console.

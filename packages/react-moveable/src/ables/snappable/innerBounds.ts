@@ -1,4 +1,4 @@
-import { average, getRad, throttle } from "@daybrush/utils";
+import { average, getRad, throttle } from "../../utils";
 import { rotate } from "@scena/matrix";
 import { maxOffset, getDistSize, getTinyDist, calculatePoses, abs } from "../../utils";
 

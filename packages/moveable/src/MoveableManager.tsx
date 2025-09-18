@@ -2,11 +2,8 @@ import { ref, Properties } from "framework-utils";
 import * as React from "react";
 import { renderSelf, ContainerProvider } from "croact";
 import InnerMoveable from "./InnerMoveable";
-import {
-    MoveableInterface,
-    MoveableOptions, MoveableProperties,
-} from "react-moveable/types";
-import { camelize, getDocument, isArray } from "@daybrush/utils";
+import { MoveableInterface, MoveableOptions, MoveableProperties } from "react-moveable/types";
+import { camelize, getDocument, isArray } from "../../react-moveable/src/utils/";
 import { MoveableEventsParameters } from "./types";
 import { PROPERTIES, EVENTS, METHODS } from "./consts";
 import EventEmitter from "@scena/event-emitter";
@@ -20,7 +17,7 @@ import EventEmitter from "@scena/event-emitter";
     if (prototype[property]) {
         return;
     }
-    prototype[property] = function(...args: any[]) {
+    prototype[property] = function (...args: any[]) {
         const self = this.getMoveable();
 
         if (!self || !self[property]) {
@@ -57,7 +54,7 @@ class MoveableManager extends EventEmitter<MoveableEventsParameters> {
 
         const events: any = {};
 
-        EVENTS.forEach(name => {
+        EVENTS.forEach((name) => {
             events[camelize(`on ${name}`)] = (e: any) => this.trigger<any>(name, e);
         });
         let selfElement!: HTMLElement;
@@ -71,12 +68,8 @@ class MoveableManager extends EventEmitter<MoveableEventsParameters> {
             parentElement.appendChild(selfElement);
         }
         this.containerProvider = renderSelf(
-            <InnerMoveable
-                ref={ref(this, "innerMoveable")}
-                {...nextOptions}
-                {...events}
-            /> as any,
-            selfElement,
+            (<InnerMoveable ref={ref(this, "innerMoveable")} {...nextOptions} {...events} />) as any,
+            selfElement
         );
 
         this.selfElement = selfElement;
@@ -101,11 +94,7 @@ class MoveableManager extends EventEmitter<MoveableEventsParameters> {
     public destroy() {
         const selfElement = this.selfElement!;
 
-        renderSelf(
-            null,
-            selfElement!,
-            this.containerProvider,
-        );
+        renderSelf(null, selfElement!, this.containerProvider);
         if (!this._warp) {
             selfElement?.parentElement?.removeChild(selfElement);
         }
@@ -120,7 +109,6 @@ class MoveableManager extends EventEmitter<MoveableEventsParameters> {
     }
 }
 
-interface MoveableManager extends MoveableInterface, MoveableProperties {
-}
+interface MoveableManager extends MoveableInterface, MoveableProperties {}
 
 export default MoveableManager;

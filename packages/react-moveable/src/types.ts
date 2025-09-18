@@ -1,4 +1,4 @@
-import { IObject } from "@daybrush/utils";
+import { IObject } from "./utils/";
 import Gesto, * as GestoTypes from "gesto";
 import CustomGesto from "./gesto/CustomGesto";
 import { MoveableTargetInfo } from "./utils/getMoveableTargetInfo";
@@ -28,9 +28,10 @@ export type MoveableManagerProps<T = {}> = {
     parentMoveable?: MoveableManagerInterface | null;
     parentPosition?: number[] | null;
     groupable?: boolean;
-} & MoveableDefaultOptions & (unknown extends T ? IObject<any> : T);
+} & MoveableDefaultOptions &
+    (unknown extends T ? IObject<any> : T);
 
-export type AnyObject<T> = (unknown extends T ? IObject<any> : T);
+export type AnyObject<T> = unknown extends T ? IObject<any> : T;
 
 /**
  * @typedef
@@ -269,9 +270,7 @@ export interface DefaultOptions {
  * @extends Moveable.OriginOptions
  * @extends Moveable.PaddingOptions
  */
-export interface MoveableDefaultOptions
-    extends DefaultOptions, DragAreaOptions, OriginOptions, PaddingOptions {
-}
+export interface MoveableDefaultOptions extends DefaultOptions, DragAreaOptions, OriginOptions, PaddingOptions {}
 export interface MatrixInfo {
     type: "offset" | "target" | "zoom";
     target: SVGElement | HTMLElement;
@@ -288,7 +287,8 @@ export type MoveableManagerState<T = {}> = {
     posDelta: number[];
     style: Partial<Writable<CSSStyleDeclaration>>;
     isPersisted?: boolean;
-} & MoveableTargetInfo & T;
+} & MoveableTargetInfo &
+    T;
 
 /**
  * @typedef
@@ -372,9 +372,7 @@ export interface SnapGuideline {
  * @typedef
  * @memberof Moveable.Snappable
  */
-export interface SnapElementGuideline extends SnapGuideline {
-
-}
+export interface SnapElementGuideline extends SnapGuideline {}
 
 export interface SnapBoundInfo {
     isBound: boolean;
@@ -444,26 +442,25 @@ export interface RenderGuidelineInnerInfo {
 }
 export type ExcludeKeys<T extends IObject<any>, U> = Pick<T, Exclude<keyof T, U>>;
 
-export interface MoveableProps extends
-    MoveableDefaultProps,
-    DraggableProps,
-    DragAreaProps,
-    OriginDraggableProps,
-    RotatableProps,
-    ResizableProps,
-    ScalableProps,
-    WarpableProps,
-    PinchableProps,
-    ExcludeKeys<GroupableProps, "targets" | "updateGroup">,
-    IndividualGroupableProps,
-    SnappableProps,
-    ScrollableProps,
-    ClippableProps,
-    RoundableProps,
-    BeforeRenderableProps,
-    ClickableProps,
-    RenderableProps {
-}
+export interface MoveableProps
+    extends MoveableDefaultProps,
+        DraggableProps,
+        DragAreaProps,
+        OriginDraggableProps,
+        RotatableProps,
+        ResizableProps,
+        ScalableProps,
+        WarpableProps,
+        PinchableProps,
+        ExcludeKeys<GroupableProps, "targets" | "updateGroup">,
+        IndividualGroupableProps,
+        SnappableProps,
+        ScrollableProps,
+        ClippableProps,
+        RoundableProps,
+        BeforeRenderableProps,
+        ClickableProps,
+        RenderableProps {}
 /**
  * @memberof Moveable
  * @typedef
@@ -482,24 +479,28 @@ export interface MoveableInitalOptions extends ExcludeKeys<MoveableDefaultOption
  * @extends Moveable.MoveableDefaultOptions
  * @extends Moveable.MoveableDefaultEvents
  */
-export interface MoveableDefaultProps extends MoveableInitalOptions, MoveableDefaultEvents {
-
-}
+export interface MoveableDefaultProps extends MoveableInitalOptions, MoveableDefaultEvents {}
 /**
  * @memberof Moveable
  * @typedef
  */
 export type MoveableRefTargetType = MoveableRefType | ArrayFormat<MoveableRefTargetType>;
 
-export type MoveableRefTargetsResultType
-    = Array<HTMLElement | SVGElement | string | null | MoveableRefTargetsResultType>;
+export type MoveableRefTargetsResultType = Array<
+    HTMLElement | SVGElement | string | null | MoveableRefTargetsResultType
+>;
 
 /**
  * @memberof Moveable
  * @typedef
  */
-export type MoveableRefType<T extends Element = HTMLElement | SVGElement>
-    = string | (() => T) | MoveableRefObject<T> | T | null | undefined;
+export type MoveableRefType<T extends Element = HTMLElement | SVGElement> =
+    | string
+    | (() => T)
+    | MoveableRefObject<T>
+    | T
+    | null
+    | undefined;
 /**
  * @memberof Moveable
  * @typedef
@@ -524,24 +525,23 @@ export interface MoveableRefObject<T extends Element = HTMLElement | SVGElement>
  * @extends Moveable.Roundable.RoundableOptions
  * @extends Moveable.Clickable.ClickableOptions
  */
-export interface MoveableOptions extends
-    MoveableInitalOptions,
-    DraggableOptions,
-    DragAreaOptions,
-    OriginDraggableOptions,
-    RotatableOptions,
-    ResizableOptions,
-    ScalableOptions,
-    WarpableOptions,
-    PinchableOptions,
-    GroupableOptions,
-    IndividualGroupableOptions,
-    SnappableOptions,
-    ScrollableOptions,
-    ClippableOptions,
-    RoundableOptions,
-    ClickableOptions {
-}
+export interface MoveableOptions
+    extends MoveableInitalOptions,
+        DraggableOptions,
+        DragAreaOptions,
+        OriginDraggableOptions,
+        RotatableOptions,
+        ResizableOptions,
+        ScalableOptions,
+        WarpableOptions,
+        PinchableOptions,
+        GroupableOptions,
+        IndividualGroupableOptions,
+        SnappableOptions,
+        ScrollableOptions,
+        ClippableOptions,
+        RoundableOptions,
+        ClickableOptions {}
 
 export type MoveableState = MoveableManagerState;
 
@@ -551,10 +551,7 @@ export type MoveableState = MoveableManagerState;
  * In Able, you can manage drag events, props, state, fire event props, and render elements.
  * @memberof Moveable
  */
-export interface Able<
-    Props extends IObject<any> = IObject<any>,
-    Events extends IObject<any> = IObject<any>
-> {
+export interface Able<Props extends IObject<any> = IObject<any>, Events extends IObject<any> = IObject<any>> {
     name: string;
     props?: readonly (keyof Props)[];
     events?: readonly (keyof Events)[];
@@ -589,7 +586,7 @@ export interface Able<
     /**
      * Check how related to drag
      */
-    dragRelation?: "strong" | "weak" | undefined | null | false,
+    dragRelation?: "strong" | "weak" | undefined | null | false;
     /**
      * Fired when the event is cleared
      */
@@ -648,7 +645,6 @@ export interface Able<
     // mouse leave event for group
     mouseGroupLeave?(moveable: any, e: any): any;
 
-
     // Execute the operation of able for external request
     request?(moveable: any): AbleRequester;
 }
@@ -702,7 +698,6 @@ export interface OnEvent {
      * Whether the event did not occur externally
      */
     isTrusted: boolean;
-
 }
 /**
  * @typedef
@@ -795,7 +790,6 @@ export interface AbleRequester {
     requestEnd(): IObject<any>;
 }
 
-
 /**
  * @typedef
  * @memberof Moveable
@@ -811,28 +805,24 @@ export interface OnChangeTargets {
     targets: Array<HTMLElement | SVGElement>;
 }
 
-
-
 /**
  * @typedef
  * @memberof Moveable.Pinchable
  * @extends Moveable.OnEvent
  */
-export interface OnPinchStart extends OnEvent {
-}
+export interface OnPinchStart extends OnEvent {}
 /**
  * @typedef
  * @memberof Moveable.Pinchable
  * @extends Moveable.OnEvent
  */
-export interface OnPinch extends OnEvent {
-}
+export interface OnPinch extends OnEvent {}
 /**
  * @typedef
  * @memberof Moveable.Pinchable
  * @extends Moveable.OnEndEvent
  */
-export interface OnPinchEnd extends OnEndEvent { }
+export interface OnPinchEnd extends OnEndEvent {}
 /**
  * When the drag starts, the dragStart event is called.
  * @typedef
@@ -887,8 +877,7 @@ export interface OnDrag extends OnEvent, CSSObject {
  * @memberof Moveable.Draggable
  * @extends Moveable.OnEndEvent
  */
-export interface OnDragEnd extends OnEndEvent {
-}
+export interface OnDragEnd extends OnEndEvent {}
 
 /**
  * @typedef
@@ -939,22 +928,20 @@ export interface OnDragOrigin extends OnEvent, CSSObject {
      * `dragOrigin` causes a `drag` event.
      */
     drag: OnDrag;
-
 }
 /**
  * @typedef
  * @memberof Moveable.OriginDraggable
  * @extends Moveable.OnEndEvent
  */
-export interface OnDragOriginEnd extends OnEndEvent {
-}
+export interface OnDragOriginEnd extends OnEndEvent {}
 
 /**
  * @typedef
  * @memberof Moveable.Roundable
  * @extends Moveable.OnEvent
  */
-export interface OnRoundStart extends OnEvent { }
+export interface OnRoundStart extends OnEvent {}
 
 /**
  * @typedef
@@ -977,7 +964,6 @@ export interface OnRound extends OnEvent, CSSObject {
     horizontals: number[];
     verticals: number[];
     borderRadius: string;
-
 }
 
 /**
@@ -985,9 +971,7 @@ export interface OnRound extends OnEvent, CSSObject {
  * @memberof Moveable.Roundable
  * @extends Moveable.OnEndEvent
  */
-export interface OnRoundEnd extends OnEndEvent {
-}
-
+export interface OnRoundEnd extends OnEndEvent {}
 
 /**
  * @typedef
@@ -1105,7 +1089,6 @@ export interface OnBeforeScale extends OnEvent {
     scale: number[];
 }
 
-
 /**
  * @typedef
  * @memberof Moveable.Scalable
@@ -1135,8 +1118,7 @@ export interface OnScale extends OnEvent, OnTransformEvent {
  * @memberof Moveable.Scalable
  * @extends Moveable.OnEndEvent
  */
-export interface OnScaleEnd extends OnEndEvent {
-}
+export interface OnScaleEnd extends OnEndEvent {}
 
 /**
  * @typedef
@@ -1311,8 +1293,7 @@ export interface OnResize extends OnEvent, OnTransformEvent {
  * @memberof Moveable.Resizable
  * @extends Moveable.OnEndEvent
  */
-export interface OnResizeEnd extends OnEndEvent {
-}
+export interface OnResizeEnd extends OnEndEvent {}
 /**
  * @typedef
  * @memberof Moveable.Rotatable
@@ -1367,7 +1348,6 @@ export interface OnBeforeRotate extends OnEvent {
      */
     setRotation(nextRotation: number): void;
 }
-
 
 /**
  * @typedef
@@ -1442,7 +1422,7 @@ export interface OnRotate extends OnEvent, OnTransformEvent {
  * @memberof Moveable.Rotatable
  * @extends Moveable.OnEndEvent
  */
-export interface OnRotateEnd extends OnEndEvent { }
+export interface OnRotateEnd extends OnEndEvent {}
 
 /**
  * @typedef
@@ -1487,7 +1467,7 @@ export interface OnWarp extends OnEvent, CSSObject {
  * @memberof Moveable.Warpable
  * @extends Moveable.OnEndEvent
  */
-export interface OnWarpEnd extends OnEndEvent { }
+export interface OnWarpEnd extends OnEndEvent {}
 
 /**
  * @typedef
@@ -1992,8 +1972,7 @@ export interface DraggableEvents {
     onDragGroupEnd: OnDragGroupEnd;
 }
 
-export interface DraggableProps extends DraggableOptions, EventInterface<DraggableEvents> {
-}
+export interface DraggableProps extends DraggableOptions, EventInterface<DraggableEvents> {}
 
 export interface DraggableState {
     dragInfo: {
@@ -2051,8 +2030,7 @@ export interface OriginDraggableEvents {
     onDragOrigin: OnDragOrigin;
     onDragOriginEnd: OnDragOriginEnd;
 }
-export interface OriginDraggableProps extends OriginDraggableOptions, EventInterface<OriginDraggableEvents> {
-}
+export interface OriginDraggableProps extends OriginDraggableOptions, EventInterface<OriginDraggableEvents> {}
 
 /**
  * @typedef
@@ -2104,8 +2082,7 @@ export interface RoundableEvents {
     onRoundGroup: OnRoundGroup;
     onRoundGroupEnd: OnRoundGroupEnd;
 }
-export interface RoundableProps extends RoundableOptions, EventInterface<RoundableEvents> {
-}
+export interface RoundableProps extends RoundableOptions, EventInterface<RoundableEvents> {}
 
 export interface RoundableState {
     borderRadiusState?: string;
@@ -2250,9 +2227,7 @@ export interface ResizableEvents {
     onResizeGroupEnd: OnResizeGroupEnd;
 }
 
-export interface ResizableProps extends ResizableOptions, EventInterface<ResizableEvents> {
-}
-
+export interface ResizableProps extends ResizableOptions, EventInterface<ResizableEvents> {}
 
 /**
  * @typedef
@@ -2282,7 +2257,6 @@ export interface ScalableOptions extends RenderDirections {
      */
     edge?: boolean | Array<LineDirection>;
 }
-
 
 /**
  * @typedef
@@ -2314,9 +2288,6 @@ export interface ScalableRequestParam extends AbleRequestParam {
     useSnap?: boolean;
 }
 
-
-
-
 /**
  * @typedef
  * @memberof Moveable.Rotatable
@@ -2334,7 +2305,6 @@ export interface RotatableRequestParam extends AbleRequestParam {
     rotate?: number;
 }
 
-
 export interface ScalableEvents {
     onScaleStart: OnScaleStart;
     onBeforeScale: OnBeforeScale;
@@ -2346,8 +2316,7 @@ export interface ScalableEvents {
     onScaleGroup: OnScaleGroup;
     onScaleGroupEnd: OnScaleGroupEnd;
 }
-export interface ScalableProps extends ScalableOptions, EventInterface<ScalableEvents> {
-}
+export interface ScalableProps extends ScalableOptions, EventInterface<ScalableEvents> {}
 
 /**
  * @typedef
@@ -2384,13 +2353,19 @@ export interface RenderDirections {
     displayAroundControls?: boolean;
 }
 
-export type RotationPosition
-    = "top" | "bottom"
-    | "left" | "right"
-    | "top-right" | "top-left"
-    | "bottom-right" | "bottom-left"
-    | "left-top" | "left-bottom"
-    | "right-top" | "right-bottom"
+export type RotationPosition =
+    | "top"
+    | "bottom"
+    | "left"
+    | "right"
+    | "top-right"
+    | "top-left"
+    | "bottom-right"
+    | "bottom-left"
+    | "left-top"
+    | "left-bottom"
+    | "right-top"
+    | "right-bottom"
     | "none";
 
 /**
@@ -2443,8 +2418,7 @@ export interface RotatableEvents {
     onRotateGroup: OnRotateGroup;
     onRotateGroupEnd: OnRotateGroupEnd;
 }
-export interface RotatableProps extends RotatableOptions, EventInterface<RotatableEvents> {
-}
+export interface RotatableProps extends RotatableOptions, EventInterface<RotatableEvents> {}
 /**
  * @typedef
  * @memberof Moveable.Warpable
@@ -2463,8 +2437,7 @@ export interface WarpableEvents {
     onWarp: OnWarp;
     onWarpEnd: OnWarpEnd;
 }
-export interface WarpableProps extends WarpableOptions, EventInterface<WarpableEvents> {
-}
+export interface WarpableProps extends WarpableOptions, EventInterface<WarpableEvents> {}
 
 /**
  * @typedef
@@ -2487,9 +2460,11 @@ export interface PinchableEvents {
     onPinchGroupEnd: OnPinchGroupEnd;
 }
 export interface PinchableProps
-    extends PinchableOptions, ResizableProps, ScalableProps,
-    RotatableProps, EventInterface<PinchableEvents> {
-}
+    extends PinchableOptions,
+        ResizableProps,
+        ScalableProps,
+        RotatableProps,
+        EventInterface<PinchableEvents> {}
 
 /**
  * @typedef
@@ -2545,7 +2520,6 @@ export interface GroupableOptions {
  */
 export type MoveableTargetGroupsType = Array<HTMLElement | SVGElement | MoveableTargetGroupsType>;
 
-
 /**
  * @typedef
  * @memberof Moveable.IndividualGroup
@@ -2563,12 +2537,11 @@ export interface IndividualGroupableOptions {
      */
     individualGroupableProps?: (
         element: HTMLElement | SVGElement | null | undefined,
-        index: number,
+        index: number
     ) => Record<string, any> | undefined | null | void;
 }
 
-export interface IndividualGroupableProps extends IndividualGroupableOptions {
-}
+export interface IndividualGroupableProps extends IndividualGroupableOptions {}
 
 export interface GroupableProps extends GroupableOptions {
     targets?: Array<HTMLElement | SVGElement>;
@@ -2791,8 +2764,6 @@ export interface ElementGuidelineValue extends SnapDirections {
     refresh?: boolean;
 }
 
-
-
 /**
  * @typedef
  * @memberof Moveable.Snappable
@@ -2861,8 +2832,7 @@ export interface SnappableEvents {
     onSnap: OnSnap;
     onBound: OnBound;
 }
-export interface SnappableProps extends SnappableOptions, EventInterface<SnappableEvents> {
-}
+export interface SnappableProps extends SnappableOptions, EventInterface<SnappableEvents> {}
 
 /**
  * @typedef
@@ -2944,9 +2914,9 @@ export interface SnappableState {
     elementRects: SnapElementRect[];
     guidelines: SnapGuideline[];
     snapContainer: MoveableRefType<HTMLElement | SVGElement>;
-    snapOffset: { left: number, top: number, bottom: number, right: number }
+    snapOffset: { left: number; top: number; bottom: number; right: number };
     snapRenderInfo?: SnapRenderInfo | null;
-    snapThresholdInfo?: { multiples: number[]; offset: number[]; } | null;
+    snapThresholdInfo?: { multiples: number[]; offset: number[] } | null;
     enableSnap: boolean;
 }
 export interface SnapRenderInfo {
@@ -2994,7 +2964,7 @@ export interface ScrollableOptions {
      * @deprecated
      * @default scrollContainer's scrollTop, scrollLeft
      */
-    getScrollPosition?: (e: { scrollContainer: HTMLElement, direction: number[] }) => number[];
+    getScrollPosition?: (e: { scrollContainer: HTMLElement; direction: number[] }) => number[];
     /**
      * Option to scroll with dragging
      * @since 0.43.0
@@ -3017,8 +2987,7 @@ export interface ScrollableEvents {
     onScroll: OnScroll;
     onScrollGroup: OnScrollGroup;
 }
-export interface ScrollableProps extends ScrollableOptions, EventInterface<ScrollableEvents> {
-}
+export interface ScrollableProps extends ScrollableOptions, EventInterface<ScrollableEvents> {}
 
 /**
  * @typedef
@@ -3036,8 +3005,7 @@ export interface DragAreaOptions {
      */
     passDragArea?: boolean;
 }
-export interface DragAreaProps extends DragAreaOptions {
-}
+export interface DragAreaProps extends DragAreaOptions {}
 /**
  * @typedef
  * @memberof Moveable.Clickable
@@ -3068,8 +3036,7 @@ export interface ClickableOptions {
  * @extends Moveable.Clickable.ClickableOptions
  * @typedef
  */
-export interface ClickableProps extends EventInterface<ClickableEvents>, ClickableOptions {
-}
+export interface ClickableProps extends EventInterface<ClickableEvents>, ClickableOptions {}
 export interface BeforeRenderableEvents {
     onBeforeRenderStart: OnBeforeRenderStart;
     onBeforeRender: OnBeforeRender;
@@ -3078,8 +3045,7 @@ export interface BeforeRenderableEvents {
     onBeforeRenderGroup: OnBeforeRenderGroup;
     onBeforeRenderGroupEnd: OnBeforeRenderGroupEnd;
 }
-export interface BeforeRenderableProps extends EventInterface<BeforeRenderableEvents> {
-}
+export interface BeforeRenderableProps extends EventInterface<BeforeRenderableEvents> {}
 export interface RenderableEvents {
     onRenderStart: OnRenderStart;
     onRender: OnRender;
@@ -3088,8 +3054,7 @@ export interface RenderableEvents {
     onRenderGroup: OnRenderGroup;
     onRenderGroupEnd: OnRenderGroupEnd;
 }
-export interface RenderableProps extends EventInterface<RenderableEvents> {
-}
+export interface RenderableProps extends EventInterface<RenderableEvents> {}
 
 /**
  * @typedef
@@ -3155,11 +3120,10 @@ export interface ClippableEvents {
     onClip: OnClip;
     onClipEnd: OnClipEnd;
 }
-export interface ClippableProps extends ClippableOptions, EventInterface<ClippableEvents> {
-}
+export interface ClippableProps extends ClippableOptions, EventInterface<ClippableEvents> {}
 export interface ClippableState {
     clipPathState?: string;
-    snapBoundInfos?: { vertical: Required<SnapBoundInfo>, horizontal: Required<SnapBoundInfo> } | null;
+    snapBoundInfos?: { vertical: Required<SnapBoundInfo>; horizontal: Required<SnapBoundInfo> } | null;
 }
 
 /**
@@ -3210,14 +3174,13 @@ export interface OnClip extends OnEvent, CSSObject {
      * Splited CSS styles of changed clip
      */
     clipStyles: string[];
-
 }
 /**
  * @typedef
  * @memberof Moveable.Clippable
  * @extends Moveable.OnEndEvent
  */
-export interface OnClipEnd extends OnEndEvent { }
+export interface OnClipEnd extends OnEndEvent {}
 
 export interface OnCustomDrag extends GestoTypes.Position {
     type: string;
@@ -3237,7 +3200,6 @@ export interface OnCustomDrag extends GestoTypes.Position {
 export type PersistRectData = Omit<Partial<RectInfo>, "children"> & {
     children?: Array<Partial<RectInfo>>;
 };
-
 
 /**
  * @typedef
@@ -3357,7 +3319,7 @@ export interface MoveableManagerInterface<T = {}, U = {}> extends MoveableInterf
     controlAbles: Able[];
     targetAbles: Able[];
     areaElement: HTMLElement;
-    controlBox: HTMLElement,
+    controlBox: HTMLElement;
     isUnmounted: boolean;
     useCSS(tag: string, css: string): any;
     getContainer(): HTMLElement | SVGElement;
@@ -3426,10 +3388,11 @@ export interface MoveableInterface {
      * requester.request({ deltaX: 10, deltaY: 10 });
      * requester.requestEnd();
      */
-    request<
-        RequestParam extends AbleRequesters[Name],
-        Name extends string = string,
-    >(ableName: Name, params?: RequestParam, isInstant?: boolean): Requester<RequestParam>;
+    request<RequestParam extends AbleRequesters[Name], Name extends string = string>(
+        ableName: Name,
+        params?: RequestParam,
+        isInstant?: boolean
+    ): Requester<RequestParam>;
     /**
      * moveable is the top level that manages targets
      * `Single`: MoveableManager instance
@@ -3469,15 +3432,12 @@ export interface ControlPose {
     direction?: "n" | "e" | "s" | "w" | "nw" | "ne" | "sw" | "se" | "nesw";
 }
 
-
 export type AnyProps<T extends IObject<any>> = Required<{ [key in keyof T]: any }>;
-export type UnionToIntersection<U> =
-    (U extends any ? (k: U) => void : never) extends ((k: infer I) => void) ? I : never;
+export type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never;
 
 // export type MoveableEventsProps = Parameters<Required<MoveableProps>[keyof typeof MOVEABLE_EVENTS_PROPS_MAP]>[0];
 export type MoveableEvents = {
-    [key in typeof MOVEABLE_EVENTS[number]]
-    : Parameters<Required<MoveableProps>[`on${Capitalize<key>}`]>[0];
+    [key in (typeof MOVEABLE_EVENTS)[number]]: Parameters<Required<MoveableProps>[`on${Capitalize<key>}`]>[0];
 };
 
 export type Writable<T> = {
@@ -3485,7 +3445,7 @@ export type Writable<T> = {
 };
 
 export type MoveableProperties = {
-    -readonly [key in typeof MOVEABLE_PROPS[number]]?: MoveableProps[key];
+    -readonly [key in (typeof MOVEABLE_PROPS)[number]]?: MoveableProps[key];
 };
 
 export interface SnappableRenderType {
@@ -3493,9 +3453,13 @@ export interface SnappableRenderType {
     pos: number;
 }
 
-export type ExcludeParams<T extends IObject<any>>
-    = ExcludeKeys<T, keyof OnEvent>;
-export type ExcludeEndParams<T extends IObject<any>>
-    = ExcludeKeys<ExcludeParams<T>, "lastEvent" | "isDrag" | "isDouble">;
-export type DefaultProps<Name extends string, AbleObject extends Partial<Able<any, any>>>
-    = AbleObject extends { props: {} } ? AbleObject["props"] : { readonly [key in Name]: BooleanConstructor; };
+export type ExcludeParams<T extends IObject<any>> = ExcludeKeys<T, keyof OnEvent>;
+export type ExcludeEndParams<T extends IObject<any>> = ExcludeKeys<
+    ExcludeParams<T>,
+    "lastEvent" | "isDrag" | "isDouble"
+>;
+export type DefaultProps<Name extends string, AbleObject extends Partial<Able<any, any>>> = AbleObject extends {
+    props: {};
+}
+    ? AbleObject["props"]
+    : { readonly [key in Name]: BooleanConstructor };

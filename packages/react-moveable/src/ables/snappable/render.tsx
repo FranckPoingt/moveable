@@ -1,4 +1,4 @@
-import { throttle } from "@daybrush/utils";
+import { throttle } from "../../utils";
 import {
     RenderGuidelineInfo, Renderer, RenderGuidelineInnerInfo,
     MoveableManagerInterface, SnappableProps, SnapGuideline,

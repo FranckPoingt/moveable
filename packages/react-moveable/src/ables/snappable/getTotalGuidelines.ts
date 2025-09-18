@@ -1,4 +1,4 @@
-import { convertUnitSize, dot, flat, isNumber, isObject, throttle } from "@daybrush/utils";
+import { convertUnitSize, dot, flat, isNumber, isObject, throttle } from "../../utils";
 import { diff } from "@egjs/children-differ";
 import {
     MoveableManagerInterface, SnappableProps,

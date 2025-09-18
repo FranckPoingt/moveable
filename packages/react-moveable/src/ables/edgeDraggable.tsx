@@ -1,4 +1,4 @@
-import { hasClass } from "@daybrush/utils";
+import { hasClass } from "../utils/";
 import { DraggableProps, MoveableGroupInterface, MoveableManagerInterface, Renderer } from "../types";
 import { prefix } from "../utils";
 import Draggable from "./Draggable";
@@ -26,13 +26,7 @@ cursor: move;
         if (!edge) {
             return [];
         }
-        return renderEdgeLines(
-            React,
-            "edgeDraggable",
-            edge,
-            moveable.getState().renderPoses,
-            props.zoom!,
-        );
+        return renderEdgeLines(React, "edgeDraggable", edge, moveable.getState().renderPoses, props.zoom!);
     },
     dragCondition(moveable: MoveableManagerInterface<DraggableProps>, e: any) {
         const props = moveable.props;
@@ -42,10 +36,12 @@ cursor: move;
             return false;
         }
 
-        return !props.draggable
-            && hasClass(target, prefix("direction"))
-            && hasClass(target, prefix("edge"))
-            && hasClass(target, prefix("edgeDraggable"));
+        return (
+            !props.draggable &&
+            hasClass(target, prefix("direction")) &&
+            hasClass(target, prefix("edge")) &&
+            hasClass(target, prefix("edgeDraggable"))
+        );
     },
     dragStart(moveable: MoveableManagerInterface<DraggableProps>, e: any) {
         return Draggable.dragStart(moveable, getDraggableEvent(e));

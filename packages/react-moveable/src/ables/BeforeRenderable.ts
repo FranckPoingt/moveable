@@ -1,14 +1,18 @@
 import {
-    MoveableManagerInterface, BeforeRenderableProps,
-    OnBeforeRenderStart, OnBeforeRender, OnBeforeRenderEnd,
-    MoveableGroupInterface, OnBeforeRenderGroupStart,
-    OnBeforeRenderGroup, OnBeforeRenderGroupEnd,
+    MoveableManagerInterface,
+    BeforeRenderableProps,
+    OnBeforeRenderStart,
+    OnBeforeRender,
+    OnBeforeRenderEnd,
+    MoveableGroupInterface,
+    OnBeforeRenderGroupStart,
+    OnBeforeRenderGroup,
+    OnBeforeRenderGroupEnd,
 } from "../types";
 import { fillParams, triggerEvent } from "../utils";
 import { convertMatrixtoCSS, createIdentityMatrix } from "@scena/matrix";
-import { isArray, splitSpace } from "@daybrush/utils";
+import { isArray, splitSpace } from "../utils/index";
 import { fillChildEvents } from "../groupUtils";
-
 
 function isIdentityMatrix(matrix: string, is3d?: boolean) {
     const n = is3d ? 4 : 3;
@@ -31,11 +35,7 @@ export default {
     ] as const,
     dragRelation: "weak",
     setTransform(moveable: MoveableManagerInterface<BeforeRenderableProps>, e: any) {
-        const {
-            is3d,
-            targetMatrix,
-            inlineTransform,
-        } = moveable.state;
+        const { is3d, targetMatrix, inlineTransform } = moveable.state;
         const cssMatrix = is3d
             ? `matrix3d(${targetMatrix.join(",")})`
             : `matrix(${convertMatrixtoCSS(targetMatrix, true)})`;
@@ -74,19 +74,27 @@ export default {
             this.setTransform(moveable, e);
         }
         this.resetStyle(e);
-        triggerEvent(moveable, `onBeforeRender`, fillParams<OnBeforeRender>(moveable, e, {
-            isPinch: !!e.isPinch,
-        }));
+        triggerEvent(
+            moveable,
+            `onBeforeRender`,
+            fillParams<OnBeforeRender>(moveable, e, {
+                isPinch: !!e.isPinch,
+            })
+        );
     },
     dragEnd(moveable: MoveableManagerInterface<BeforeRenderableProps>, e: any) {
         if (!e.datas.startTransforms) {
             this.setTransform(moveable, e);
             this.resetStyle(e);
         }
-        triggerEvent(moveable, `onBeforeRenderEnd`, fillParams<OnBeforeRenderEnd>(moveable, e, {
-            isPinch: !!e.isPinch,
-            isDrag: e.isDrag,
-        }));
+        triggerEvent(
+            moveable,
+            `onBeforeRenderEnd`,
+            fillParams<OnBeforeRenderEnd>(moveable, e, {
+                isPinch: !!e.isPinch,
+                isDrag: e.isDrag,
+            })
+        );
     },
     dragGroupStart(moveable: MoveableGroupInterface<BeforeRenderableProps>, e: any) {
         this.dragStart(moveable, e);
@@ -101,12 +109,16 @@ export default {
 
             return this.fillDragStartParams(childMoveable, childEvent);
         });
-        triggerEvent(moveable, `onBeforeRenderGroupStart`, fillParams<OnBeforeRenderGroupStart>(moveable, e, {
-            isPinch: !!e.isPinch,
-            targets: moveable.props.targets,
-            setTransform() { },
-            events: params,
-        }));
+        triggerEvent(
+            moveable,
+            `onBeforeRenderGroupStart`,
+            fillParams<OnBeforeRenderGroupStart>(moveable, e, {
+                isPinch: !!e.isPinch,
+                targets: moveable.props.targets,
+                setTransform() {},
+                events: params,
+            })
+        );
     },
     dragGroup(moveable: MoveableGroupInterface<BeforeRenderableProps>, e: any) {
         this.drag(moveable, e);
@@ -119,20 +131,28 @@ export default {
             this.resetStyle(childEvent);
             return this.fillDragParams(childMoveable, childEvent);
         });
-        triggerEvent(moveable, `onBeforeRenderGroup`, fillParams<OnBeforeRenderGroup>(moveable, e, {
-            isPinch: !!e.isPinch,
-            targets: moveable.props.targets,
-            events: params,
-        }));
+        triggerEvent(
+            moveable,
+            `onBeforeRenderGroup`,
+            fillParams<OnBeforeRenderGroup>(moveable, e, {
+                isPinch: !!e.isPinch,
+                targets: moveable.props.targets,
+                events: params,
+            })
+        );
     },
     dragGroupEnd(moveable: MoveableGroupInterface<BeforeRenderableProps>, e: any) {
         this.dragEnd(moveable, e);
 
-        triggerEvent(moveable, `onBeforeRenderGroupEnd`, fillParams<OnBeforeRenderGroupEnd>(moveable, e, {
-            isPinch: !!e.isPinch,
-            isDrag: e.isDrag,
-            targets: moveable.props.targets,
-        }));
+        triggerEvent(
+            moveable,
+            `onBeforeRenderGroupEnd`,
+            fillParams<OnBeforeRenderGroupEnd>(moveable, e, {
+                isPinch: !!e.isPinch,
+                isDrag: e.isDrag,
+                targets: moveable.props.targets,
+            })
+        );
     },
     dragControlStart(moveable: MoveableManagerInterface<BeforeRenderableProps>, e: any) {
         return this.dragStart(moveable, e);

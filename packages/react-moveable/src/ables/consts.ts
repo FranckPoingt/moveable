@@ -19,39 +19,47 @@ import Renderable from "./Renderable";
 import Clickable from "./Clickable";
 import edgeDraggable from "./edgeDraggable";
 import IndividualGroupable from "./IndividualGroupable";
-import { camelize, pushSet } from "@daybrush/utils";
+import { camelize, pushSet } from "../utils/index";
 import { Able } from "../types";
 
-export const MOVEABLE_ABLES = /*#__PURE__*/[
+export const MOVEABLE_ABLES = /*#__PURE__*/ [
     BeforeRenderable,
-    Default, Snappable, Pinchable,
-    Draggable, edgeDraggable,
-    Resizable, Scalable, Warpable, Rotatable,
-    Scrollable, Padding, Origin,
+    Default,
+    Snappable,
+    Pinchable,
+    Draggable,
+    edgeDraggable,
+    Resizable,
+    Scalable,
+    Warpable,
+    Rotatable,
+    Scrollable,
+    Padding,
+    Origin,
     OriginDraggable,
-    Clippable, Roundable, Groupable, IndividualGroupable,
+    Clippable,
+    Roundable,
+    Groupable,
+    IndividualGroupable,
     Clickable,
     DragArea,
     Renderable,
 ] as const;
 
-
-export const MOVEABLE_EVENTS = /*#__PURE__*/(MOVEABLE_ABLES as readonly Able[]).reduce((current, able) => {
-    (able.events || []).forEach(name => {
+export const MOVEABLE_EVENTS = /*#__PURE__*/ (MOVEABLE_ABLES as readonly Able[]).reduce((current, able) => {
+    (able.events || []).forEach((name) => {
         pushSet(current, name);
     });
     return current;
-}, [] as any[]) as Array<typeof MOVEABLE_ABLES[number]["events"][number]>;
+}, [] as any[]) as Array<(typeof MOVEABLE_ABLES)[number]["events"][number]>;
 
-export const MOVEABLE_PROPS = /*#__PURE__*/(MOVEABLE_ABLES as readonly Able[]).reduce((current, able) => {
-    (able.props || []).forEach(name => {
+export const MOVEABLE_PROPS = /*#__PURE__*/ (MOVEABLE_ABLES as readonly Able[]).reduce((current, able) => {
+    (able.props || []).forEach((name) => {
         pushSet(current, name);
     });
     return current;
-}, [] as any[]) as Array<typeof MOVEABLE_ABLES[number]["props"][number]>;
+}, [] as any[]) as Array<(typeof MOVEABLE_ABLES)[number]["props"][number]>;
 
-
-export const MOVEABLE_REACT_EVENTS = /*#__PURE__*/MOVEABLE_EVENTS.map(name => {
+export const MOVEABLE_REACT_EVENTS = /*#__PURE__*/ MOVEABLE_EVENTS.map((name) => {
     return camelize(`on ${name}`);
-}) as Array<`on${Capitalize<typeof MOVEABLE_ABLES[number]["events"][number]>}`>;
-
+}) as Array<`on${Capitalize<(typeof MOVEABLE_ABLES)[number]["events"][number]>}`>;

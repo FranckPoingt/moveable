@@ -89,13 +89,24 @@
 $ npm i react-moveable
 ```
 
-## 📄 Documents
+## 📄 Documentation
 
-* [**Moveable Handbook**](https://github.com/daybrush/moveable/blob/master/handbook/handbook.md)
-* [**How to use Group**](https://github.com/daybrush/moveable/blob/master/handbook/handbook.md#toc-group)
-* [**How to use custom CSS**](https://github.com/daybrush/moveable/blob/master/handbook/handbook.md#toc-custom-css)
-* [**How to make custom able**](https://github.com/daybrush/moveable/blob/master/packages/react-moveable/src/ables/README.md)
-* [API Documentation](https://daybrush.com/moveable/release/latest/doc/)
+### TypeScript Support
+React Moveable is built with TypeScript and provides full type definitions out of the box.
+
+```typescript
+import Moveable from "react-moveable";
+import type { MoveableProps, OnDrag, OnResize } from "react-moveable";
+```
+
+### Core References
+* [**API Documentation**](https://daybrush.com/moveable/release/latest/doc/) - Complete API reference with TypeScript types
+* [**Storybook**](https://daybrush.com/moveable/storybook/) - Interactive examples and documentation
+* [**Type Definitions**](https://github.com/daybrush/moveable/blob/master/packages/react-moveable/src/types.ts) - Core TypeScript interfaces
+
+### Advanced Guides
+* [**Creating Custom Ables**](https://github.com/daybrush/moveable/blob/master/packages/react-moveable/src/ables/README.md) - How to extend Moveable with custom behaviors
+* [**Main Repository**](https://github.com/daybrush/moveable) - Complete documentation and examples
 
 ## 🚀 How to use
 

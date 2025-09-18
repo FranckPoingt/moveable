@@ -1,5 +1,3 @@
-import { expect } from "@storybook/jest";
-
 import { makeArgType, makeOptionLink } from "../utils";
 import { add } from "../utils/story";
 import "../templates/default.css";
@@ -29,7 +27,6 @@ export const OptionsMutationObserver = add("useMutationObserver", {
     path: require.resolve("./ReactUseMutationObserverApp"),
 });
 
-
 export const OptionsPadding = add("padding", {
     app: require("./ReactPaddingApp").default,
     path: require.resolve("./ReactPaddingApp"),
@@ -48,7 +45,6 @@ export const OptionsPadding = add("padding", {
         });
         // width 100 + padding (10 + 20) 130 => 230
         // height 100 + padding (30 + 40) 170 => 220
-
 
         const paddingAreas = canvasElement.querySelectorAll<HTMLElement>(`.moveable-padding`);
         const widthLine = canvasElement.querySelector<HTMLElement>(`[data-line-key="render-line-0"]`)!;
@@ -95,25 +91,20 @@ export const OptionsControlPadding = add("controlPadding", {
     },
 });
 
-
 export const OptionsCheckInput = add("checkInput", {
     app: require("./ReactCheckInputApp").default,
     path: require.resolve("./ReactCheckInputApp"),
 });
-
 
 export const OptionsDragFocusedInput = add("dragFocusedInput", {
     app: require("./ReactDragFocusedInputApp").default,
     path: require.resolve("./ReactDragFocusedInputApp"),
 });
 
-
 export const OptionsViewContainer = add("viewContainer (Cursor is applied in viewer during dragging)", {
     app: require("./ReactViewContainerApp").default,
     path: require.resolve("./ReactViewContainerApp"),
 });
-
-
 
 export const OptionsPersistData = add("persistData (First render with persisted data)", {
     app: require("./ReactPersistDataApp").default,
@@ -125,11 +116,13 @@ export const OptionsPersistDataGroup = add("persistData (First render with persi
     path: require.resolve("./ReactGroupPersistDataApp"),
 });
 
-
-export const OptionsPersistDataIndividualGroup = add(`persistData (First render with persisted data, individual group)`, {
-    app: require("./ReactIndividualGroupPersistDataApp").default,
-    path: require.resolve("./ReactIndividualGroupPersistDataApp"),
-});
+export const OptionsPersistDataIndividualGroup = add(
+    `persistData (First render with persisted data, individual group)`,
+    {
+        app: require("./ReactIndividualGroupPersistDataApp").default,
+        path: require.resolve("./ReactIndividualGroupPersistDataApp"),
+    }
+);
 
 export const OptionsRootContainer = add("rootContainer (css transformed container)", {
     app: require("./ReactTransformedApp").default,
@@ -146,20 +139,15 @@ export const OptionsZoom = add("zoom (line, control)", {
     path: require.resolve("./ReactZoomApp"),
 });
 
-
 export const OptionsAccuratePosition = add("useAccuratePosition (Render in a more accurate position)", {
     app: require("./ReactUseAccuratePositionApp").default,
     path: require.resolve("./ReactUseAccuratePositionApp"),
 });
 
-
-
 export const OptionsDragTarget = add("other dragTarget", {
     app: require("./ReactDragTargetApp").default,
     path: require.resolve("./ReactDragTargetApp"),
 });
-
-
 
 export const OptionsDragTargetSelf = add("dragTargetSelf with other dragTarget", {
     app: require("./ReactDragTargetSelfApp").default,

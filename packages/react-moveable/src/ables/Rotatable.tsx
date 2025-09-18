@@ -1,22 +1,33 @@
 import {
-    prefix, triggerEvent, fillParams,
-    calculatePosition, fillEndParams, getRotationRad, getRefTargets,
-    catchEvent, getProps, calculateMoveableClientPositions,
+    prefix,
+    triggerEvent,
+    fillParams,
+    calculatePosition,
+    fillEndParams,
+    getRotationRad,
+    getRefTargets,
+    catchEvent,
+    getProps,
+    calculateMoveableClientPositions,
     fillAfterTransform,
     getTotalOrigin,
 } from "../utils";
+import { IObject, hasClass, getRad, throttle, getDist, getKeys, isArray } from "../utils/";
 import {
-    IObject, hasClass, getRad,
-    throttle,
-    getDist,
-    getKeys,
-    isArray,
-} from "@daybrush/utils";
-import {
-    RotatableProps, OnRotateGroup, OnRotateGroupEnd,
-    Renderer, OnRotateGroupStart, OnRotateStart, OnRotate,
-    OnRotateEnd, MoveableClientRect, SnappableProps,
-    SnappableState, MoveableManagerInterface, MoveableGroupInterface, DraggableProps,
+    RotatableProps,
+    OnRotateGroup,
+    OnRotateGroupEnd,
+    Renderer,
+    OnRotateGroupStart,
+    OnRotateStart,
+    OnRotate,
+    OnRotateEnd,
+    MoveableClientRect,
+    SnappableProps,
+    SnappableState,
+    MoveableManagerInterface,
+    MoveableGroupInterface,
+    DraggableProps,
     OnBeforeRotate,
     OnBeforeRotateGroup,
     OnResizeStart,
@@ -30,7 +41,8 @@ import CustomGesto, { setCustomDrag } from "../gesto/CustomGesto";
 import { checkSnapRotate } from "./Snappable";
 import {
     fillTransformStartEvent,
-    convertTransformFormat, getRotateDist,
+    convertTransformFormat,
+    getRotateDist,
     fillTransformEvent,
     setDefaultTransformIndex,
     resolveTransformEvent,
@@ -52,8 +64,10 @@ import { getOffsetFixedDirectionInfo, getOffsetFixedPositionInfo } from "../util
 
 function setRotateStartInfo(
     moveable: MoveableManagerInterface<any, any>,
-    datas: IObject<any>, clientX: number, clientY: number,
-    rect: MoveableClientRect,
+    datas: IObject<any>,
+    clientX: number,
+    clientY: number,
+    rect: MoveableClientRect
 ) {
     const groupable = moveable.props.groupable;
     const state = moveable.state;
@@ -63,28 +77,20 @@ function setRotateStartInfo(
         moveable.state.rootMatrix,
         // TO-DO #710
         minus([origin[0], origin[1]], groupable ? [0, 0] : [state.left, state.top]),
-        n,
+        n
     );
     const startAbsoluteOrigin = plus([rect.left, rect.top], nextOrigin);
 
     datas.startAbsoluteOrigin = startAbsoluteOrigin;
-    datas.prevDeg = getRad(startAbsoluteOrigin, [clientX, clientY]) / Math.PI * 180;
+    datas.prevDeg = (getRad(startAbsoluteOrigin, [clientX, clientY]) / Math.PI) * 180;
     datas.defaultDeg = datas.prevDeg;
     datas.prevSnapDeg = 0;
     datas.loop = 0;
     datas.startDist = getDist(startAbsoluteOrigin, [clientX, clientY]);
 }
 
-function getAbsoluteDist(
-    deg: number,
-    direction: number,
-    datas: IObject<any>,
-) {
-    const {
-        defaultDeg,
-        prevDeg,
-    } = datas;
-
+function getAbsoluteDist(deg: number, direction: number, datas: IObject<any>) {
+    const { defaultDeg, prevDeg } = datas;
 
     let normalizedPrevDeg = prevDeg % 360;
     let loop = Math.floor(prevDeg / 360);
@@ -106,16 +112,8 @@ function getAbsoluteDist(
 
     return dist;
 }
-function getAbsoluteDistByClient(
-    clientX: number, clientY: number,
-    direction: number,
-    datas: IObject<any>,
-) {
-    return getAbsoluteDist(
-        getRad(datas.startAbsoluteOrigin, [clientX, clientY]) / Math.PI * 180,
-        direction,
-        datas,
-    );
+function getAbsoluteDistByClient(clientX: number, clientY: number, direction: number, datas: IObject<any>) {
+    return getAbsoluteDist((getRad(datas.startAbsoluteOrigin, [clientX, clientY]) / Math.PI) * 180, direction, datas);
 }
 function getRotateInfo(
     moveable: MoveableManagerInterface<any, any>,
@@ -123,22 +121,15 @@ function getRotateInfo(
     datas: IObject<any>,
     dist: number,
     startValue: number,
-    checkSnap?: boolean,
+    checkSnap?: boolean
 ) {
-    const {
-        throttleRotate = 0,
-    } = moveable.props;
+    const { throttleRotate = 0 } = moveable.props;
     const prevSnapDeg = datas.prevSnapDeg;
     let snapRotation = 0;
     let isSnap = false;
 
     if (checkSnap) {
-        const result = checkSnapRotate(
-            moveable,
-            moveableRect,
-            dist,
-            startValue + dist,
-        );
+        const result = checkSnapRotate(moveable, moveableRect, dist, startValue + dist);
 
         isSnap = result.isSnap;
         snapRotation = startValue + result.dist;
@@ -152,8 +143,6 @@ function getRotateInfo(
     datas.prevSnapDeg = snapDeg;
 
     return [snapDeg - prevSnapDeg, snapDeg, snapRotation];
-
-
 }
 
 export function getReversePositionX(dir: string) {
@@ -175,17 +164,13 @@ export function getReversePositionY(dir: string) {
 export function getRotationPositions(
     rotationPosition: RotatableProps["rotationPosition"],
     [pos1, pos2, pos3, pos4]: number[][],
-    direction: number,
+    direction: number
 ): [number[], number][] {
     if (rotationPosition === "none") {
         return [];
     }
     if (isArray(rotationPosition)) {
-        return rotationPosition.map(child => getRotationPositions(
-            child,
-            [pos1, pos2, pos3, pos4],
-            direction,
-        )[0]);
+        return rotationPosition.map((child) => getRotationPositions(child, [pos1, pos2, pos3, pos4], direction)[0]);
     }
     const [dir1, dir2] = (rotationPosition || "top").split("-");
     let radPoses = [pos1, pos2];
@@ -197,10 +182,7 @@ export function getRotationPositions(
     } else if (dir1 === "bottom") {
         radPoses = [pos4, pos3];
     }
-    let pos = [
-        (radPoses[0][0] + radPoses[1][0]) / 2,
-        (radPoses[0][1] + radPoses[1][1]) / 2,
-    ];
+    let pos = [(radPoses[0][0] + radPoses[1][0]) / 2, (radPoses[0][1] + radPoses[1][1]) / 2];
     const rad = getRotationRad(radPoses, direction);
     if (dir2) {
         const isStart = dir2 === "top" || dir2 === "left";
@@ -217,16 +199,16 @@ export function dragControlCondition(moveable: MoveableManagerInterface<Rotatabl
     }
     const target = e.inputEvent.target as HTMLElement;
     if (
-        hasClass(target, prefix("rotation-control"))
-        || (moveable.props.rotateAroundControls && hasClass(target, prefix("around-control")))
-        || (hasClass(target, prefix("control")) && hasClass(target, prefix("rotatable")))
+        hasClass(target, prefix("rotation-control")) ||
+        (moveable.props.rotateAroundControls && hasClass(target, prefix("around-control"))) ||
+        (hasClass(target, prefix("control")) && hasClass(target, prefix("rotatable")))
     ) {
         return true;
     }
     const rotationTarget = moveable.props.rotationTarget;
 
     if (rotationTarget) {
-        return getRefTargets(rotationTarget, true).some(element => {
+        return getRefTargets(rotationTarget, true).some((element) => {
             if (!element) {
                 return false;
             }
@@ -298,18 +280,9 @@ export default {
         return prefix("view-rotation-dragging");
     },
     render(moveable: MoveableManagerInterface<RotatableProps>, React: Renderer): any {
-        const {
-            rotatable,
-            rotationPosition,
-            zoom,
-            renderDirections,
-            rotateAroundControls,
-            resolveAblesWithRotatable,
-        } = getProps(moveable.props, "rotatable");
-        const {
-            renderPoses,
-            direction,
-        } = moveable.getState();
+        const { rotatable, rotationPosition, zoom, renderDirections, rotateAroundControls, resolveAblesWithRotatable } =
+            getProps(moveable.props, "rotatable");
+        const { renderPoses, direction } = moveable.getState();
         if (!rotatable) {
             return null;
         }
@@ -318,16 +291,26 @@ export default {
 
         positions.forEach(([pos, rad], i) => {
             jsxs.push(
-                <div key={`rotation${i}`} className={prefix("rotation")} style={{
-                    // tslint:disable-next-line: max-line-length
-                    transform: `translate(-50%) translate(${pos[0]}px, ${pos[1]}px) rotate(${rad}rad)`,
-                }}>
-                    <div className={prefix("line rotation-line")} style={{
-                        transform: `scaleX(${zoom})`,
-                    }}></div>
-                    <div className={prefix("control rotation-control")} style={{
-                        transform: `translate(0.5px) scale(${zoom})`,
-                    }}></div>
+                <div
+                    key={`rotation${i}`}
+                    className={prefix("rotation")}
+                    style={{
+                        // tslint:disable-next-line: max-line-length
+                        transform: `translate(-50%) translate(${pos[0]}px, ${pos[1]}px) rotate(${rad}rad)`,
+                    }}
+                >
+                    <div
+                        className={prefix("line rotation-line")}
+                        style={{
+                            transform: `scaleX(${zoom})`,
+                        }}
+                    ></div>
+                    <div
+                        className={prefix("control rotation-control")}
+                        style={{
+                            transform: `translate(0.5px) scale(${zoom})`,
+                        }}
+                    ></div>
                 </div>
             );
         });
@@ -335,8 +318,8 @@ export default {
             const ables = getKeys(resolveAblesWithRotatable || {});
             const resolveMap: Record<string, string> = {};
 
-            ables.forEach(name => {
-                resolveAblesWithRotatable![name]!.forEach(direction => {
+            ables.forEach((name) => {
+                resolveAblesWithRotatable![name]!.forEach((direction) => {
                     resolveMap[direction] = name;
                 });
             });
@@ -344,7 +327,7 @@ export default {
             let directionControlInfos: DirectionControlInfo[] = [];
 
             if (isArray(renderDirections)) {
-                directionControlInfos = renderDirections.map(dir => {
+                directionControlInfos = renderDirections.map((dir) => {
                     const able = resolveMap[dir];
 
                     return {
@@ -355,12 +338,7 @@ export default {
                 });
             }
 
-            jsxs.push(...renderDirectionControlsByInfos(
-                moveable,
-                "rotatable",
-                directionControlInfos,
-                React,
-            ));
+            jsxs.push(...renderDirectionControlsByInfos(moveable, "rotatable", directionControlInfos, React));
         }
         if (rotateAroundControls) {
             jsxs.push(...renderAroundControls(moveable, React));
@@ -371,17 +349,17 @@ export default {
     dragControlCondition: dragControlCondition as (moveable: any, e: any) => boolean,
     dragControlStart(
         moveable: MoveableManagerInterface<RotatableProps & SnappableProps & DraggableProps, SnappableState>,
-        e: any) {
-        const {
-            datas,
-            clientX, clientY,
-            parentRotate, parentFlag, isPinch,
-            isRequest,
-        } = e;
+        e: any
+    ) {
+        const { datas, clientX, clientY, parentRotate, parentFlag, isPinch, isRequest } = e;
         const state = moveable.state;
         const {
-            target, left, top,
-            direction, beforeDirection, targetTransform,
+            target,
+            left,
+            top,
+            direction,
+            beforeDirection,
+            targetTransform,
             moveableClientRect,
             offsetMatrix,
             targetMatrix,
@@ -405,7 +383,6 @@ export default {
             datas.fixedDirection = result.fixedDirection;
             datas.fixedOffset = result.fixedOffset;
             datas.fixedPosition = result.fixedPosition;
-
 
             if (resizeStart) {
                 resizeStart.setFixedPosition(fixedPosition);
@@ -464,9 +441,8 @@ export default {
                     const clientPoses = calculateMoveableClientPositions(
                         state.rootMatrix,
                         state.renderPoses,
-                        moveableClientRect,
+                        moveableClientRect
                     );
-
 
                     [startClientX, startClientY] = getPosByDirection(clientPoses, controlDirection);
                 }
@@ -483,13 +459,10 @@ export default {
             setFixedPosition = (fixedPosition: number[]) => {
                 const n = state.is3d ? 4 : 3;
                 const [originX, originY] = plus(getOrigin(targetMatrix, n), fixedPosition);
-                const fixedBeforeOrigin = calculate(
-                    offsetMatrix,
-                    convertPositionMatrix([originX, originY], n),
-                );
+                const fixedBeforeOrigin = calculate(offsetMatrix, convertPositionMatrix([originX, originY], n));
                 const fixedAfterOrigin = calculate(
                     allMatrix,
-                    convertPositionMatrix([fixedPosition[0], fixedPosition[1]], n),
+                    convertPositionMatrix([fixedPosition[0], fixedPosition[1]], n)
                 );
                 originalFixedPosition(fixedPosition);
                 const posDelta = state.posDelta;
@@ -503,12 +476,15 @@ export default {
                 setRotateStartInfo(moveable, datas.absoluteInfo, startClientX, startClientY, moveableClientRect);
             };
             setFixedDirection = (fixedDirection: number[]) => {
-                const fixedPosition = getPosByDirection([
-                    [0, 0],
-                    [width, 0],
-                    [0, height],
-                    [width, height],
-                ], fixedDirection);
+                const fixedPosition = getPosByDirection(
+                    [
+                        [0, 0],
+                        [width, 0],
+                        [0, height],
+                        [width, height],
+                    ],
+                    fixedDirection
+                );
 
                 setFixedPosition(fixedPosition);
             };
@@ -531,7 +507,7 @@ export default {
 
             if (resolveAble === "resizable") {
                 resizeStart = Resizable.dragControlStart(moveable, {
-                    ...(new CustomGesto("resizable").dragStart([0, 0], e)),
+                    ...new CustomGesto("resizable").dragStart([0, 0], e),
                     parentPosition: datas.controlPosition,
                     parentFixedPosition: datas.fixedPosition,
                 });
@@ -539,16 +515,13 @@ export default {
         }
 
         if (!resizeStart) {
-            dragStart = Draggable.dragStart!(
-                moveable,
-                new CustomGesto().dragStart([0, 0], e),
-            );
+            dragStart = Draggable.dragStart!(moveable, new CustomGesto().dragStart([0, 0], e));
         }
 
         setFixedPosition(getTotalOrigin(moveable));
         const params = fillParams<OnRotateStart>(moveable, e, {
             set: (rotatation: number) => {
-                datas.startValue = rotatation * Math.PI / 180;
+                datas.startValue = (rotatation * Math.PI) / 180;
             },
             setFixedDirection,
             setFixedPosition,
@@ -564,15 +537,8 @@ export default {
 
         return datas.isRotate ? params : false;
     },
-    dragControl(
-        moveable: MoveableManagerInterface<RotatableProps & DraggableProps>,
-        e: any,
-    ) {
-        const {
-            datas, clientDistX, clientDistY,
-            parentRotate, parentFlag, isPinch, groupDelta,
-            resolveMatrix,
-        } = e;
+    dragControl(moveable: MoveableManagerInterface<RotatableProps & DraggableProps>, e: any) {
+        const { datas, clientDistX, clientDistY, parentRotate, parentFlag, isPinch, groupDelta, resolveMatrix } = e;
         const {
             beforeDirection,
             beforeInfo,
@@ -593,10 +559,7 @@ export default {
 
         const targetDirection = getTransformDirection(e);
         const direction = beforeDirection * targetDirection;
-        const {
-            parentMoveable,
-        } = moveable.props;
-
+        const { parentMoveable } = moveable.props;
 
         let beforeDelta = 0;
         let beforeDist: number;
@@ -610,7 +573,7 @@ export default {
         let absoluteDist: number;
         let absoluteRotation: number;
 
-        const startRotation = 180 / Math.PI * startValue;
+        const startRotation = (180 / Math.PI) * startValue;
         const absoluteStartRotation = absoluteInfo.startValue;
         let isSnap = false;
         const nextClientX = startClientX + clientDistX;
@@ -636,86 +599,80 @@ export default {
         rotation = startRotation + dist;
         absoluteRotation = absoluteStartRotation + absoluteDist;
 
+        triggerEvent(
+            moveable,
+            "onBeforeRotate",
+            fillParams<OnBeforeRotate>(
+                moveable,
+                e,
+                {
+                    beforeRotation,
+                    rotation,
+                    absoluteRotation,
+                    setRotation(nextRotation: number) {
+                        dist = nextRotation - startRotation;
+                        beforeDist = dist;
+                        absoluteDist = dist;
+                    },
+                },
+                true
+            )
+        );
 
-        triggerEvent(moveable, "onBeforeRotate", fillParams<OnBeforeRotate>(moveable, e, {
-            beforeRotation,
-            rotation,
-            absoluteRotation,
-            setRotation(nextRotation: number) {
-                dist = nextRotation - startRotation;
-                beforeDist = dist;
-                absoluteDist = dist;
-            },
-        }, true));
-
-        [
-            beforeDelta,
+        [beforeDelta, beforeDist, beforeRotation] = getRotateInfo(
+            moveable,
+            rect,
+            beforeInfo,
             beforeDist,
-            beforeRotation,
-        ] = getRotateInfo(moveable, rect, beforeInfo, beforeDist, startRotation, isSnap);
+            startRotation,
+            isSnap
+        );
 
-        [
-            delta,
-            dist,
-            rotation,
-        ] = getRotateInfo(moveable, rect, afterInfo, dist, startRotation, isSnap);
+        [delta, dist, rotation] = getRotateInfo(moveable, rect, afterInfo, dist, startRotation, isSnap);
 
-        [
-            absoluteDelta,
+        [absoluteDelta, absoluteDist, absoluteRotation] = getRotateInfo(
+            moveable,
+            rect,
+            absoluteInfo,
             absoluteDist,
-            absoluteRotation,
-        ] = getRotateInfo(moveable, rect, absoluteInfo, absoluteDist, absoluteStartRotation, isSnap);
+            absoluteStartRotation,
+            isSnap
+        );
 
         if (!absoluteDelta && !delta && !beforeDelta && !parentMoveable && !resolveMatrix) {
             return;
         }
 
-        const nextTransform = convertTransformFormat(
-            datas, `rotate(${rotation}deg)`, `rotate(${dist}deg)`,
-        );
+        const nextTransform = convertTransformFormat(datas, `rotate(${rotation}deg)`, `rotate(${dist}deg)`);
         if (resolveMatrix) {
             datas.fixedPosition = getTranslateFixedPosition(
                 moveable,
                 datas.targetAllTransform,
                 datas.fixedDirection,
                 datas.fixedOffset,
-                datas,
+                datas
             );
         }
 
         const inverseDist = getRotateDist(moveable, dist, datas);
-        const inverseDelta = minus(
-            plus(groupDelta || [0, 0], inverseDist),
-            datas.prevInverseDist || [0, 0],
-        );
+        const inverseDelta = minus(plus(groupDelta || [0, 0], inverseDist), datas.prevInverseDist || [0, 0]);
         datas.prevInverseDist = inverseDist;
         datas.requestValue = null;
 
-        const dragEvent = fillTransformEvent(
-            moveable,
-            nextTransform,
-            inverseDelta,
-            isPinch,
-            e,
-        );
+        const dragEvent = fillTransformEvent(moveable, nextTransform, inverseDelta, isPinch, e);
 
         let transformEvent: TransformObject = dragEvent;
-        const parentDistance = getDist(
-            [nextClientX, nextClientY],
-            absoluteInfo.startAbsoluteOrigin,
-        ) - absoluteInfo.startDist;
+        const parentDistance =
+            getDist([nextClientX, nextClientY], absoluteInfo.startAbsoluteOrigin) - absoluteInfo.startDist;
 
         let resize: OnResize | undefined = undefined;
 
         if (datas.resolveAble === "resizable") {
-            const resizeEvent = Resizable.dragControl(
-                moveable,
-                {
-                    ...setCustomDrag(e, moveable.state, [e.deltaX, e.deltaY], !!isPinch, false, "resizable"),
-                    resolveMatrix: true,
-                    parentDistance,
-                },
-            );
+            const resizeEvent = Resizable.dragControl(moveable, {
+                ...setCustomDrag(e, moveable.state, [e.deltaX, e.deltaY], !!isPinch, false, "resizable"),
+                resolveMatrix: true,
+                parentDistance,
+            });
 
             if (resizeEvent) {
                 resize = resizeEvent;
@@ -764,11 +721,7 @@ export default {
     dragGroupControlCondition: dragControlCondition as (moveable: any, e: any) => boolean,
     dragGroupControlStart(moveable: MoveableGroupInterface<any, any>, e: any) {
         const { datas } = e;
-        const {
-            left: parentLeft,
-            top: parentTop,
-            beforeOrigin: parentBeforeOrigin,
-        } = moveable.state;
+        const { left: parentLeft, top: parentTop, beforeOrigin: parentBeforeOrigin } = moveable.state;
 
         const params = this.dragControlStart(moveable, e);
 
@@ -778,23 +731,17 @@ export default {
 
         params.set(datas.beforeDirection * moveable.rotation);
 
-        const events = triggerChildAbles(
-            moveable,
-            this,
-            "dragControlStart",
-            e,
-            (child, ev) => {
-                const { left, top, beforeOrigin } = child.state;
-                const childClient = plus(
-                    minus([left, top], [parentLeft, parentTop]),
-                    minus(beforeOrigin, parentBeforeOrigin),
-                );
+        const events = triggerChildAbles(moveable, this, "dragControlStart", e, (child, ev) => {
+            const { left, top, beforeOrigin } = child.state;
+            const childClient = plus(
+                minus([left, top], [parentLeft, parentTop]),
+                minus(beforeOrigin, parentBeforeOrigin)
+            );
 
-                ev.datas.startGroupClient = childClient;
-                ev.datas.groupClient = childClient;
-                return { ...ev, parentRotate: 0 };
-            },
-        );
+            ev.datas.startGroupClient = childClient;
+            ev.datas.groupClient = childClient;
+            return { ...ev, parentRotate: 0 };
+        });
 
         const nextParams: OnRotateGroupStart = {
             ...params,
@@ -814,11 +761,20 @@ export default {
             return;
         }
 
-        catchEvent(moveable, "onBeforeRotate", parentEvent => {
-            triggerEvent(moveable, "onBeforeRotateGroup", fillParams<OnBeforeRotateGroup>(moveable, e, {
-                ...parentEvent,
-                targets: moveable.props.targets!,
-            }, true));
+        catchEvent(moveable, "onBeforeRotate", (parentEvent) => {
+            triggerEvent(
+                moveable,
+                "onBeforeRotateGroup",
+                fillParams<OnBeforeRotateGroup>(
+                    moveable,
+                    e,
+                    {
+                        ...parentEvent,
+                        targets: moveable.props.targets!,
+                    },
+                    true
+                )
+            );
         });
         const params = this.dragControl(moveable, e);
 
@@ -827,22 +783,16 @@ export default {
         }
         const direction = datas.beforeDirection;
         const parentRotate = params.beforeDist;
-        const rad = parentRotate / 180 * Math.PI;
-        const events = triggerChildAbles(
-            moveable,
-            this,
-            "dragControl",
-            e,
-            (_, ev) => {
-                const startGroupClient = ev.datas.startGroupClient;
-                const [prevClientX, prevClientY] = ev.datas.groupClient;
-                const [clientX, clientY] = rotateMatrix(startGroupClient, rad * direction);
-                const delta = [clientX - prevClientX, clientY - prevClientY];
+        const rad = (parentRotate / 180) * Math.PI;
+        const events = triggerChildAbles(moveable, this, "dragControl", e, (_, ev) => {
+            const startGroupClient = ev.datas.startGroupClient;
+            const [prevClientX, prevClientY] = ev.datas.groupClient;
+            const [clientX, clientY] = rotateMatrix(startGroupClient, rad * direction);
+            const delta = [clientX - prevClientX, clientY - prevClientY];
 
-                ev.datas.groupClient = [clientX, clientY];
-                return { ...ev, parentRotate, groupDelta: delta };
-            },
-        );
+            ev.datas.groupClient = [clientX, clientY];
+            return { ...ev, parentRotate, groupDelta: delta };
+        });
         moveable.rotation = direction * params.beforeRotation;
 
         const nextParams: OnRotateGroup = {
@@ -980,18 +930,18 @@ export default {
  */
 
 /**
-* When rotating, the rotate event is called.
-* @memberof Moveable.Rotatable
-* @event rotate
-* @param {Moveable.Rotatable.OnRotate} - Parameters for the rotate event
-* @example
-* import Moveable from "moveable";
-*
-* const moveable = new Moveable(document.body, { rotatable: true });
-* moveable.on("rotate", ({ target, transform, dist }) => {
-*     target.style.transform = transform;
-* });
-*/
+ * When rotating, the rotate event is called.
+ * @memberof Moveable.Rotatable
+ * @event rotate
+ * @param {Moveable.Rotatable.OnRotate} - Parameters for the rotate event
+ * @example
+ * import Moveable from "moveable";
+ *
+ * const moveable = new Moveable(document.body, { rotatable: true });
+ * moveable.on("rotate", ({ target, transform, dist }) => {
+ *     target.style.transform = transform;
+ * });
+ */
 /**
  * When the rotate finishes, the rotateEnd event is called.
  * @memberof Moveable.Rotatable
@@ -1024,28 +974,28 @@ export default {
  */
 
 /**
-* When the group rotate, the `rotateGroup` event is called.
-* @memberof Moveable.Rotatable
-* @event rotateGroup
-* @param {Moveable.Rotatable.OnRotateGroup} - Parameters for the `rotateGroup` event
-* @example
-* import Moveable from "moveable";
-*
-* const moveable = new Moveable(document.body, {
-*     target: [].slice.call(document.querySelectorAll(".target")),
-*     rotatable: true
-* });
-* moveable.on("rotateGroup", ({ targets, events }) => {
-*     console.log("onRotateGroup", targets);
-*     events.forEach(ev => {
-*         const target = ev.target;
-*         // ev.drag is a drag event that occurs when the group rotate.
-*         const left = ev.drag.beforeDist[0];
-*         const top = ev.drag.beforeDist[1];
-*         const deg = ev.beforeDist;
-*     });
-* });
-*/
+ * When the group rotate, the `rotateGroup` event is called.
+ * @memberof Moveable.Rotatable
+ * @event rotateGroup
+ * @param {Moveable.Rotatable.OnRotateGroup} - Parameters for the `rotateGroup` event
+ * @example
+ * import Moveable from "moveable";
+ *
+ * const moveable = new Moveable(document.body, {
+ *     target: [].slice.call(document.querySelectorAll(".target")),
+ *     rotatable: true
+ * });
+ * moveable.on("rotateGroup", ({ targets, events }) => {
+ *     console.log("onRotateGroup", targets);
+ *     events.forEach(ev => {
+ *         const target = ev.target;
+ *         // ev.drag is a drag event that occurs when the group rotate.
+ *         const left = ev.drag.beforeDist[0];
+ *         const top = ev.drag.beforeDist[1];
+ *         const deg = ev.beforeDist;
+ *     });
+ * });
+ */
 
 /**
  * When the group rotate finishes, the `rotateGroupEnd` event is called.

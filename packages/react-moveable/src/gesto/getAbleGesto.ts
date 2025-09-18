@@ -1,5 +1,5 @@
 import { Able, MoveableManagerInterface, MoveableGroupInterface } from "../types";
-import { getWindow, hasClass, IObject } from "@daybrush/utils";
+import { getWindow, hasClass, IObject } from "../utils/";
 import { convertDragDist, defaultSync, getRefTarget } from "../utils";
 import Gesto, { GestoOptions } from "gesto";
 import BeforeRenderable from "../ables/BeforeRenderable";
@@ -12,7 +12,7 @@ export function triggerAble(
     eventAffix: string,
     eventType: any,
     e: any,
-    requestInstant?: boolean,
+    requestInstant?: boolean
 ) {
     // pre setting
     e.clientDistX = e.distX;
@@ -25,10 +25,7 @@ export function triggerAble(
     const isRequest = e.isRequest;
     const isControl = eventAffix.indexOf("Control") > -1;
 
-    if (
-        !target
-        || (isStart && isControl && !isRequest && moveable.areaElement === e.inputEvent.target)
-    ) {
+    if (!target || (isStart && isControl && !isRequest && moveable.areaElement === e.inputEvent.target)) {
         return false;
     }
     const ables: Able[] = [...moveableAbles];
@@ -36,11 +33,11 @@ export function triggerAble(
     if (isRequest) {
         const requestAble = e.requestAble;
 
-        if (!ables.some(able => able.name === requestAble)) {
-            ables.push(...moveable.props.ables!.filter(able => able.name === requestAble));
+        if (!ables.some((able) => able.name === requestAble)) {
+            ables.push(...moveable.props.ables!.filter((able) => able.name === requestAble));
         }
     }
-    if (!ables.length || ables.every(able => able.dragRelation)) {
+    if (!ables.length || ables.every((able) => able.dragRelation)) {
         return false;
     }
     // "drag" "Control" "After"
@@ -56,15 +53,16 @@ export function triggerAble(
         isDragStop = true;
         e.stop?.();
     };
-    const isFirstStart = isStart && (
-        !moveable.targetGesto || !moveable.controlGesto
-        || (!moveable.targetGesto.isFlag() || !moveable.controlGesto.isFlag())
-    );
+    const isFirstStart =
+        isStart &&
+        (!moveable.targetGesto ||
+            !moveable.controlGesto ||
+            !moveable.targetGesto.isFlag() ||
+            !moveable.controlGesto.isFlag());
 
     if (isFirstStart) {
         moveable.updateRect(eventType, true, false);
     }
-
 
     // trigger ables
     const datas = e.datas;
@@ -79,8 +77,7 @@ export function triggerAble(
         const nextDatas = datas[ableName] || (datas[ableName] = {});
 
         if (isStart) {
-            nextDatas.isEventStart = !conditionName
-                || !able[conditionName] || able[conditionName](moveable, e);
+            nextDatas.isEventStart = !conditionName || !able[conditionName] || able[conditionName](moveable, e);
         }
 
         if (!nextDatas.isEventStart) {
@@ -103,7 +100,7 @@ export function triggerAble(
 
     // unset ables for first drag start
     if (isFirstStart) {
-        ables.forEach(able => {
+        ables.forEach((able) => {
             able.unset && able.unset(moveable);
         });
     }
@@ -113,7 +110,7 @@ export function triggerAble(
     let forceEndedCount = 0;
     let updatedCount = 0;
 
-    eventOperations.forEach(eventOperation => {
+    eventOperations.forEach((eventOperation) => {
         if (isDragStop) {
             return false;
         }
@@ -131,7 +128,7 @@ export function triggerAble(
             return able.name && eventAbles.indexOf(able) === i;
         });
 
-        const results = eventAbles.filter(able => trigger(able, eventName, conditionName));
+        const results = eventAbles.filter((able) => trigger(able, eventName, conditionName));
         const isUpdate = results.length;
 
         // end ables
@@ -143,7 +140,7 @@ export function triggerAble(
         }
 
         if (!isDragStop && isStart && eventAbles.length && !isUpdate) {
-            forceEndedCount += eventAbles.filter(able => {
+            forceEndedCount += eventAbles.filter((able) => {
                 const ableName = able.name;
                 const nextDatas = datas[ableName];
 
@@ -156,10 +153,11 @@ export function triggerAble(
                 }
                 // pre stop drag
                 return false;
-            }).length ? 1 : 0;
+            }).length
+                ? 1
+                : 0;
         }
     });
-
 
     if (!isAfter || updatedCount) {
         trigger(Renderable, `drag${eventAffix}${eventType}`);
@@ -171,11 +169,11 @@ export function triggerAble(
         moveable.state.gestos = {};
 
         if ((moveable as MoveableGroupInterface).moveables) {
-            (moveable as MoveableGroupInterface).moveables.forEach(childMoveable => {
+            (moveable as MoveableGroupInterface).moveables.forEach((childMoveable) => {
                 childMoveable.state.gestos = {};
             });
         }
-        ables.forEach(able => {
+        ables.forEach((able) => {
             able.unset && able.unset(moveable);
         });
     }
@@ -192,7 +190,6 @@ export function triggerAble(
             moveable.updateRect(isEnd ? eventType : "", true, false);
             moveable.forceUpdate();
         });
-
     }
     if (!isStart && !isEnd && !isAfter && updatedCount && !requestInstant) {
         triggerAble(moveable, moveableAbles, eventOperations, eventAffix, eventType + "After", e);
@@ -210,25 +207,27 @@ export function checkMoveableTarget(moveable: MoveableManagerInterface, isContro
             return false;
         }
 
-        return eventTarget === dragTargetElement
-            || dragTargetElement.contains(eventTarget)
-            || eventTarget === areaElement
-            || (!moveable.isMoveableElement(eventTarget) && !moveable.controlBox.contains(eventTarget))
-            || hasClass(eventTarget, "moveable-area")
-            || hasClass(eventTarget, "moveable-padding")
-            || hasClass(eventTarget, "moveable-edgeDraggable");
+        return (
+            eventTarget === dragTargetElement ||
+            dragTargetElement.contains(eventTarget) ||
+            eventTarget === areaElement ||
+            (!moveable.isMoveableElement(eventTarget) && !moveable.controlBox.contains(eventTarget)) ||
+            hasClass(eventTarget, "moveable-area") ||
+            hasClass(eventTarget, "moveable-padding") ||
+            hasClass(eventTarget, "moveable-edgeDraggable")
+        );
     };
 }
 
 export function getTargetAbleGesto(
     moveable: MoveableManagerInterface,
     moveableTarget: HTMLElement | SVGElement,
-    eventAffix: string,
+    eventAffix: string
 ) {
     const controlBox = moveable.controlBox;
     const targets: Array<HTMLElement | SVGElement> = [];
     const props = moveable.props;
-    const dragArea =  props.dragArea;
+    const dragArea = props.dragArea;
     const target = moveable.state.target;
     const dragTarget = props.dragTarget;
 
@@ -249,10 +248,7 @@ export function getTargetAbleGesto(
     });
 }
 
-export function getControlAbleGesto(
-    moveable: MoveableManagerInterface,
-    eventAffix: string,
-) {
+export function getControlAbleGesto(moveable: MoveableManagerInterface, eventAffix: string) {
     const controlBox = moveable.controlBox;
     const targets: Array<HTMLElement | SVGElement> = [];
 
@@ -279,7 +275,7 @@ export function getAbleGesto(
     target: HTMLElement | SVGElement | Array<HTMLElement | SVGElement>,
     ableType: string,
     eventAffix: string,
-    conditionFunctions: IObject<any> = {},
+    conditionFunctions: IObject<any> = {}
 ) {
     const isTargetAbles = ableType === "targetAbles";
     const {
@@ -305,19 +301,20 @@ export function getAbleGesto(
         pinchOutside,
         preventClickEventOnDrag: isTargetAbles ? preventClickEventOnDrag : false,
         preventClickEventOnDragStart: isTargetAbles ? preventClickDefault : false,
-        preventClickEventByCondition: isTargetAbles ? null : (e: MouseEvent) => {
-            return moveable.controlBox.contains(e.target as Element);
-        },
+        preventClickEventByCondition: isTargetAbles
+            ? null
+            : (e: MouseEvent) => {
+                  return moveable.controlBox.contains(e.target as Element);
+              },
         checkInput: isTargetAbles ? checkInput : false,
         dragFocusedInput,
     };
     const gesto = new Gesto(target!, options);
     const isControl = eventAffix === "Control";
 
-    ["drag", "pinch"].forEach(eventOperation => {
-        ["Start", "", "End"].forEach(eventType => {
-
-            gesto.on(`${eventOperation}${eventType}` as any, e => {
+    ["drag", "pinch"].forEach((eventOperation) => {
+        ["Start", "", "End"].forEach((eventType) => {
+            gesto.on(`${eventOperation}${eventType}` as any, (e) => {
                 const eventName = e.eventType;
                 const isPinchScheduled = eventOperation === "drag" && e.isPinch;
 

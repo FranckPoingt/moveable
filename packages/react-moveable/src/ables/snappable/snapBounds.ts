@@ -1,4 +1,4 @@
-import { getDist, getRad, IObject, TINY_NUM } from "@daybrush/utils";
+import { getDist, getRad, IObject, TINY_NUM } from "../../utils";
 import { minus } from "@scena/matrix";
 import { abs, getAbsolutePoses, getDistSize, getRect, maxOffset } from "../../utils";
 import { getDragDist, getPosByDirection } from "../../gesto/GestoUtils";

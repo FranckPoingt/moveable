@@ -1,23 +1,31 @@
 import {
-    setDragStart, getBeforeDragDist, getTransformDist,
-    convertTransformFormat, resolveTransformEvent, fillTransformStartEvent,
-    setDefaultTransformIndex, fillOriginalTransform,
+    setDragStart,
+    getBeforeDragDist,
+    getTransformDist,
+    convertTransformFormat,
+    resolveTransformEvent,
+    fillTransformStartEvent,
+    setDefaultTransformIndex,
+    fillOriginalTransform,
 } from "../gesto/GestoUtils";
-import {
-    triggerEvent, fillParams,
-    getDistSize, prefix,
-    fillEndParams,
-    fillCSSObject,
-} from "../utils";
+import { triggerEvent, fillParams, getDistSize, prefix, fillEndParams, fillCSSObject } from "../utils";
 import { minus, plus } from "@scena/matrix";
 import {
-    DraggableProps, OnDrag, OnDragGroup,
-    OnDragGroupStart, OnDragStart, OnDragEnd, DraggableState,
-    Renderer, OnDragGroupEnd, MoveableManagerInterface, MoveableGroupInterface,
+    DraggableProps,
+    OnDrag,
+    OnDragGroup,
+    OnDragGroupStart,
+    OnDragStart,
+    OnDragEnd,
+    DraggableState,
+    Renderer,
+    OnDragGroupEnd,
+    MoveableManagerInterface,
+    MoveableGroupInterface,
 } from "../types";
 import { triggerChildGesto } from "../groupUtils";
 import { startCheckSnapDrag } from "./Snappable";
-import { getRad, throttle, throttleArray } from "@daybrush/utils";
+import { getRad, throttle, throttleArray } from "../utils/";
 import { checkSnapBoundsDrag } from "./snappable/snapBounds";
 import { TINY_NUM } from "../consts";
 
@@ -36,24 +44,14 @@ export default {
         "startDragRotate",
         "edgeDraggable",
     ] as const,
-    events: [
-        "dragStart",
-        "drag",
-        "dragEnd",
-        "dragGroupStart",
-        "dragGroup",
-        "dragGroupEnd",
-    ] as const,
+    events: ["dragStart", "drag", "dragEnd", "dragGroupStart", "dragGroup", "dragGroupEnd"] as const,
     requestStyle(): string[] {
         return ["left", "top", "right", "bottom"];
     },
     requestChildStyle(): string[] {
         return ["left", "top", "right", "bottom"];
     },
-    render(
-        moveable: MoveableManagerInterface<DraggableProps, DraggableState>,
-        React: Renderer,
-    ): any[] {
+    render(moveable: MoveableManagerInterface<DraggableProps, DraggableState>, React: Renderer): any[] {
         const { hideThrottleDragRotateLine, throttleDragRotate, zoom } = moveable.props;
         const { dragInfo, beforeOrigin } = moveable.getState();
 
@@ -69,26 +67,21 @@ export default {
         const width = getDistSize(dist);
         const rad = getRad(dist, [0, 0]);
 
-        return [<div className={prefix(
-            "line",
-            "horizontal",
-            "dragline",
-            "dashed",
-        )} key={`dragRotateGuideline`} style={{
-            width: `${width}px`,
-            transform: `translate(${beforeOrigin[0]}px, ${beforeOrigin[1]}px) rotate(${rad}rad) scaleY(${zoom})`,
-        }} />];
+        return [
+            <div
+                className={prefix("line", "horizontal", "dragline", "dashed")}
+                key={`dragRotateGuideline`}
+                style={{
+                    width: `${width}px`,
+                    transform: `translate(${beforeOrigin[0]}px, ${beforeOrigin[1]}px) rotate(${rad}rad) scaleY(${zoom})`,
+                }}
+            />,
+        ];
     },
-    dragStart(
-        moveable: MoveableManagerInterface<DraggableProps, any>,
-        e: any,
-    ) {
+    dragStart(moveable: MoveableManagerInterface<DraggableProps, any>, e: any) {
         const { datas, parentEvent, parentGesto } = e;
         const state = moveable.state;
-        const {
-            gestos,
-            style,
-        } = state;
+        const { gestos, style } = state;
 
         if (gestos.draggable) {
             return false;
@@ -131,18 +124,18 @@ export default {
         }
         return datas.isDrag ? params : false;
     },
-    drag(
-        moveable: MoveableManagerInterface<DraggableProps, any>,
-        e: any,
-    ): OnDrag | undefined {
+    drag(moveable: MoveableManagerInterface<DraggableProps, any>, e: any): OnDrag | undefined {
         if (!e) {
             return;
         }
         resolveTransformEvent(moveable, e, "translate");
 
         const {
-            datas, parentEvent,
-            parentFlag, isPinch, deltaOffset,
+            datas,
+            parentEvent,
+            parentFlag,
+            isPinch,
+            deltaOffset,
             useSnap,
             isRequest,
             isGroup,
@@ -162,8 +155,8 @@ export default {
         const props = moveable.props;
 
         const parentMoveable = props.parentMoveable;
-        const throttleDrag = isGroup ? 0 : (props.throttleDrag || parentThrottleDrag || 0);
-        const throttleDragRotate = parentEvent ? 0 : (props.throttleDragRotate || 0);
+        const throttleDrag = isGroup ? 0 : props.throttleDrag || parentThrottleDrag || 0;
+        const throttleDragRotate = parentEvent ? 0 : props.throttleDragRotate || 0;
 
         let dragRotateRad = 0;
         let isVerticalSnap = false;
@@ -173,13 +166,13 @@ export default {
 
         if (!parentEvent && throttleDragRotate > 0 && (distX || distY)) {
             const startDragRotate = props.startDragRotate || 0;
-            const deg
-                = throttle(startDragRotate + getRad([0, 0], [distX, distY]) * 180 / Math.PI, throttleDragRotate)
-                - startDragRotate;
-            const ry = distY * Math.abs(Math.cos((deg - 90) / 180 * Math.PI));
-            const rx = distX * Math.abs(Math.cos(deg / 180 * Math.PI));
+            const deg =
+                throttle(startDragRotate + (getRad([0, 0], [distX, distY]) * 180) / Math.PI, throttleDragRotate) -
+                startDragRotate;
+            const ry = distY * Math.abs(Math.cos(((deg - 90) / 180) * Math.PI));
+            const rx = distX * Math.abs(Math.cos((deg / 180) * Math.PI));
             const r = getDistSize([rx, ry]);
-            dragRotateRad = deg * Math.PI / 180;
+            dragRotateRad = (deg * Math.PI) / 180;
 
             distX = r * Math.cos(dragRotateRad);
             distY = r * Math.sin(dragRotateRad);
@@ -187,10 +180,12 @@ export default {
 
         if (!isPinch && !parentEvent && !parentFlag) {
             const [verticalInfo, horizontalInfo] = checkSnapBoundsDrag(
-                moveable, distX, distY,
+                moveable,
+                distX,
+                distY,
                 throttleDragRotate,
                 (!useSnap && isRequest) || deltaOffset,
-                datas,
+                datas
             );
             isVerticalSnap = verticalInfo.isSnap;
             isVerticalBound = verticalInfo.isBound;
@@ -221,7 +216,6 @@ export default {
             }
         }
 
-
         const beforeDist = minus(beforeTranslate, startValue);
         const dist = minus(translate, startValue);
         const delta = minus(dist, prevDist);
@@ -229,7 +223,6 @@ export default {
 
         datas.prevDist = dist;
         datas.prevBeforeDist = beforeDist;
-
 
         datas.passDelta = delta; //distX - (datas.passDistX || 0);
         // datas.passDeltaY = distY - (datas.passDistY || 0);
@@ -240,20 +233,20 @@ export default {
         const top = datas.top + beforeDist[1];
         const right = datas.right - beforeDist[0];
         const bottom = datas.bottom - beforeDist[1];
-        const nextTransform = convertTransformFormat(datas,
-            `translate(${translate[0]}px, ${translate[1]}px)`, `translate(${dist[0]}px, ${dist[1]}px)`);
+        const nextTransform = convertTransformFormat(
+            datas,
+            `translate(${translate[0]}px, ${translate[1]}px)`,
+            `translate(${dist[0]}px, ${dist[1]}px)`
+        );
 
         fillOriginalTransform(e, nextTransform);
 
         moveable.state.dragInfo.dist = parentEvent ? [0, 0] : dist;
-        if (!parentEvent && !parentMoveable && delta.every(num => !num) && beforeDelta.some(num => !num)) {
+        if (!parentEvent && !parentMoveable && delta.every((num) => !num) && beforeDelta.some((num) => !num)) {
             return;
         }
 
-        const {
-            width,
-            height,
-        } = moveable.state;
+        const { width, height } = moveable.state;
         const params = fillParams<OnDrag>(moveable, e, {
             transform: nextTransform,
             dist,
@@ -269,33 +262,28 @@ export default {
             width,
             height,
             isPinch,
-            ...fillCSSObject({
-                transform: nextTransform,
-            }, e),
+            ...fillCSSObject(
+                {
+                    transform: nextTransform,
+                },
+                e
+            ),
         });
 
         !parentEvent && triggerEvent(moveable, "onDrag", params);
         return params;
     },
-    dragAfter(
-        moveable: MoveableManagerInterface<DraggableProps, DraggableState>,
-        e: any,
-    ) {
+    dragAfter(moveable: MoveableManagerInterface<DraggableProps, DraggableState>, e: any) {
         const datas = e.datas;
-        const {
-            deltaOffset,
-        } = datas;
+        const { deltaOffset } = datas;
 
         if (deltaOffset[0] || deltaOffset[1]) {
             datas.deltaOffset = [0, 0];
-            return this.drag(moveable, {...e, deltaOffset });
+            return this.drag(moveable, { ...e, deltaOffset });
         }
         return false;
     },
-    dragEnd(
-        moveable: MoveableManagerInterface<DraggableProps, DraggableState>,
-        e: any,
-    ) {
+    dragEnd(moveable: MoveableManagerInterface<DraggableProps, DraggableState>, e: any) {
         const { parentEvent, datas } = e;
 
         moveable.state.dragInfo = null;
@@ -315,13 +303,15 @@ export default {
         if (!params) {
             return false;
         }
-        const {
-            childEvents,
-            eventParams,
-        } = triggerChildGesto(moveable, this, "dragStart", [
-            clientX || 0,
-            clientY || 0,
-        ], e, false, "draggable");
+        const { childEvents, eventParams } = triggerChildGesto(
+            moveable,
+            this,
+            "dragStart",
+            [clientX || 0, clientY || 0],
+            e,
+            false,
+            "draggable"
+        );
 
         const nextParams: OnDragGroupStart = {
             ...params,
@@ -332,10 +322,8 @@ export default {
 
         datas.isDrag = result !== false;
 
-
         // find data.startValue and based on first child moveable
         const startValue = childEvents[0]?.datas.startValue ?? [0, 0];
-
 
         datas.throttleOffset = [startValue[0] % 1, startValue[1] % 1];
 
@@ -352,9 +340,7 @@ export default {
             parentThrottleDrag: moveable.props.throttleDrag,
         });
         const { passDelta } = e.datas;
-        const {
-            eventParams,
-        } = triggerChildGesto(moveable, this, "drag", passDelta, e, false, "draggable");
+        const { eventParams } = triggerChildGesto(moveable, this, "drag", passDelta, e, false, "draggable");
 
         if (!params) {
             return;
@@ -376,13 +362,15 @@ export default {
             return;
         }
         this.dragEnd(moveable, e);
-        const {
-            eventParams,
-        } = triggerChildGesto(moveable, this, "dragEnd", [0, 0], e, false, "draggable");
-        triggerEvent(moveable, "onDragGroupEnd", fillEndParams<OnDragGroupEnd>(moveable, e, {
-            targets: moveable.props.targets!,
-            events: eventParams,
-        }));
+        const { eventParams } = triggerChildGesto(moveable, this, "dragEnd", [0, 0], e, false, "draggable");
+        triggerEvent(
+            moveable,
+            "onDragGroupEnd",
+            fillEndParams<OnDragGroupEnd>(moveable, e, {
+                targets: moveable.props.targets!,
+                events: eventParams,
+            })
+        );
 
         return isDrag;
     },
@@ -480,28 +468,28 @@ export default {
  */
 
 /**
-* throttle of angle of x, y when drag.
-* @name Moveable.Draggable#throttleDragRotate
-* @example
-* import Moveable from "moveable";
-*
-* const moveable = new Moveable(document.body);
-*
-* moveable.throttleDragRotate = 45;
-*/
+ * throttle of angle of x, y when drag.
+ * @name Moveable.Draggable#throttleDragRotate
+ * @example
+ * import Moveable from "moveable";
+ *
+ * const moveable = new Moveable(document.body);
+ *
+ * moveable.throttleDragRotate = 45;
+ */
 
 /**
-* start angle of throttleDragRotate of x, y when drag.
-* @name Moveable.Draggable#startDragRotate
-* @example
-* import Moveable from "moveable";
-*
-* const moveable = new Moveable(document.body);
-*
-* // 45, 135, 225, 315
-* moveable.throttleDragRotate = 90;
-* moveable.startDragRotate = 45;
-*/
+ * start angle of throttleDragRotate of x, y when drag.
+ * @name Moveable.Draggable#startDragRotate
+ * @example
+ * import Moveable from "moveable";
+ *
+ * const moveable = new Moveable(document.body);
+ *
+ * // 45, 135, 225, 315
+ * moveable.throttleDragRotate = 90;
+ * moveable.startDragRotate = 45;
+ */
 
 /**
  * When the drag starts, the dragStart event is called.
@@ -544,46 +532,46 @@ export default {
  */
 
 /**
-* When the group drag starts, the `dragGroupStart` event is called.
-* @memberof Moveable.Draggable
-* @event dragGroupStart
-* @param {Moveable.Draggable.OnDragGroupStart} - Parameters for the `dragGroupStart` event
-* @example
-* import Moveable from "moveable";
-*
-* const moveable = new Moveable(document.body, {
-*     target: [].slice.call(document.querySelectorAll(".target")),
-*     draggable: true
-* });
-* moveable.on("dragGroupStart", ({ targets }) => {
-*     console.log("onDragGroupStart", targets);
-* });
-*/
+ * When the group drag starts, the `dragGroupStart` event is called.
+ * @memberof Moveable.Draggable
+ * @event dragGroupStart
+ * @param {Moveable.Draggable.OnDragGroupStart} - Parameters for the `dragGroupStart` event
+ * @example
+ * import Moveable from "moveable";
+ *
+ * const moveable = new Moveable(document.body, {
+ *     target: [].slice.call(document.querySelectorAll(".target")),
+ *     draggable: true
+ * });
+ * moveable.on("dragGroupStart", ({ targets }) => {
+ *     console.log("onDragGroupStart", targets);
+ * });
+ */
 
 /**
-* When the group drag, the `dragGroup` event is called.
-* @memberof Moveable.Draggable
-* @event dragGroup
-* @param {Moveable.Draggable.OnDragGroup} - Parameters for the `dragGroup` event
-* @example
-* import Moveable from "moveable";
-*
-* const moveable = new Moveable(document.body, {
-*     target: [].slice.call(document.querySelectorAll(".target")),
-*     draggable: true
-* });
-* moveable.on("dragGroup", ({ targets, events }) => {
-*     console.log("onDragGroup", targets);
-*     events.forEach(ev => {
-*          // drag event
-*          console.log("onDrag left, top", ev.left, ev.top);
-*          // ev.target!.style.left = `${ev.left}px`;
-*          // ev.target!.style.top = `${ev.top}px`;
-*          console.log("onDrag translate", ev.dist);
-*          ev.target!.style.transform = ev.transform;)
-*     });
-* });
-*/
+ * When the group drag, the `dragGroup` event is called.
+ * @memberof Moveable.Draggable
+ * @event dragGroup
+ * @param {Moveable.Draggable.OnDragGroup} - Parameters for the `dragGroup` event
+ * @example
+ * import Moveable from "moveable";
+ *
+ * const moveable = new Moveable(document.body, {
+ *     target: [].slice.call(document.querySelectorAll(".target")),
+ *     draggable: true
+ * });
+ * moveable.on("dragGroup", ({ targets, events }) => {
+ *     console.log("onDragGroup", targets);
+ *     events.forEach(ev => {
+ *          // drag event
+ *          console.log("onDrag left, top", ev.left, ev.top);
+ *          // ev.target!.style.left = `${ev.left}px`;
+ *          // ev.target!.style.top = `${ev.top}px`;
+ *          console.log("onDrag translate", ev.dist);
+ *          ev.target!.style.transform = ev.transform;)
+ *     });
+ * });
+ */
 
 /**
  * When the group drag finishes, the `dragGroupEnd` event is called.

@@ -30,9 +30,6 @@
             ],
             "@/react-moveable": [
                 "./src/"
-            ],
-            "@moveable/helper": [
-                "../helper/src/"
             ]
         }
     },

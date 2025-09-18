@@ -1,13 +1,21 @@
 import * as React from "react";
 import {
-    Able, MoveableInterface, GroupableProps, MoveableDefaultProps,
-    IndividualGroupableProps, MoveableManagerInterface, MoveableRefTargetsResultType,
-    MoveableTargetGroupsType, BeforeRenderableProps, RenderableProps, MoveableManagerState,
+    Able,
+    MoveableInterface,
+    GroupableProps,
+    MoveableDefaultProps,
+    IndividualGroupableProps,
+    MoveableManagerInterface,
+    MoveableRefTargetsResultType,
+    MoveableTargetGroupsType,
+    BeforeRenderableProps,
+    RenderableProps,
+    MoveableManagerState,
 } from "./types";
 import MoveableManager from "./MoveableManager";
 import MoveableGroup from "./MoveableGroup";
 import { ref, withMethods, prefixCSS } from "framework-utils";
-import { find, getKeys, IObject, isArray, isString } from "@daybrush/utils";
+import { find, getKeys, IObject, isArray, isString } from "./utils/";
 import { MOVEABLE_METHODS, PREFIX, MOVEABLE_CSS } from "./consts";
 import Default from "./ables/Default";
 import Groupable from "./ables/Groupable";
@@ -20,11 +28,11 @@ import ChildrenDiffer from "@egjs/children-differ";
 
 function getElementTargets(
     refTargets: MoveableRefTargetsResultType,
-    selectorMap: IObject<Array<HTMLElement | SVGElement>>,
+    selectorMap: IObject<Array<HTMLElement | SVGElement>>
 ): Array<SVGElement | HTMLElement> {
     const elementTargets: Array<SVGElement | HTMLElement> = [];
 
-    refTargets.forEach(target => {
+    refTargets.forEach((target) => {
         if (!target) {
             return;
         }
@@ -46,11 +54,11 @@ function getElementTargets(
 
 function getTargetGroups(
     refTargets: MoveableRefTargetsResultType,
-    selectorMap: IObject<Array<HTMLElement | SVGElement>>,
+    selectorMap: IObject<Array<HTMLElement | SVGElement>>
 ) {
     const targetGroups: MoveableTargetGroupsType = [];
 
-    refTargets.forEach(target => {
+    refTargets.forEach((target) => {
         if (!target) {
             return;
         }
@@ -72,27 +80,29 @@ function getTargetGroups(
 
 function compareRefTargets(
     prevRefTargets: MoveableRefTargetsResultType,
-    nextRefTargets: MoveableRefTargetsResultType,
+    nextRefTargets: MoveableRefTargetsResultType
 ): boolean {
-    return (prevRefTargets.length !== nextRefTargets.length) || prevRefTargets.some((target, i) => {
-        const nextTarget = nextRefTargets[i];
+    return (
+        prevRefTargets.length !== nextRefTargets.length ||
+        prevRefTargets.some((target, i) => {
+            const nextTarget = nextRefTargets[i];
 
-        if (!target && !nextTarget) {
-            return false;
-        } else if (target != nextTarget) {
-            if (isArray(target) && isArray(nextTarget)) {
-                return compareRefTargets(target, nextTarget);
+            if (!target && !nextTarget) {
+                return false;
+            } else if (target != nextTarget) {
+                if (isArray(target) && isArray(nextTarget)) {
+                    return compareRefTargets(target, nextTarget);
+                }
+                return true;
             }
-            return true;
-        }
-        return false;
-    });
+            return false;
+        })
+    );
 }
 
 type DefaultAbles = GroupableProps & IndividualGroupableProps & BeforeRenderableProps & RenderableProps;
 
-export class InitialMoveable<T = {}>
-    extends React.PureComponent<MoveableDefaultProps & DefaultAbles & T> {
+export class InitialMoveable<T = {}> extends React.PureComponent<MoveableDefaultProps & DefaultAbles & T> {
     public static defaultAbles: readonly Able<any>[] = [];
     public static customStyledMap: Record<string, any> = {};
     public static defaultStyled: any = null;
@@ -104,7 +114,7 @@ export class InitialMoveable<T = {}>
             if (!css) {
                 return;
             }
-            css.forEach(text => {
+            css.forEach((text) => {
                 cssMap[text] = true;
             });
         });
@@ -125,28 +135,18 @@ export class InitialMoveable<T = {}>
     private _tmpSelectorMap: IObject<Array<HTMLElement | SVGElement>> = {};
     private _onChangeTargets: (() => void) | null = null;
     public render() {
-        const moveableContructor = (this.constructor as typeof InitialMoveable);
+        const moveableContructor = this.constructor as typeof InitialMoveable;
 
         if (!moveableContructor.defaultStyled) {
             moveableContructor.makeStyled();
         }
-        const {
-            ables: userAbles,
-            props: userProps,
-            ...props
-        } = this.props;
-        const [
-            refTargets,
-            nextSelectorMap,
-        ] = this._updateRefs(true);
+        const { ables: userAbles, props: userProps, ...props } = this.props;
+        const [refTargets, nextSelectorMap] = this._updateRefs(true);
         const elementTargets = getElementTargets(refTargets, nextSelectorMap);
 
         let isGroup = elementTargets.length > 1;
         const totalAbles = moveableContructor.getTotalAbles();
-        const ables = [
-            ...totalAbles,
-            ...(userAbles as any || []),
-        ];
+        const ables = [...totalAbles, ...((userAbles as any) || [])];
         const nextProps = {
             ...props,
             ...(userProps || {}),
@@ -160,7 +160,6 @@ export class InitialMoveable<T = {}>
         let firstRenderState: MoveableManagerState | null = null;
         const prevMoveable = this.moveable;
 
-
         const persistData = props.persistData;
 
         if (persistData?.children) {
@@ -168,11 +167,15 @@ export class InitialMoveable<T = {}>
         }
         // Even one child is treated as a group if individualGroupable is enabled. #867
         if (props.individualGroupable) {
-            return <MoveableIndividualGroup key="individual-group" ref={ref(this, "moveable")}
-                {...nextProps}
-                target={null}
-                targets={elementTargets}
-            />;
+            return (
+                <MoveableIndividualGroup
+                    key="individual-group"
+                    ref={ref(this, "moveable")}
+                    {...nextProps}
+                    target={null}
+                    targets={elementTargets}
+                />
+            );
         }
         if (isGroup) {
             const targetGroups = getTargetGroups(refTargets, nextSelectorMap);
@@ -186,30 +189,39 @@ export class InitialMoveable<T = {}>
                 }
             }
 
-            return <MoveableGroup key="group" ref={ref(this, "moveable")}
-                {...nextProps}
-                {...props.groupableProps ?? {}}
-                target={null}
-                targets={elementTargets}
-                targetGroups={targetGroups}
-                firstRenderState={firstRenderState}
-            />;
+            return (
+                <MoveableGroup
+                    key="group"
+                    ref={ref(this, "moveable")}
+                    {...nextProps}
+                    {...(props.groupableProps ?? {})}
+                    target={null}
+                    targets={elementTargets}
+                    targetGroups={targetGroups}
+                    firstRenderState={firstRenderState}
+                />
+            );
         } else {
             const target = elementTargets[0];
             // manager
             if (prevMoveable && (prevMoveable.props.groupable || (prevMoveable.props as any).individualGroupable)) {
                 const moveables = (prevMoveable as MoveableGroup | MoveableIndividualGroup).moveables || [];
-                const prevTargetMoveable = find(moveables, mv => mv.props.target === target);
+                const prevTargetMoveable = find(moveables, (mv) => mv.props.target === target);
 
                 if (prevTargetMoveable) {
                     firstRenderState = { ...prevTargetMoveable.state };
                 }
             }
 
-            return <MoveableManager<any> key="single" ref={ref(this, "moveable")}
-                {...nextProps}
-                target={target}
-                firstRenderState={firstRenderState} />;
+            return (
+                <MoveableManager<any>
+                    key="single"
+                    ref={ref(this, "moveable")}
+                    {...nextProps}
+                    target={target}
+                    firstRenderState={firstRenderState}
+                />
+            );
         }
     }
     public componentDidMount() {
@@ -287,7 +299,7 @@ export class InitialMoveable<T = {}>
             resolvePromise();
         };
 
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             resolvePromise = resolve;
         });
     }
@@ -330,11 +342,7 @@ export class InitialMoveable<T = {}>
         this._tmpRefTargets = nextRefTargets;
         this._tmpSelectorMap = nextSelectorMap;
 
-        return [
-            nextRefTargets,
-            nextSelectorMap,
-            !isRender && isUpdate,
-        ] as const;
+        return [nextRefTargets, nextSelectorMap, !isRender && isUpdate] as const;
     }
     private _checkChangeTargets() {
         this.refTargets = this._tmpRefTargets;
@@ -350,11 +358,7 @@ export class InitialMoveable<T = {}>
             });
             this._onChangeTargets?.();
         }
-        const [
-            refTargets,
-            selectorMap,
-            isUpdate,
-        ] = this._updateRefs();
+        const [refTargets, selectorMap, isUpdate] = this._updateRefs();
 
         this.refTargets = refTargets;
         this.selectorMap = selectorMap;
@@ -366,7 +370,7 @@ export class InitialMoveable<T = {}>
 }
 export interface InitialMoveable<T = {}>
     extends React.PureComponent<MoveableDefaultProps & DefaultAbles & T>,
-    MoveableInterface {
+        MoveableInterface {
     setState(state: any, callback?: () => any): any;
     forceUpdate(callback?: () => any): any;
 }

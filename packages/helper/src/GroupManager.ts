@@ -1,8 +1,7 @@
 /* eslint-disable no-cond-assign */
-import { deepFlat, isArray } from "@daybrush/utils";
+import { deepFlat, isArray } from "../../react-moveable/src/utils/";
 import { ArrayChild, SingleChild } from "./groups";
 import { GroupChild, TargetGroupsObject, TargetGroupsType, TargetList } from "./types";
-
 
 export function toTargetList(raw: GroupChild[]): TargetList {
     function targets(childs: GroupChild[] = []) {
@@ -32,19 +31,13 @@ export function toTargetList(raw: GroupChild[]): TargetList {
 
 export class GroupManager extends ArrayChild {
     public type = "root" as const;
-    private _targets:  Array<HTMLElement | SVGElement> = [];
+    private _targets: Array<HTMLElement | SVGElement> = [];
 
-    constructor(
-        targetGroups: TargetGroupsType,
-        targets?: Array<HTMLElement | SVGElement>,
-    ) {
+    constructor(targetGroups: TargetGroupsType, targets?: Array<HTMLElement | SVGElement>) {
         super();
         this.set(targetGroups, targets);
     }
-    public set(
-        targetGroups: TargetGroupsObject,
-        targets: Array<HTMLElement | SVGElement> = [],
-    ) {
+    public set(targetGroups: TargetGroupsObject, targets: Array<HTMLElement | SVGElement> = []) {
         this.map = new Map();
         this.value = [];
 
@@ -52,7 +45,7 @@ export class GroupManager extends ArrayChild {
         const value = this.value;
 
         this.add(targetGroups);
-        targets.forEach(target => {
+        targets.forEach((target) => {
             if (map.has(target)) {
                 return;
             }
@@ -84,12 +77,12 @@ export class GroupManager extends ArrayChild {
     public selectSingleChilds(
         targets: TargetGroupsType,
         added: Array<HTMLElement | SVGElement>,
-        removed: Array<HTMLElement | SVGElement>,
+        removed: Array<HTMLElement | SVGElement>
     ) {
         const nextTargets = [...targets];
 
         // group can't be added, removed.
-        removed.forEach(element => {
+        removed.forEach((element) => {
             const index = nextTargets.indexOf(element);
 
             if (index > -1) {
@@ -98,7 +91,7 @@ export class GroupManager extends ArrayChild {
         });
 
         // Targets can be added one by one
-        added.forEach(element => {
+        added.forEach((element) => {
             nextTargets.push(element);
         });
 
@@ -108,13 +101,13 @@ export class GroupManager extends ArrayChild {
         targets: TargetGroupsType,
         added: Array<HTMLElement | SVGElement>,
         removed: Array<HTMLElement | SVGElement>,
-        continueSelect?: boolean,
+        continueSelect?: boolean
     ) {
         const nextTargets = [...targets];
         const startSelected = deepFlat(nextTargets);
 
         // group can be added, removed.
-        removed.forEach(element => {
+        removed.forEach((element) => {
             // Single Target
             const index = nextTargets.indexOf(element);
 
@@ -125,13 +118,13 @@ export class GroupManager extends ArrayChild {
             }
             // Group Target
             const removedChild = continueSelect
-                // Finds the nearest child for element and nextTargets.
-                ? this.findNextChild(element, nextTargets)
-                // Find the nearest exact child for element, all removed and nextTargets.
-                : this.findNextExactChild(element, removed, nextTargets);
+                ? // Finds the nearest child for element and nextTargets.
+                  this.findNextChild(element, nextTargets)
+                : // Find the nearest exact child for element, all removed and nextTargets.
+                  this.findNextExactChild(element, removed, nextTargets);
 
             if (removedChild) {
-                const groupIndex = nextTargets.findIndex(target => {
+                const groupIndex = nextTargets.findIndex((target) => {
                     return isArray(target) && removedChild.compare(target);
                 });
 
@@ -141,7 +134,7 @@ export class GroupManager extends ArrayChild {
             }
         });
 
-        added.forEach(element => {
+        added.forEach((element) => {
             const parentGroup = this._findParentGroup(element, startSelected);
             const nextChild = parentGroup.findContainedChild(element);
 
@@ -163,12 +156,12 @@ export class GroupManager extends ArrayChild {
         targets: TargetGroupsType,
         added: Array<HTMLElement | SVGElement>,
         removed: Array<HTMLElement | SVGElement>,
-        continueSelect?: boolean,
+        continueSelect?: boolean
     ) {
         const nextTargets = [...targets];
         const commonParent = this.findCommonParent(nextTargets);
 
-        removed.forEach(element => {
+        removed.forEach((element) => {
             // Single Target
             const index = nextTargets.indexOf(element);
 
@@ -178,13 +171,13 @@ export class GroupManager extends ArrayChild {
                 return;
             }
             const removedChild = continueSelect
-                // Find the nearest exact child for element, all removed and nextTargets.
-                ? commonParent.findNextExactChild(element, removed, nextTargets)
-                // Finds the nearest child for element and nextTargets.
-                : commonParent.findNextChild(element, nextTargets, true);
+                ? // Find the nearest exact child for element, all removed and nextTargets.
+                  commonParent.findNextExactChild(element, removed, nextTargets)
+                : // Finds the nearest child for element and nextTargets.
+                  commonParent.findNextChild(element, nextTargets, true);
 
             if (removedChild) {
-                const groupIndex = nextTargets.findIndex(target => {
+                const groupIndex = nextTargets.findIndex((target) => {
                     return isArray(target) && removedChild.compare(target);
                 });
 
@@ -195,11 +188,11 @@ export class GroupManager extends ArrayChild {
         });
         const addedChildren = commonParent.groupByPerfect(added);
 
-        addedChildren.forEach(child => {
+        addedChildren.forEach((child) => {
             if (child.type === "single") {
                 nextTargets.push(child.value);
             } else {
-                const groupIndex = nextTargets.findIndex(target => {
+                const groupIndex = nextTargets.findIndex((target) => {
                     return isArray(target) && child.compare(target, 1);
                 });
 
@@ -214,7 +207,7 @@ export class GroupManager extends ArrayChild {
     public toChilds(targets: TargetGroupsType): GroupChild[] {
         const childs: GroupChild[] = [];
 
-        targets.forEach(target => {
+        targets.forEach((target) => {
             if (isArray(target)) {
                 const arrayChild = this.findArrayChild(target);
 
@@ -240,14 +233,8 @@ export class GroupManager extends ArrayChild {
         return childs;
     }
     public findChild(element: HTMLElement | SVGElement, isAuto: true): SingleChild | ArrayChild;
-    public findChild(
-        element: HTMLElement | SVGElement,
-        isAuto?: boolean,
-    ): SingleChild | ArrayChild | undefined;
-    public findChild(
-        element: HTMLElement | SVGElement,
-        isAuto?: boolean,
-    ): SingleChild | ArrayChild | undefined {
+    public findChild(element: HTMLElement | SVGElement, isAuto?: boolean): SingleChild | ArrayChild | undefined;
+    public findChild(element: HTMLElement | SVGElement, isAuto?: boolean): SingleChild | ArrayChild | undefined {
         const value = this.map.get(element);
 
         if (isAuto) {
@@ -273,19 +260,19 @@ export class GroupManager extends ArrayChild {
     }
     public group(targets: TargetGroupsType, flatten?: boolean): TargetGroupsType | null {
         const commonParent = this.findCommonParent(targets);
-        const groupChilds = targets.map(target => {
+        const groupChilds = targets.map((target) => {
             if (isArray(target)) {
                 return this.findArrayChild(target);
             }
             return this.findChild(target);
         });
-        const isGroupable = groupChilds.every(child => child?.parent === commonParent);
+        const isGroupable = groupChilds.every((child) => child?.parent === commonParent);
 
         if (!isGroupable) {
             return null;
         }
         const group = new ArrayChild(commonParent);
-        const nextChilds = commonParent.value.filter(target => groupChilds.indexOf(target) === -1);
+        const nextChilds = commonParent.value.filter((target) => groupChilds.indexOf(target) === -1);
 
         if (!nextChilds.length) {
             return null;
@@ -303,7 +290,7 @@ export class GroupManager extends ArrayChild {
             targets = targets[0];
         }
         const commonParent = this.findCommonParent(targets);
-        const groupChilds = targets.map(target => {
+        const groupChilds = targets.map((target) => {
             if (isArray(target)) {
                 return this.findArrayChild(target);
             }
@@ -315,7 +302,7 @@ export class GroupManager extends ArrayChild {
         }
 
         // all children is targets
-        const isGroupable = commonParent.value.every(child => groupChilds.indexOf(child) > -1);
+        const isGroupable = commonParent.value.every((child) => groupChilds.indexOf(child) > -1);
 
         if (!isGroupable || commonParent === this) {
             // has no group
@@ -327,7 +314,7 @@ export class GroupManager extends ArrayChild {
         if (!parent) {
             return null;
         }
-        const nextChilds = parent.value.filter(target => target !== commonParent);
+        const nextChilds = parent.value.filter((target) => target !== commonParent);
 
         nextChilds.push(...commonParent.value);
         parent.value = nextChilds;
@@ -335,10 +322,7 @@ export class GroupManager extends ArrayChild {
         this.set(this.toTargetGroups(), this._targets);
         return commonParent.toTargetGroups();
     }
-    protected _findParentGroup(
-        element: HTMLElement | SVGElement,
-        range: Array<HTMLElement | SVGElement>,
-    ) {
+    protected _findParentGroup(element: HTMLElement | SVGElement, range: Array<HTMLElement | SVGElement>) {
         if (!range.length) {
             return this;
         }
@@ -350,7 +334,7 @@ export class GroupManager extends ArrayChild {
         let parent: ArrayChild | undefined = single.parent;
 
         while (parent) {
-            if (range.some(element => parent!.contains(element))) {
+            if (range.some((element) => parent!.contains(element))) {
                 return parent;
             }
             parent = parent.parent;

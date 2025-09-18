@@ -2,7 +2,7 @@ import { deepFlat } from "@daybrush/utils";
 import * as React from "react";
 import Selecto from "react-selecto";
 import Moveable, { MoveableTargetGroupsType } from "@/react-moveable";
-import { GroupManager, TargetList } from "@moveable/helper";
+import { GroupManager, TargetList } from "@/react-moveable/helper";
 
 export default function App() {
     const groupManager = React.useMemo<GroupManager>(() => new GroupManager([]), []);

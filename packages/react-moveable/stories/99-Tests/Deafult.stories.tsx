@@ -1,7 +1,6 @@
 import { splitBracket, splitComma } from "@daybrush/utils";
 import { add } from "../utils/story";
 import { findMoveable, pan, wait } from "../utils/testing";
-import { expect } from "@storybook/jest";
 
 export default {
     title: "Variable Situations",
@@ -115,12 +114,10 @@ export const TestsFixedSnap = add("Test Snap with position: fixed", {
     path: require.resolve("./ReactFixedSnapApp"),
 });
 
-
 export const TestsZoomedTarget = add("Test css zoomed target", {
     app: require("./ReactZoomedTargetApp").default,
     path: require.resolve("./ReactZoomedTargetApp"),
 });
-
 
 export const TestsTRSTarget = add("Test css translate & rotate & scale target", {
     app: require("./ReactTRSTargetApp").default,
@@ -130,7 +127,6 @@ export const TestsTRSTarget = add("Test css translate & rotate & scale target", 
         const target = canvasElement.querySelector<HTMLElement>(".target")!;
         const controlBox = canvasElement.querySelector<HTMLElement>(".moveable-control-box")!;
 
-
         // x1 => x2
         const line1 = controlBox.querySelector<HTMLElement>(`[data-line-key="render-line-0"]`)!;
         // y1 => y2
@@ -139,9 +135,11 @@ export const TestsTRSTarget = add("Test css translate & rotate & scale target", 
         // 100x 200
         expect(line1.style.width).toBe("101px");
         expect(line2.style.width).toBe("201px");
-        expect(splitComma(splitBracket(controlBox.style.transform).value!).map(v => {
-            return parseInt(v, 10);
-        })).toEqual([243, 248, 0]);
+        expect(
+            splitComma(splitBracket(controlBox.style.transform).value!).map((v) => {
+                return parseInt(v, 10);
+            })
+        ).toEqual([243, 248, 0]);
 
         await pan({
             target,
@@ -150,12 +148,16 @@ export const TestsTRSTarget = add("Test css translate & rotate & scale target", 
             duration: 100,
             interval: 10,
         });
-        expect(splitComma(splitBracket(target.style.transform).value!).map(v => {
-            return parseInt(v, 10);
-        })).toEqual([186, -25]);
-        expect(splitComma(splitBracket(controlBox.style.transform).value!).map(v => {
-            return parseInt(v, 10);
-        })).toEqual([343, 248, 0]);
+        expect(
+            splitComma(splitBracket(target.style.transform).value!).map((v) => {
+                return parseInt(v, 10);
+            })
+        ).toEqual([186, -25]);
+        expect(
+            splitComma(splitBracket(controlBox.style.transform).value!).map((v) => {
+                return parseInt(v, 10);
+            })
+        ).toEqual([343, 248, 0]);
     },
 });
 
@@ -173,7 +175,6 @@ export const TestsRotateClippable = add("Test rotate & clippable", {
     app: require("./ReactRotateClippableApp").default,
     path: require.resolve("./ReactRotateClippableApp"),
 });
-
 
 export const TestsAccurateElementGuidelines = add("Test Accurate Element Guidelines", {
     app: require("./ReactAccurateElementGuidelineApp").default,
@@ -218,32 +219,25 @@ export const TestDragAPI = add("Test Drag API", {
     path: require.resolve("./ReactDragAPIApp"),
 });
 
-
 export const TestChangeTargetsOnClick = add("Test Change Target on Click Group", {
     app: require("./ReactChangeTargetsOnClickApp").default,
     path: require.resolve("./ReactChangeTargetsOnClickApp"),
 });
-
-
 
 export const TestScalableKeepRatio = add("Even if the size is 0, the ratio is maintained.", {
     app: require("./ReactScalableKeepRatioApp").default,
     path: require.resolve("./ReactScalableKeepRatioApp"),
 });
 
-
-
 export const TestIframe = add("Test Iframe", {
     app: require("./ReactIframeApp").default,
     path: require.resolve("./ReactIframeApp"),
 });
 
-
 export const TestGroupPadding = add("Test Show Group's Padding", {
     app: require("./ReactGroupPaddingApp").default,
     path: require.resolve("./ReactGroupPaddingApp"),
 });
-
 
 export const TestTranslate50 = add("Test translate(-50%, -50%)", {
     app: require("./ReactTranslate50App").default,
@@ -265,7 +259,6 @@ export const TestTranslate50 = add("Test translate(-50%, -50%)", {
         expect(controlBox.style.transform).toBe("translate3d(150px, 100px, 0px)");
     },
 });
-
 
 export const TestNestedSVG = add("Test Nested SVG", {
     app: require("./ReactNestedSVGApp").default,

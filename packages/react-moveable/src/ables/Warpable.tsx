@@ -1,9 +1,18 @@
 import {
-    prefix, getLineStyle, getDirection, getAbsolutePosesByState,
-    triggerEvent, fillParams, fillEndParams, getDirectionViewClassName, fillCSSObject,
+    prefix,
+    getLineStyle,
+    getDirection,
+    getAbsolutePosesByState,
+    triggerEvent,
+    fillParams,
+    fillEndParams,
+    getDirectionViewClassName,
+    fillCSSObject,
 } from "../utils";
 import {
-    convertDimension, invert, multiply,
+    convertDimension,
+    invert,
+    multiply,
     calculate,
     createIdentityMatrix,
     ignoreDimension,
@@ -13,16 +22,29 @@ import {
 } from "@scena/matrix";
 import { NEARBY_POS } from "../consts";
 import {
-    setDragStart, getDragDist, getPosIndexesByDirection, setDefaultTransformIndex,
-    fillTransformStartEvent, resolveTransformEvent,
-    convertTransformFormat, fillOriginalTransform, getTransfromMatrix,
+    setDragStart,
+    getDragDist,
+    getPosIndexesByDirection,
+    setDefaultTransformIndex,
+    fillTransformStartEvent,
+    resolveTransformEvent,
+    convertTransformFormat,
+    fillOriginalTransform,
+    getTransfromMatrix,
 } from "../gesto/GestoUtils";
 import {
-    WarpableProps, ScalableProps, ResizableProps,
-    Renderer, SnappableProps, SnappableState,
-    OnWarpStart, OnWarp, OnWarpEnd, MoveableManagerInterface,
+    WarpableProps,
+    ScalableProps,
+    ResizableProps,
+    Renderer,
+    SnappableProps,
+    SnappableState,
+    OnWarpStart,
+    OnWarp,
+    OnWarpEnd,
+    MoveableManagerInterface,
 } from "../types";
-import { hasClass, dot, getRad } from "@daybrush/utils";
+import { hasClass, dot, getRad } from "../utils/";
 import { renderAllDirections } from "../renderDirections";
 import { hasGuidelines } from "./snappable/utils";
 import { checkMoveableSnapBounds } from "./snappable/snapBounds";
@@ -59,17 +81,8 @@ function isValidPos(poses1: number[][], poses2: number[][]) {
 export default {
     name: "warpable",
     ableGroup: "size",
-    props: [
-        "warpable",
-        "renderDirections",
-        "edge",
-        "displayAroundControls",
-    ] as const,
-    events: [
-        "warpStart",
-        "warp",
-        "warpEnd",
-    ] as const,
+    props: ["warpable", "renderDirections", "edge", "displayAroundControls"] as const,
+    events: ["warpStart", "warp", "warpEnd"] as const,
     viewClassName: getDirectionViewClassName("warpable"),
     render(moveable: MoveableManagerInterface<ResizableProps & ScalableProps & WarpableProps>, React: Renderer): any[] {
         const { resizable, scalable, warpable, zoom } = moveable.props;
@@ -89,14 +102,26 @@ export default {
         const linePosTo4 = getMiddleLinePos(pos4, pos2);
 
         return [
-            <div className={prefix("line")}
-                key="middeLine1" style={getLineStyle(linePosFrom1, linePosTo1, zoom)}></div>,
-            <div className={prefix("line")}
-                key="middeLine2" style={getLineStyle(linePosFrom2, linePosTo2, zoom)}></div>,
-            <div className={prefix("line")}
-                key="middeLine3" style={getLineStyle(linePosFrom3, linePosTo3, zoom)}></div>,
-            <div className={prefix("line")}
-                key="middeLine4" style={getLineStyle(linePosFrom4, linePosTo4, zoom)}></div>,
+            <div
+                className={prefix("line")}
+                key="middeLine1"
+                style={getLineStyle(linePosFrom1, linePosTo1, zoom)}
+            ></div>,
+            <div
+                className={prefix("line")}
+                key="middeLine2"
+                style={getLineStyle(linePosFrom2, linePosTo2, zoom)}
+            ></div>,
+            <div
+                className={prefix("line")}
+                key="middeLine3"
+                style={getLineStyle(linePosFrom3, linePosTo3, zoom)}
+            ></div>,
+            <div
+                className={prefix("line")}
+                key="middeLine4"
+                style={getLineStyle(linePosFrom4, linePosTo4, zoom)}
+            ></div>,
             ...renderAllDirections(moveable, "warpable", React),
         ];
     },
@@ -108,10 +133,7 @@ export default {
 
         return hasClass(target, prefix("direction")) && hasClass(target, prefix("warpable"));
     },
-    dragControlStart(
-        moveable: MoveableManagerInterface<WarpableProps, SnappableState>,
-        e: any,
-    ) {
+    dragControlStart(moveable: MoveableManagerInterface<WarpableProps, SnappableState>, e: any) {
         const { datas, inputEvent } = e;
         const { target } = moveable.props;
         const { target: inputTarget } = inputEvent;
@@ -121,12 +143,7 @@ export default {
             return false;
         }
         const state = moveable.state;
-        const {
-            transformOrigin, is3d,
-            targetTransform, targetMatrix,
-            width, height,
-            left, top,
-        } = state;
+        const { transformOrigin, is3d, targetTransform, targetMatrix, width, height, left, top } = state;
 
         datas.datas = {};
         datas.targetTransform = targetTransform;
@@ -140,7 +157,7 @@ export default {
             [width, 0],
             [0, height],
             [width, height],
-        ].map(p => minus(p, transformOrigin));
+        ].map((p) => minus(p, transformOrigin));
 
         datas.nextPoses = datas.poses.map(([x, y]: number[]) => calculate(datas.warpTargetMatrix, [x, y, 0, 1], 4));
         datas.startValue = createIdentityMatrix(4);
@@ -168,18 +185,10 @@ export default {
         }
         return datas.isWarp;
     },
-    dragControl(
-        moveable: MoveableManagerInterface<WarpableProps & SnappableProps, SnappableState>,
-        e: any,
-    ) {
+    dragControl(moveable: MoveableManagerInterface<WarpableProps & SnappableProps, SnappableState>, e: any) {
         const { datas, isRequest } = e;
         let { distX, distY } = e;
-        const {
-            targetInverseMatrix, prevMatrix, isWarp, startValue,
-            poses,
-            posIndexes,
-            absolutePoses,
-        } = datas;
+        const { targetInverseMatrix, prevMatrix, isWarp, startValue, poses, posIndexes, absolutePoses } = datas;
 
         if (!isWarp) {
             return false;
@@ -195,16 +204,13 @@ export default {
                 ]);
             }
 
-            const {
-                horizontal: horizontalSnapInfo,
-                vertical: verticalSnapInfo,
-            } = checkMoveableSnapBounds(
+            const { horizontal: horizontalSnapInfo, vertical: verticalSnapInfo } = checkMoveableSnapBounds(
                 moveable,
                 isRequest,
                 {
-                    horizontal: selectedPoses.map(pos => pos[1] + distY),
-                    vertical: selectedPoses.map(pos => pos[0] + distX),
-                },
+                    horizontal: selectedPoses.map((pos) => pos[1] + distY),
+                    vertical: selectedPoses.map((pos) => pos[0] + distX),
+                }
             );
 
             distY -= horizontalSnapInfo.offset;
@@ -218,9 +224,14 @@ export default {
             nextPoses[index] = plus(nextPoses[index], dist);
         });
 
-        if (!NEARBY_POS.every(
-            nearByPoses => isValidPos(nearByPoses.map(i => poses[i]), nearByPoses.map(i => nextPoses[i])),
-        )) {
+        if (
+            !NEARBY_POS.every((nearByPoses) =>
+                isValidPos(
+                    nearByPoses.map((i) => poses[i]),
+                    nearByPoses.map((i) => nextPoses[i])
+                )
+            )
+        ) {
             return false;
         }
         const h = createWarpMatrix(
@@ -231,7 +242,7 @@ export default {
             nextPoses[0],
             nextPoses[2],
             nextPoses[1],
-            nextPoses[3],
+            nextPoses[3]
         );
 
         if (!h.length) {
@@ -248,25 +259,32 @@ export default {
         datas.prevMatrix = matrix;
         const totalMatrix = multiply(startValue, matrix, 4);
         const nextTransform = convertTransformFormat(
-            datas, `matrix3d(${totalMatrix.join(", ")})`, `matrix3d(${matrix.join(", ")})`);
+            datas,
+            `matrix3d(${totalMatrix.join(", ")})`,
+            `matrix3d(${matrix.join(", ")})`
+        );
 
         fillOriginalTransform(e, nextTransform);
-        triggerEvent(moveable, "onWarp", fillParams<OnWarp>(moveable, e, {
-            delta,
-            matrix: totalMatrix,
-            dist: matrix,
-            multiply,
-            transform: nextTransform,
-            ...fillCSSObject({
+        triggerEvent(
+            moveable,
+            "onWarp",
+            fillParams<OnWarp>(moveable, e, {
+                delta,
+                matrix: totalMatrix,
+                dist: matrix,
+                multiply,
                 transform: nextTransform,
-            }, e),
-        }));
+                ...fillCSSObject(
+                    {
+                        transform: nextTransform,
+                    },
+                    e
+                ),
+            })
+        );
         return true;
     },
-    dragControlEnd(
-        moveable: MoveableManagerInterface<WarpableProps>,
-        e: any,
-    ) {
+    dragControlEnd(moveable: MoveableManagerInterface<WarpableProps>, e: any) {
         const { datas, isDrag } = e;
         if (!datas.isWarp) {
             return false;
@@ -290,31 +308,31 @@ export default {
  */
 
 /**
-* Set directions to show the control box. (default: ["n", "nw", "ne", "s", "se", "sw", "e", "w"])
-* @name Moveable.Warpable#renderDirections
-* @example
-* import Moveable from "moveable";
-*
-* const moveable = new Moveable(document.body, {
-*     warpable: true,
-*     renderDirections: ["n", "nw", "ne", "s", "se", "sw", "e", "w"],
-* });
-*
-* moveable.renderDirections = ["nw", "ne", "sw", "se"];
-*/
+ * Set directions to show the control box. (default: ["n", "nw", "ne", "s", "se", "sw", "e", "w"])
+ * @name Moveable.Warpable#renderDirections
+ * @example
+ * import Moveable from "moveable";
+ *
+ * const moveable = new Moveable(document.body, {
+ *     warpable: true,
+ *     renderDirections: ["n", "nw", "ne", "s", "se", "sw", "e", "w"],
+ * });
+ *
+ * moveable.renderDirections = ["nw", "ne", "sw", "se"];
+ */
 /**
-* When the warp starts, the warpStart event is called.
-* @memberof Moveable.Warpable
-* @event warpStart
-* @param {Moveable.Warpable.OnWarpStart} - Parameters for the warpStart event
-* @example
-* import Moveable from "moveable";
-*
-* const moveable = new Moveable(document.body, { warpable: true });
-* moveable.on("warpStart", ({ target }) => {
-*     console.log(target);
-* });
-*/
+ * When the warp starts, the warpStart event is called.
+ * @memberof Moveable.Warpable
+ * @event warpStart
+ * @param {Moveable.Warpable.OnWarpStart} - Parameters for the warpStart event
+ * @example
+ * import Moveable from "moveable";
+ *
+ * const moveable = new Moveable(document.body, { warpable: true });
+ * moveable.on("warpStart", ({ target }) => {
+ *     console.log(target);
+ * });
+ */
 /**
  * When warping, the warp event is called.
  * @memberof Moveable.Warpable

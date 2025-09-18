@@ -1,19 +1,11 @@
-import {
-    MoveableManagerInterface, MoveableGroupInterface,
-    ClickableProps, OnClick, OnClickGroup,
-} from "../types";
+import { MoveableManagerInterface, MoveableGroupInterface, ClickableProps, OnClick, OnClickGroup } from "../types";
 import { triggerEvent, fillParams } from "../utils";
-import { findIndex } from "@daybrush/utils";
+import { findIndex } from "../utils/index";
 import { makeAble } from "./AbleManager";
 
 export default makeAble("clickable", {
-    props: [
-        "clickable",
-    ] as const,
-    events: [
-        "click",
-        "clickGroup",
-    ] as const,
+    props: ["clickable"] as const,
+    events: ["click", "clickGroup"] as const,
     always: true,
     dragRelation: "weak",
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -34,32 +26,40 @@ export default makeAble("clickable", {
         const containsElement = !isMoveableElement && moveable.controlBox.contains(inputTarget);
 
         if (
-            !inputEvent || !inputTarget || e.isDrag
-            || moveable.isMoveableElement(inputTarget)
-            || containsElement
+            !inputEvent ||
+            !inputTarget ||
+            e.isDrag ||
+            moveable.isMoveableElement(inputTarget) ||
+            containsElement
             // External event duplicate target or dragAreaElement
         ) {
             return;
         }
         const containsTarget = target.contains(inputTarget);
 
-        triggerEvent(moveable, "onClick", fillParams<OnClick>(moveable, e, {
-            isDouble: e.isDouble,
-            inputTarget,
-            isTarget: target === inputTarget,
-            moveableTarget: moveable.props.target!,
-            containsTarget,
-        }));
+        triggerEvent(
+            moveable,
+            "onClick",
+            fillParams<OnClick>(moveable, e, {
+                isDouble: e.isDouble,
+                inputTarget,
+                isTarget: target === inputTarget,
+                moveableTarget: moveable.props.target!,
+                containsTarget,
+            })
+        );
     },
     dragGroupEnd(moveable: MoveableGroupInterface<ClickableProps>, e: any) {
         const inputEvent = e.inputEvent;
         const inputTarget = e.inputTarget;
 
         if (
-            !inputEvent || !inputTarget || e.isDrag
-            || moveable.isMoveableElement(inputTarget)
+            !inputEvent ||
+            !inputTarget ||
+            e.isDrag ||
+            moveable.isMoveableElement(inputTarget) ||
             // External event duplicate target or dragAreaElement
-            || e.datas.inputTarget === inputTarget
+            e.datas.inputTarget === inputTarget
         ) {
             return;
         }
@@ -69,19 +69,23 @@ export default makeAble("clickable", {
         let containsTarget = false;
 
         if (targetIndex === -1) {
-            targetIndex = findIndex(targets, parentTarget => parentTarget.contains(inputTarget));
+            targetIndex = findIndex(targets, (parentTarget) => parentTarget.contains(inputTarget));
             containsTarget = targetIndex > -1;
         }
 
-        triggerEvent(moveable, "onClickGroup", fillParams<OnClickGroup>(moveable, e, {
-            isDouble: e.isDouble,
-            targets,
-            inputTarget,
-            targetIndex,
-            isTarget,
-            containsTarget,
-            moveableTarget: targets[targetIndex],
-        }));
+        triggerEvent(
+            moveable,
+            "onClickGroup",
+            fillParams<OnClickGroup>(moveable, e, {
+                isDouble: e.isDouble,
+                targets,
+                inputTarget,
+                targetIndex,
+                isTarget,
+                containsTarget,
+                moveableTarget: targets[targetIndex],
+            })
+        );
     },
     dragControlEnd(moveable: MoveableManagerInterface<ClickableProps>, e: any) {
         this.dragEnd(moveable, e);

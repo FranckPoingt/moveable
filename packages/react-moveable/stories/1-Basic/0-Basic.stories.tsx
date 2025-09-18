@@ -6,13 +6,11 @@ import {
     DEFAULT_WARPABLE_CONTROLS,
     DEFAULT_CLIPPABLE_CONTROLS,
 } from "../controls/default";
-import { expect } from "@storybook/jest";
 
 import { add } from "../utils/story";
 import { pan, pinch, rotate, wait } from "../utils/testing";
 import { throttle } from "@daybrush/utils";
 import { parseMat } from "css-to-mat";
-
 
 export default {
     title: "Basic",
@@ -66,7 +64,6 @@ export const BasicResizable = add("Resizable", {
         expect(target.style.height).toBe("200px");
     },
 });
-
 
 export const BasicScalable = add("Scalable", {
     app: require("./ReactScalableApp").default,
@@ -125,7 +122,9 @@ export const BaiscRotatable = add("Rotatable", {
         await wait();
 
         const target = canvasElement.querySelector<HTMLElement>(".target")!;
-        const rotationControl = canvasElement.querySelector<HTMLElement>(`.moveable-control-box .moveable-rotation-control`)!;
+        const rotationControl = canvasElement.querySelector<HTMLElement>(
+            `.moveable-control-box .moveable-rotation-control`
+        )!;
 
         await rotate({
             target: rotationControl,
@@ -138,7 +137,6 @@ export const BaiscRotatable = add("Rotatable", {
         expect(target.style.transform).toBe("translate(0px, 0px) rotate(90deg)");
     },
 });
-
 
 export const BasicWarpable = add("Warpable", {
     app: require("./ReactWarpableApp").default,
@@ -161,17 +159,13 @@ export const BasicWarpable = add("Warpable", {
         });
         const mat = parseMat(target.style.transform);
 
-        [
-            1.04545, 0.0454545, 0, -0.000909091,
-            0.0454545, 1.04545, 0, -0.000909091,
-            0, 0, 1, 0,
-            0, 0, 0, 1,
-        ].forEach((v, i) => {
-            expect(mat[i]).toBeCloseTo(v, 4);
-        });
+        [1.04545, 0.0454545, 0, -0.000909091, 0.0454545, 1.04545, 0, -0.000909091, 0, 0, 1, 0, 0, 0, 0, 1].forEach(
+            (v, i) => {
+                expect(mat[i]).toBeCloseTo(v, 4);
+            }
+        );
     },
 });
-
 
 export const BasicClippable = add("Clippable", {
     app: require("./ReactClippableApp").default,
@@ -218,7 +212,6 @@ export const BasicRoundable = add("Roundable", {
         });
         expect(targets[0].style.borderRadius).toBe(`35px`);
 
-
         // second
         const radius1Control = moveables[1].querySelector<HTMLElement>(`[data-radius-index="1"]`)!;
 
@@ -240,7 +233,9 @@ export const BasicOriginDraggable = add("OriginDraggable", {
         await wait();
 
         const target = canvasElement.querySelector<HTMLElement>(".target")!;
-        const rotationControl = canvasElement.querySelector<HTMLElement>(`.moveable-control-box .moveable-rotation-control`)!;
+        const rotationControl = canvasElement.querySelector<HTMLElement>(
+            `.moveable-control-box .moveable-rotation-control`
+        )!;
 
         await rotate({
             target: rotationControl,
@@ -267,8 +262,6 @@ export const BasicOriginDraggable = add("OriginDraggable", {
         expect(throttle(clientRect1.top, 0.1)).toBe(throttle(clientRect2.top, 0.1));
     },
 });
-
-
 
 export const BasicPinchable = add("Pinchable", {
     app: require("./ReactPinchableApp").default,

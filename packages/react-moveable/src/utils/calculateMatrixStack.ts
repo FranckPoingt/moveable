@@ -2,7 +2,7 @@ import { createIdentityMatrix, convertDimension, multiply, createOriginMatrix, i
 import { getCachedMatrixContainerInfo } from "../store/Store";
 import { convert3DMatrixes, getOffsetInfo, getSVGOffset, makeMatrixCSS } from "../utils";
 import { getMatrixStackInfo } from "./getMatrixStackInfo";
-import { getDocumentBody } from "@daybrush/utils";
+import { getDocumentBody } from "./index";
 import { MatrixInfo } from "../types";
 
 export interface MoveableElementMatrixInfo {

@@ -1,4 +1,4 @@
-import { getRad, throttle } from "@daybrush/utils";
+import { getRad, throttle } from "../../utils";
 import {
     BoundInfo, SnappableProps, BoundType,
     RotatableProps, MoveableManagerInterface, SnappableState,

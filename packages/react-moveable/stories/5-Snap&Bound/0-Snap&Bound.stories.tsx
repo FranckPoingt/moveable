@@ -1,4 +1,3 @@
-import { expect } from "@storybook/jest";
 import {
     DEFAULT_BOUNDS_CONTROLS,
     DEFAULT_DRAGGABLE_CONTROLS,
@@ -15,7 +14,6 @@ import {
 import { makeArgType, makeLink } from "../utils";
 import { add } from "../utils/story";
 import { pan, rotate, wait } from "../utils/testing";
-
 
 export default {
     title: "Snap & Bound",
@@ -57,7 +55,6 @@ export const SnapElements = add("Snap Elements", {
     },
 });
 
-
 export const SnapGrid = add("Snap Grid", {
     app: require("./ReactSnapGridApp").default,
     path: require.resolve("./ReactSnapGridApp"),
@@ -67,7 +64,6 @@ export const SnapGrid = add("Snap Grid", {
         ...DEFAULT_SNAP_GRID_CONTROLS,
     },
 });
-
 
 export const SnapGridGroup = add("Snap Grid Group (snapGridAll)", {
     app: require("./ReactSnapGridGroupApp").default,
@@ -97,7 +93,6 @@ export const SnapBoundDragResize = add("Bound Drag & Resize", {
         ...DEFAULT_BOUNDS_CONTROLS,
     },
 });
-
 
 export const SnapDragRotate = add("Bound Drag & Rotate", {
     app: require("./ReactBoundRotatableApp").default,
@@ -151,7 +146,6 @@ export const SnapMaxiumDistance = add("Set maximum distance for guidelines", {
     },
 });
 
-
 export const SnapElementsGroup = add("Snap Elements (group)", {
     app: require("./ReactSnapElementsGroupApp").default,
     path: require.resolve("./ReactSnapElementsGroupApp"),
@@ -171,7 +165,6 @@ export const SnapElementsGroup = add("Snap Elements (group)", {
     },
 });
 
-
 export const SnapRotations = add("Snap Rotations", {
     app: require("./ReactSnapRotationsApp").default,
     path: require.resolve("./ReactSnapRotationsApp"),
@@ -179,7 +172,9 @@ export const SnapRotations = add("Snap Rotations", {
         await wait();
 
         const target = canvasElement.querySelector<HTMLElement>(".target")!;
-        const rotationControl = canvasElement.querySelector<HTMLElement>(`.moveable-control-box .moveable-rotation-control`)!;
+        const rotationControl = canvasElement.querySelector<HTMLElement>(
+            `.moveable-control-box .moveable-rotation-control`
+        )!;
 
         await rotate({
             target: rotationControl,
@@ -192,6 +187,5 @@ export const SnapRotations = add("Snap Rotations", {
         expect(target.style.transform).toBe("translate(0px, 0px) rotate(90deg)");
     },
 });
-
 
 // export * from "./9-maxSnapElement.stories";

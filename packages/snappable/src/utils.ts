@@ -1,5 +1,5 @@
-import { throttle } from "@daybrush/utils";
-import { TINY_NUM } from "@daybrush/utils";
+import { throttle } from "../../react-moveable/src/utils";
+import { TINY_NUM } from "../../react-moveable/src/consts";
 import { SnappableLine } from "./types";
 
 

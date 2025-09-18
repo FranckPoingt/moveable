@@ -1,5 +1,3 @@
-import { expect } from "@storybook/jest";
-
 import { makeArgType, makeOptionLink } from "../utils";
 import { makeGroup } from "../utils/story";
 import "../templates/default.css";
@@ -10,7 +8,6 @@ export default {
 };
 
 const { add } = makeGroup("4-Options");
-
 
 export const OptionsResizeObserver = add("useResizeObserver", {
     appName: "ReactUseResizeObserverApp",
@@ -32,7 +29,6 @@ export const OptionsMutationObserver = add("useMutationObserver", {
     appName: "ReactUseMutationObserverApp",
 });
 
-
 export const OptionsPadding = add("padding", {
     app: require("./react/ReactPaddingApp").default,
     appName: "ReactPaddingApp",
@@ -51,7 +47,6 @@ export const OptionsPadding = add("padding", {
         });
         // width 100 + padding (10 + 20) 130 => 230
         // height 100 + padding (30 + 40) 170 => 220
-
 
         const paddingAreas = canvasElement.querySelectorAll<HTMLElement>(`.moveable-padding`);
         const widthLine = canvasElement.querySelector<HTMLElement>(`[data-line-key="render-line-0"]`)!;
@@ -98,25 +93,20 @@ export const OptionsControlPadding = add("controlPadding", {
     },
 });
 
-
 export const OptionsCheckInput = add("checkInput", {
     app: require("./react/ReactCheckInputApp").default,
     appName: "ReactCheckInputApp",
 });
-
 
 export const OptionsDragFocusedInput = add("dragFocusedInput", {
     app: require("./react/ReactDragFocusedInputApp").default,
     appName: "ReactDragFocusedInputApp",
 });
 
-
 export const OptionsViewContainer = add("viewContainer (Cursor is applied in viewer during dragging)", {
     app: require("./react/ReactViewContainerApp").default,
     appName: "ReactViewContainerApp",
 });
-
-
 
 export const OptionsPersistData = add("persistData (First render with persisted data)", {
     app: require("./react/ReactPersistDataApp").default,
@@ -128,11 +118,13 @@ export const OptionsPersistDataGroup = add("persistData (First render with persi
     appName: "ReactGroupPersistDataApp",
 });
 
-
-export const OptionsPersistDataIndividualGroup = add(`persistData (First render with persisted data, individual group)`, {
-    app: require("./react/ReactIndividualGroupPersistDataApp").default,
-    appName: "ReactIndividualGroupPersistDataApp",
-});
+export const OptionsPersistDataIndividualGroup = add(
+    `persistData (First render with persisted data, individual group)`,
+    {
+        app: require("./react/ReactIndividualGroupPersistDataApp").default,
+        appName: "ReactIndividualGroupPersistDataApp",
+    }
+);
 
 export const OptionsRootContainer = add("rootContainer (css transformed container)", {
     app: require("./react/ReactTransformedApp").default,
@@ -147,8 +139,6 @@ export const OptionsAccuratePosition = add("useAccuratePosition (Render in a mor
     app: require("./react/ReactUseAccuratePositionApp").default,
     appName: "ReactUseAccuratePositionApp",
 });
-
-
 
 export const OptionsDragTarget = add("other dragTarget", {
     app: require("./react/ReactDragTargetApp").default,

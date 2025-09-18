@@ -11,7 +11,7 @@ import {
     convert3DMatrixes, getOffsetPosInfo,
     getSVGMatrix, getBodyOffset, getAbsoluteMatrix,
 } from "../utils";
-import { getDocumentBody, getDocumentElement } from "@daybrush/utils";
+import { getDocumentBody, getDocumentElement } from "./index";
 import { parseMat } from "css-to-mat";
 
 
