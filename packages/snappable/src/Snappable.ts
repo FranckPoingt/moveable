@@ -14,8 +14,8 @@ export class Snappable {
     }
     public addBoundLine(lines: SnappableBoundLine[]) {
         lines.forEach(line => {
-            this._bounds.push(line);
-        })
+            this._bounds.push(new BoundLine(line.type, line));
+        });
     }
     public checkBounds(lines: SnappableLine[]) {
         const bounds = this._bounds;
@@ -24,7 +24,7 @@ export class Snappable {
         groupBy(bounds, boundLine => boundLine.slope).forEach(boundLines => {
             boundLines.forEach(boundLine => {
                 const type = boundLine.type;
-                const isIncrease = type === "up"
+                const isIncrease = type === "up";
 
                 lines.forEach(line => {
                     [line.point1, line.point2].forEach(point => {

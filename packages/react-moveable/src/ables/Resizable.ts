@@ -12,7 +12,7 @@ import {
     getDirectionViewClassName,
     getTotalDirection,
     abs,
-} from "../utils";
+} from "../utilities";
 import {
     setDragStart,
     getResizeDist,
@@ -44,7 +44,7 @@ import Draggable from "./Draggable";
 import { calculate, convertDimension, createRotateMatrix, plus } from "@scena/matrix";
 import CustomGesto, { setCustomDrag } from "../gesto/CustomGesto";
 import { checkSnapResize } from "./Snappable";
-import { calculateBoundSize, isString, convertUnitSize, throttle, isNumber } from "../utils/";
+import { calculateBoundSize, isString, convertUnitSize, throttle, isNumber } from "../utils";
 import { TINY_NUM } from "../consts";
 import { parseMat } from "css-to-mat";
 import { getFixedDirectionInfo, getOffsetFixedPositionInfo } from "../utils/getFixedDirection";

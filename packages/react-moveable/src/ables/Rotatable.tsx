@@ -11,8 +11,8 @@ import {
     calculateMoveableClientPositions,
     fillAfterTransform,
     getTotalOrigin,
-} from "../utils";
-import { IObject, hasClass, getRad, throttle, getDist, getKeys, isArray } from "../utils/";
+} from "../utilities";
+import { IObject, hasClass, getRad, throttle, getDist, getKeys, isArray } from "../utils";
 import {
     RotatableProps,
     OnRotateGroup,

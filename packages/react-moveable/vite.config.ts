@@ -35,14 +35,15 @@ export default defineConfig({
         },
       },
       treeshake: {
+        preset: "recommended",
         moduleSideEffects: false,
         propertyReadSideEffects: false,
         unknownGlobalSideEffects: false,
       },
     },
     sourcemap: true,
-    target: 'es2015',
-    minify: false,
+    target: 'es2020',
+    minify: 'esbuild',
     chunkSizeWarningLimit: 1000,
   },
   resolve: {
@@ -52,7 +53,7 @@ export default defineConfig({
     },
   },
   esbuild: {
-    target: 'es2015',
+    target: 'es2020',
     jsx: 'automatic',
   },
 });

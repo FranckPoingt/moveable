@@ -1,5 +1,5 @@
 import { MoveableManagerState, OnCustomDrag } from "../types";
-import { convertDragDist } from "../utils";
+import { convertDragDist } from "../utilities";
 
 export function setCustomDrag(
     e: any,
@@ -7,7 +7,7 @@ export function setCustomDrag(
     delta: number[],
     isPinch: boolean,
     isConvert: boolean,
-    ableName = "draggable",
+    ableName = "draggable"
 ) {
     const result = state.gestos[ableName]?.move(delta, e.inputEvent) ?? {};
     const datas = result.originalDatas || result.datas;
@@ -53,10 +53,7 @@ export default class CustomGesto {
         };
     }
     public drag(client: number[], inputEvent: any) {
-        return this.move([
-            client[0] - this.prevX,
-            client[1] - this.prevY,
-        ], inputEvent);
+        return this.move([client[0] - this.prevX, client[1] - this.prevY], inputEvent);
     }
     public move(delta: number[], inputEvent: any): OnCustomDrag {
         let clientX!: number;

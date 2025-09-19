@@ -2,9 +2,9 @@ import { ref, refs } from "framework-utils";
 import * as React from "react";
 import MoveableManager from "./MoveableManager";
 import { GroupableProps, IndividualGroupableProps, MoveableManagerInterface, RectInfo, Requester } from "./types";
-import { prefix } from "./utils";
+import { prefix } from "./utilities";
 import { setStoreCache } from "./store/Store";
-import { find } from "./utils/";
+import { find } from "./utils";
 
 /**
  * @namespace Moveable.IndividualGroup

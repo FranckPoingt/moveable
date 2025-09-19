@@ -15,13 +15,13 @@ import {
 import MoveableManager from "./MoveableManager";
 import MoveableGroup from "./MoveableGroup";
 import { ref, withMethods, prefixCSS } from "framework-utils";
-import { find, getKeys, IObject, isArray, isString } from "./utils/";
+import { find, getKeys, IObject, isArray, isString } from "./utils";
 import { MOVEABLE_METHODS, PREFIX, MOVEABLE_CSS } from "./consts";
 import Default from "./ables/Default";
 import Groupable from "./ables/Groupable";
 import DragArea from "./ables/DragArea";
 import { styled } from "react-css-styled";
-import { getRefTargets } from "./utils";
+import { getRefTargets } from "./utilities";
 import IndividualGroupable from "./ables/IndividualGroupable";
 import MoveableIndividualGroup from "./MoveableIndividualGroup";
 import ChildrenDiffer from "@egjs/children-differ";

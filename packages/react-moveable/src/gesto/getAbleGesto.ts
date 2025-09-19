@@ -1,6 +1,6 @@
 import { Able, MoveableManagerInterface, MoveableGroupInterface } from "../types";
-import { getWindow, hasClass, IObject } from "../utils/";
-import { convertDragDist, defaultSync, getRefTarget } from "../utils";
+import { getWindow, hasClass, IObject } from "../utils";
+import { convertDragDist, defaultSync, getRefTarget } from "../utilities";
 import Gesto, { GestoOptions } from "gesto";
 import BeforeRenderable from "../ables/BeforeRenderable";
 import Renderable from "../ables/Renderable";

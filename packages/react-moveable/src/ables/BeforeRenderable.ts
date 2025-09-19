@@ -9,7 +9,7 @@ import {
     OnBeforeRenderGroup,
     OnBeforeRenderGroupEnd,
 } from "../types";
-import { fillParams, triggerEvent } from "../utils";
+import { fillParams, triggerEvent } from "../utilities";
 import { convertMatrixtoCSS, createIdentityMatrix } from "@scena/matrix";
 import { isArray, splitSpace } from "../utils/index";
 import { fillChildEvents } from "../groupUtils";

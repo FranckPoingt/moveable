@@ -8,7 +8,7 @@ import {
     setDefaultTransformIndex,
     fillOriginalTransform,
 } from "../gesto/GestoUtils";
-import { triggerEvent, fillParams, getDistSize, prefix, fillEndParams, fillCSSObject } from "../utils";
+import { triggerEvent, fillParams, getDistSize, prefix, fillEndParams, fillCSSObject } from "../utilities";
 import { minus, plus } from "@scena/matrix";
 import {
     DraggableProps,
@@ -25,7 +25,7 @@ import {
 } from "../types";
 import { triggerChildGesto } from "../groupUtils";
 import { startCheckSnapDrag } from "./Snappable";
-import { getRad, throttle, throttleArray } from "../utils/";
+import { getRad, throttle, throttleArray } from "../utils";
 import { checkSnapBoundsDrag } from "./snappable/snapBounds";
 import { TINY_NUM } from "../consts";
 

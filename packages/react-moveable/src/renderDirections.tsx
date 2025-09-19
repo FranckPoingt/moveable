@@ -1,7 +1,7 @@
-import { prefix, getControlTransform, getLineStyle, getProps, sign } from "./utils";
+import { prefix, getControlTransform, getLineStyle, getProps, sign } from "./utilities";
 import { Renderer, MoveableManagerInterface, RenderDirections } from "./types";
 import { DIRECTION_INDEXES, DIRECTION_ROTATIONS, DIRECTIONS, DIRECTIONS4 } from "./consts";
-import { IObject, throttle, getRad, getKeys } from "./utils/";
+import { IObject, throttle, getRad, getKeys } from "./utils";
 import { absDegree } from "./ables/Snappable";
 
 export interface DirectionControlInfo {

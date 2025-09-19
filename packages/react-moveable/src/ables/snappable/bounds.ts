@@ -1,16 +1,20 @@
 import { getRad, throttle } from "../../utils";
 import {
-    BoundInfo, SnappableProps, BoundType,
-    RotatableProps, MoveableManagerInterface, SnappableState,
+    BoundInfo,
+    SnappableProps,
+    BoundType,
+    RotatableProps,
+    MoveableManagerInterface,
+    SnappableState,
 } from "../../types";
 import { rotate, minus } from "@scena/matrix";
-import { abs, getDistSize } from "../../utils";
+import { abs, getDistSize } from "../../utilities";
 import { TINY_NUM } from "../../consts";
 
 export function checkBoundPoses(
     bounds: BoundType | false | undefined,
     verticalPoses: number[],
-    horizontalPoses: number[],
+    horizontalPoses: number[]
 ) {
     const {
         position = "client",
@@ -34,33 +38,17 @@ export function checkBoundPoses(
 }
 export function getBounds(
     moveable: MoveableManagerInterface<SnappableProps, SnappableState>,
-    externalBounds?: BoundType | false | null,
+    externalBounds?: BoundType | false | null
 ) {
     const {
-        containerClientRect: {
-            clientHeight: containerHeight,
-            clientWidth: containerWidth,
-            clientLeft,
-            clientTop,
-        },
-        snapOffset: {
-            left: snapOffsetLeft,
-            top: snapOffsetTop,
-            right: snapOffsetRight,
-            bottom: snapOffsetBottom,
-        },
+        containerClientRect: { clientHeight: containerHeight, clientWidth: containerWidth, clientLeft, clientTop },
+        snapOffset: { left: snapOffsetLeft, top: snapOffsetTop, right: snapOffsetRight, bottom: snapOffsetBottom },
     } = moveable.state;
-    const bounds = externalBounds || moveable.props.bounds || {} as BoundType;
+    const bounds = externalBounds || moveable.props.bounds || ({} as BoundType);
     const position = bounds.position || "client";
     const isCSS = position === "css";
-    const {
-        left = -Infinity,
-        top = -Infinity,
-    } = bounds;
-    let {
-        right = isCSS ? -Infinity : Infinity,
-        bottom = isCSS ? -Infinity : Infinity,
-    } = bounds;
+    const { left = -Infinity, top = -Infinity } = bounds;
+    let { right = isCSS ? -Infinity : Infinity, bottom = isCSS ? -Infinity : Infinity } = bounds;
 
     if (isCSS) {
         right = containerWidth! + snapOffsetRight - snapOffsetLeft - right;
@@ -77,14 +65,9 @@ export function getBounds(
 export function checkBoundKeepRatio(
     moveable: MoveableManagerInterface<SnappableProps, SnappableState>,
     startPos: number[],
-    endPos: number[],
+    endPos: number[]
 ) {
-    const {
-        left,
-        top,
-        right,
-        bottom,
-    } = getBounds(moveable);
+    const { left, top, right, bottom } = getBounds(moveable);
 
     const [endX, endY] = endPos;
     let [dx, dy] = minus(endPos, startPos);
@@ -164,7 +147,7 @@ export function checkBoundKeepRatio(
                 y = bottom;
                 x = (y - b) / a;
                 isBound = true;
-            } else if (!isBottom &&  endY <= top) {
+            } else if (!isBottom && endY <= top) {
                 y = top;
                 x = (y - b) / a;
                 isBound = true;
@@ -186,11 +169,7 @@ export function checkBoundKeepRatio(
         horizontal: horizontalInfo,
     };
 }
-function checkBounds(
-    bounds: Required<BoundType>,
-    poses: number[],
-    isVertical: boolean,
-): BoundInfo[] {
+function checkBounds(bounds: Required<BoundType>, poses: number[], isVertical: boolean): BoundInfo[] {
     // 0   [100 - 200]  300
     const startBoundPos = bounds[isVertical ? "left" : "top"];
     const endBoundPos = bounds[isVertical ? "right" : "bottom"];
@@ -229,31 +208,31 @@ function checkBounds(
 }
 export function isBoundRotate(
     relativePoses: number[][],
-    boundRect: { left: number, top: number, right: number, bottom: number },
-    rad: number,
+    boundRect: { left: number; top: number; right: number; bottom: number },
+    rad: number
 ) {
-    const nextPoses = rad ? relativePoses.map(pos => rotate(pos, rad)) : relativePoses;
+    const nextPoses = rad ? relativePoses.map((pos) => rotate(pos, rad)) : relativePoses;
 
-    return nextPoses.some(pos => {
-        return (pos[0] < boundRect.left && abs(pos[0] - boundRect.left) > 0.1)
-            || (pos[0] > boundRect.right && abs(pos[0] - boundRect.right) > 0.1)
-            || (pos[1] < boundRect.top && abs(pos[1] - boundRect.top) > 0.1)
-            || (pos[1] > boundRect.bottom && abs(pos[1] - boundRect.bottom) > 0.1);
+    return nextPoses.some((pos) => {
+        return (
+            (pos[0] < boundRect.left && abs(pos[0] - boundRect.left) > 0.1) ||
+            (pos[0] > boundRect.right && abs(pos[0] - boundRect.right) > 0.1) ||
+            (pos[1] < boundRect.top && abs(pos[1] - boundRect.top) > 0.1) ||
+            (pos[1] > boundRect.bottom && abs(pos[1] - boundRect.bottom) > 0.1)
+        );
     });
 }
-export function boundRotate(
-    vec: number[],
-    boundPos: number,
-    index: number,
-) {
+export function boundRotate(vec: number[], boundPos: number, index: number) {
     const r = getDistSize(vec);
     const nextPos = Math.sqrt(r * r - boundPos * boundPos) || 0;
 
-    return [nextPos, -nextPos].sort((a, b) => {
-        return abs(a - vec[index ? 0 : 1]) - abs(b - vec[index ? 0 : 1]);
-    }).map(pos => {
-        return getRad([0, 0], index ? [pos, boundPos] : [boundPos, pos]);
-    });
+    return [nextPos, -nextPos]
+        .sort((a, b) => {
+            return abs(a - vec[index ? 0 : 1]) - abs(b - vec[index ? 0 : 1]);
+        })
+        .map((pos) => {
+            return getRad([0, 0], index ? [pos, boundPos] : [boundPos, pos]);
+        });
 }
 
 export function checkRotateBounds(
@@ -261,19 +240,14 @@ export function checkRotateBounds(
     prevPoses: number[][],
     nextPoses: number[][],
     origin: number[],
-    rotation: number,
+    rotation: number
 ) {
     if (!moveable.props.bounds) {
         return [];
     }
-    const rad = rotation * Math.PI / 180;
+    const rad = (rotation * Math.PI) / 180;
 
-    const {
-        left,
-        top,
-        right,
-        bottom,
-    } = getBounds(moveable);
+    const { left, top, right, bottom } = getBounds(moveable);
 
     const relativeLeft = left - origin[0];
     const relativeRight = right - origin[0];
@@ -296,13 +270,15 @@ export function checkRotateBounds(
         [relativeTop, 1],
         [relativeBottom, 1],
     ].forEach(([boundPos, index]) => {
-        nextPoses.forEach(nextPos => {
+        nextPoses.forEach((nextPos) => {
             const relativeRad1 = getRad([0, 0], nextPos);
 
-            result.push(...boundRotate(nextPos, boundPos, index)
-                .map(relativeRad2 => rad + relativeRad2 - relativeRad1)
-                .filter(nextRad => !isBoundRotate(prevPoses, boundRect, nextRad))
-                .map(nextRad => throttle(nextRad * 180 / Math.PI, TINY_NUM)));
+            result.push(
+                ...boundRotate(nextPos, boundPos, index)
+                    .map((relativeRad2) => rad + relativeRad2 - relativeRad1)
+                    .filter((nextRad) => !isBoundRotate(prevPoses, boundRect, nextRad))
+                    .map((nextRad) => throttle((nextRad * 180) / Math.PI, TINY_NUM))
+            );
         });
     });
 

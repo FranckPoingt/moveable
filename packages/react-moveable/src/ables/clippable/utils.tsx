@@ -1,6 +1,6 @@
 import { splitBracket, splitComma, convertUnitSize, splitSpace, splitUnit } from "../../utils/index";
 import { minus } from "@scena/matrix";
-import { abs, convertCSSSize } from "../../utils";
+import { abs, convertCSSSize } from "../../utilities";
 import { getRadiusStyles, getRadiusValues } from "../roundable/borderRadius";
 import { MoveableManagerInterface, ClippableProps, ControlPose } from "../../types";
 import { getMinMaxs } from "overlap-area";

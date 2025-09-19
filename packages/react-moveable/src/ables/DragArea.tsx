@@ -1,6 +1,6 @@
 import { createWarpMatrix } from "@scena/matrix";
 import { ref } from "framework-utils";
-import { getRect, calculateInversePosition, makeMatrixCSS, prefix } from "../utils";
+import { getRect, calculateInversePosition, makeMatrixCSS, prefix } from "../utilities";
 import { Renderer, GroupableProps, DragAreaProps, MoveableManagerInterface, MoveableGroupInterface } from "../types";
 import { AREA_PIECE, AVOID, AREA_PIECES } from "../classNames";
 import { addClass, removeClass, requestAnimationFrame } from "../utils/index";

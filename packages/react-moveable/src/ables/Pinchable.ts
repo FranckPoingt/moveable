@@ -1,8 +1,14 @@
 import { makeAble } from "./AbleManager";
-import { triggerEvent, fillParams, fillEndParams } from "../utils";
+import { triggerEvent, fillParams, fillEndParams } from "../utilities";
 import {
-    PinchableProps, Able, SnappableState,
-    OnPinchStart, OnPinch, OnPinchEnd, MoveableManagerInterface, MoveableGroupInterface,
+    PinchableProps,
+    Able,
+    SnappableState,
+    OnPinchStart,
+    OnPinch,
+    OnPinchEnd,
+    MoveableManagerInterface,
+    MoveableGroupInterface,
 } from "../types";
 
 /**
@@ -10,24 +16,12 @@ import {
  * @description Whether or not target can be pinched with draggable, resizable, scalable, rotatable (default: false)
  */
 export default makeAble("pinchable", {
-    props: [
-        "pinchable",
-    ] as const,
-    events: [
-        "pinchStart",
-        "pinch",
-        "pinchEnd",
-        "pinchGroupStart",
-        "pinchGroup",
-        "pinchGroupEnd",
-    ] as const,
+    props: ["pinchable"] as const,
+    events: ["pinchStart", "pinch", "pinchEnd", "pinchGroupStart", "pinchGroup", "pinchGroupEnd"] as const,
     dragStart() {
         return true;
     },
-    pinchStart(
-        moveable: MoveableManagerInterface<PinchableProps, SnappableState>,
-        e: any,
-    ) {
+    pinchStart(moveable: MoveableManagerInterface<PinchableProps, SnappableState>, e: any) {
         const { datas, targets, angle, originalDatas } = e;
         const { pinchable, ables } = moveable.props;
 
@@ -37,9 +31,13 @@ export default makeAble("pinchable", {
         const eventName = `onPinch${targets ? "Group" : ""}Start` as "onPinchStart";
         const controlEventName = `drag${targets ? "Group" : ""}ControlStart` as "dragControlStart";
 
-        const pinchAbles = (pinchable === true ? moveable.controlAbles : ables!.filter(able => {
-            return pinchable.indexOf(able.name as any) > -1;
-        })).filter(able => able.canPinch && able[controlEventName]);
+        const pinchAbles = (
+            pinchable === true
+                ? moveable.controlAbles
+                : ables!.filter((able) => {
+                      return pinchable.indexOf(able.name as any) > -1;
+                  })
+        ).filter((able) => able.canPinch && able[controlEventName]);
 
         const params = fillParams<OnPinchStart>(moveable, e, {}) as any;
 
@@ -56,7 +54,7 @@ export default makeAble("pinchable", {
         if (!isPinch) {
             return false;
         }
-        pinchAbles.forEach(able => {
+        pinchAbles.forEach((able) => {
             originalDatas[able.name] = originalDatas[able.name] || {};
 
             if (!able[controlEventName]) {
@@ -77,16 +75,8 @@ export default makeAble("pinchable", {
         };
         return isPinch;
     },
-    pinch(
-        moveable: MoveableManagerInterface<PinchableProps>,
-        e: any,
-    ) {
-        const {
-            datas, scale: pinchScale, distance,
-            originalDatas,
-            inputEvent, targets,
-            angle,
-        } = e;
+    pinch(moveable: MoveableManagerInterface<PinchableProps>, e: any) {
+        const { datas, scale: pinchScale, distance, originalDatas, inputEvent, targets, angle } = e;
         if (!datas.isPinch) {
             return;
         }
@@ -102,7 +92,7 @@ export default makeAble("pinchable", {
         const ables: Able[] = datas.ables;
         const controlEventName = `drag${targets ? "Group" : ""}Control` as "dragControl";
 
-        ables.forEach(able => {
+        ables.forEach((able) => {
             if (!able[controlEventName]) {
                 return;
             }
@@ -119,10 +109,7 @@ export default makeAble("pinchable", {
         });
         return params;
     },
-    pinchEnd(
-        moveable: MoveableManagerInterface<PinchableProps>,
-        e: any,
-    ) {
+    pinchEnd(moveable: MoveableManagerInterface<PinchableProps>, e: any) {
         const { datas, isPinch, inputEvent, targets, originalDatas } = e;
         if (!datas.isPinch) {
             return;
@@ -138,7 +125,7 @@ export default makeAble("pinchable", {
         const ables: Able[] = datas.ables;
         const controlEventName = `drag${targets ? "Group" : ""}ControlEnd` as "dragControlEnd";
 
-        ables.forEach(able => {
+        ables.forEach((able) => {
             if (!able[controlEventName]) {
                 return;
             }

@@ -17,7 +17,7 @@ import {
     groupBy,
     unsetAbles,
     getPaddingBox,
-} from "./utils";
+} from "./utilities";
 import Gesto from "gesto";
 import { ref } from "framework-utils";
 import {
@@ -44,7 +44,7 @@ import {
     isNode,
     removeClass,
     requestAnimationFrame,
-} from "./utils/";
+} from "./utils";
 import { renderLine } from "./renderDirections";
 import { fitPoints, getAreaSize, getOverlapSize, isInside } from "overlap-area";
 import EventManager from "./EventManager";

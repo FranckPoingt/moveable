@@ -8,7 +8,7 @@ import {
     fillEndParams,
     getDirectionViewClassName,
     fillCSSObject,
-} from "../utils";
+} from "../utilities";
 import {
     convertDimension,
     invert,
@@ -44,7 +44,7 @@ import {
     OnWarpEnd,
     MoveableManagerInterface,
 } from "../types";
-import { hasClass, dot, getRad } from "../utils/";
+import { hasClass, dot, getRad } from "../utils";
 import { renderAllDirections } from "../renderDirections";
 import { hasGuidelines } from "./snappable/utils";
 import { checkMoveableSnapBounds } from "./snappable/snapBounds";

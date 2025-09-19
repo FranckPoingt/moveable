@@ -1,14 +1,10 @@
 import { Able, MoveableGroupInterface, MoveableManagerInterface, MoveableManagerState } from "./types";
 import CustomGesto, { setCustomDrag } from "./gesto/CustomGesto";
-import { getAbsolutePosesByState } from "./utils";
+import { getAbsolutePosesByState } from "./utilities";
 import { calculate, createRotateMatrix } from "@scena/matrix";
 import { getPosByDirection } from "./gesto/GestoUtils";
 
-export function fillChildEvents(
-    moveable: MoveableGroupInterface<any, any>,
-    name: string,
-    e: any,
-): any[] {
+export function fillChildEvents(moveable: MoveableGroupInterface<any, any>, name: string, e: any): any[] {
     const datas = e.originalDatas;
 
     datas.groupable = datas.groupable || {};
@@ -38,7 +34,7 @@ export function triggerChildGesto(
     delta: number[],
     e: any,
     isConvert: boolean,
-    ableName: string,
+    ableName: string
 ) {
     const isStart = !!type.match(/Start$/g);
     const isEnd = !!type.match(/End$/g);
@@ -67,7 +63,7 @@ export function triggerChildGesto(
             childEvent = setCustomDrag(ev, state, delta, isPinch, isConvert, ableName);
             childEvents.push(childEvent);
         }
-        const result = (able as any)[type]!(childMoveable,  { ...childEvent, parentFlag: true });
+        const result = (able as any)[type]!(childMoveable, { ...childEvent, parentFlag: true });
 
         if (isEnd) {
             gestos[ableName] = null;
@@ -75,7 +71,7 @@ export function triggerChildGesto(
         return result;
     });
     if (isStart) {
-        datas.childGestos = moveables.map(child => child.state.gestos[ableName]);
+        datas.childGestos = moveables.map((child) => child.state.gestos[ableName]);
     }
     return {
         eventParams,
@@ -88,7 +84,7 @@ export function triggerChildAbles<T extends Able>(
     type: keyof T & string,
     e: any,
     eachEvent: (movebale: MoveableManagerInterface<any, any>, ev: any) => any = (_, ev) => ev,
-    callback?: (moveable: MoveableManagerInterface<any, any>, ev: any, result: any, index: number) => any,
+    callback?: (moveable: MoveableManagerInterface<any, any>, ev: any, result: any, index: number) => any
 ) {
     const isEnd = !!type.match(/End$/g);
     const events = fillChildEvents(moveable, able.name, e);
@@ -99,7 +95,7 @@ export function triggerChildAbles<T extends Able>(
 
         childEvent = eachEvent(childMoveable, ev);
 
-        const result = (able as any)[type]!(childMoveable,  { ...childEvent, parentFlag: true });
+        const result = (able as any)[type]!(childMoveable, { ...childEvent, parentFlag: true });
 
         result && callback && callback(childMoveable, ev, result, i);
 
@@ -112,12 +108,11 @@ export function triggerChildAbles<T extends Able>(
     return childs;
 }
 
-
 export function startChildDist(
     moveable: MoveableGroupInterface,
     child: MoveableManagerInterface,
     parentDatas: any,
-    childEvent: any,
+    childEvent: any
 ) {
     const fixedDirection = parentDatas.fixedDirection;
     const fixedPosition = parentDatas.fixedPosition;
@@ -125,9 +120,9 @@ export function startChildDist(
     const startPositions = childEvent.datas.startPositions || getAbsolutePosesByState(child.state);
     const pos = getPosByDirection(startPositions, fixedDirection);
     const [originalX, originalY] = calculate(
-        createRotateMatrix(-moveable.rotation / 180 * Math.PI, 3),
+        createRotateMatrix((-moveable.rotation / 180) * Math.PI, 3),
         [pos[0] - fixedPosition[0], pos[1] - fixedPosition[1], 1],
-        3,
+        3
     );
     childEvent.datas.originalX = originalX;
     childEvent.datas.originalY = originalY;

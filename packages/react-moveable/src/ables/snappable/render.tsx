@@ -1,11 +1,16 @@
 import { throttle } from "../../utils";
 import {
-    RenderGuidelineInfo, Renderer, RenderGuidelineInnerInfo,
-    MoveableManagerInterface, SnappableProps, SnapGuideline,
-    SnappableRenderType, SnappableState,
+    RenderGuidelineInfo,
+    Renderer,
+    RenderGuidelineInnerInfo,
+    MoveableManagerInterface,
+    SnappableProps,
+    SnapGuideline,
+    SnappableRenderType,
+    SnappableState,
     SnapDirectionPoses,
 } from "../../types";
-import { prefix, groupBy } from "../../utils";
+import { prefix, groupBy } from "../../utilities";
 import { HORIZONTAL_NAMES_MAP, VERTICAL_NAMES_MAP } from "./utils";
 
 export function renderGuideline(info: RenderGuidelineInfo, React: Renderer): any {
@@ -25,15 +30,17 @@ export function renderGuideline(info: RenderGuidelineInfo, React: Renderer): any
 }
 
 export function renderInnerGuideline(info: RenderGuidelineInnerInfo, React: Renderer): any {
-    return renderGuideline({
-        ...info,
-        classNames: [
-            prefix("line", "guideline", info.direction),
-            ...info.classNames,
-        ].filter(className => className) as string[],
-        size: info.size || `${info.sizeValue}px`,
-        pos: info.pos || info.posValue.map(v => `${throttle(v, 0.1)}px`),
-    }, React);
+    return renderGuideline(
+        {
+            ...info,
+            classNames: [prefix("line", "guideline", info.direction), ...info.classNames].filter(
+                (className) => className
+            ) as string[],
+            size: info.size || `${info.sizeValue}px`,
+            pos: info.pos || info.posValue.map((v) => `${throttle(v, 0.1)}px`),
+        },
+        React
+    );
 }
 
 export function renderSnapPoses(
@@ -79,39 +86,38 @@ export function renderGuidelines(
     const mainNames = type === "horizontal" ? VERTICAL_NAMES_MAP : HORIZONTAL_NAMES_MAP;
     const targetStart = targetRect[mainNames.start]!;
     const targetEnd = targetRect[mainNames.end]!;
-    return guidelines.filter(({ hide, elementRect }) => {
-        if (hide) {
-            return false;
-        }
-        if (isDisplayInnerSnapDigit && elementRect) {
-            // inner
-            const rect = elementRect.rect;
-
-            if (rect[mainNames.start]! <= targetStart && targetEnd <= rect[mainNames.end]!) {
+    return guidelines
+        .filter(({ hide, elementRect }) => {
+            if (hide) {
                 return false;
             }
-        }
-        return true;
-    }).map((guideline, i) => {
-        const { pos, size, element, className } = guideline;
+            if (isDisplayInnerSnapDigit && elementRect) {
+                // inner
+                const rect = elementRect.rect;
 
-        const renderPos = [
-            -targetPos[0] + pos[0],
-            -targetPos[1] + pos[1],
-        ];
+                if (rect[mainNames.start]! <= targetStart && targetEnd <= rect[mainNames.end]!) {
+                    return false;
+                }
+            }
+            return true;
+        })
+        .map((guideline, i) => {
+            const { pos, size, element, className } = guideline;
 
-        return renderInnerGuideline(
-            {
-                key: `${type}-default-guideline-${i}`,
-                classNames: element ? [prefix("bold"), className] : [prefix("normal"), className],
-                direction: type,
-                posValue: renderPos,
-                sizeValue: size,
-                zoom: zoom!,
-            },
-            React
-        );
-    });
+            const renderPos = [-targetPos[0] + pos[0], -targetPos[1] + pos[1]];
+
+            return renderInnerGuideline(
+                {
+                    key: `${type}-default-guideline-${i}`,
+                    classNames: element ? [prefix("bold"), className] : [prefix("normal"), className],
+                    direction: type,
+                    posValue: renderPos,
+                    sizeValue: size,
+                    zoom: zoom!,
+                },
+                React
+            );
+        });
 }
 
 export function renderDigitLine(
@@ -122,14 +128,14 @@ export function renderDigitLine(
     gap: number,
     renderPos: number[],
     className: string | undefined,
-    React: Renderer,
+    React: Renderer
 ): any {
     const {
         snapDigit = 0,
         isDisplaySnapDigit = true,
         snapDistFormat = (v: number, type: "vertical" | "horizontal") => {
             // Type can be used render different values.
-            if (type === 'vertical') {
+            if (type === "vertical") {
                 return v;
             }
             return v;
@@ -139,45 +145,45 @@ export function renderDigitLine(
     const scaleType = type === "horizontal" ? "X" : "Y";
     const sizeName = type === "vertical" ? "height" : "width";
     const absGap = Math.abs(gap!);
-    const snapSize = isDisplaySnapDigit
-        ? parseFloat(absGap.toFixed(snapDigit))
-        : 0;
-    return <div
-        key={`${type}-${lineType}-guideline-${index}`}
-        className={prefix("guideline-group", type)}
-        style={{
-            left: `${renderPos[0]}px`,
-            top: `${renderPos[1]}px`,
-            [sizeName]: `${absGap}px`,
-        }}
-    >
-        {renderInnerGuideline(
-            {
-                direction: type,
-                classNames: [prefix(lineType), className],
-                size: "100%",
-                posValue: [0, 0],
-                sizeValue: absGap,
-                zoom: zoom!,
-            },
-            React
-        )}
+    const snapSize = isDisplaySnapDigit ? parseFloat(absGap.toFixed(snapDigit)) : 0;
+    return (
         <div
-            className={prefix("size-value", "gap")}
+            key={`${type}-${lineType}-guideline-${index}`}
+            className={prefix("guideline-group", type)}
             style={{
-                transform: `translate${scaleType}(-50%) scale(${zoom})`,
+                left: `${renderPos[0]}px`,
+                top: `${renderPos[1]}px`,
+                [sizeName]: `${absGap}px`,
             }}
         >
-            {snapSize > 0 ? snapDistFormat(snapSize, type) : ""}
+            {renderInnerGuideline(
+                {
+                    direction: type,
+                    classNames: [prefix(lineType), className],
+                    size: "100%",
+                    posValue: [0, 0],
+                    sizeValue: absGap,
+                    zoom: zoom!,
+                },
+                React
+            )}
+            <div
+                className={prefix("size-value", "gap")}
+                style={{
+                    transform: `translate${scaleType}(-50%) scale(${zoom})`,
+                }}
+            >
+                {snapSize > 0 ? snapDistFormat(snapSize, type) : ""}
+            </div>
         </div>
-    </div>;
+    );
 }
 
 export function groupByElementGuidelines(
     type: "vertical" | "horizontal",
     guidelines: SnapGuideline[],
     targetRect: SnapDirectionPoses,
-    isDisplayInnerSnapDigit: boolean,
+    isDisplayInnerSnapDigit: boolean
 ) {
     const index = type === "vertical" ? 0 : 1;
     const otherIndex = type === "vertical" ? 1 : 0;
@@ -186,12 +192,12 @@ export function groupByElementGuidelines(
     const targetEnd = targetRect[names.end]!;
     return groupBy(guidelines, (guideline) => {
         return guideline.pos[index];
-    }).map(nextGuidelines => {
+    }).map((nextGuidelines) => {
         const start: SnapGuideline[] = [];
         const end: SnapGuideline[] = [];
         const inner: SnapGuideline[] = [];
 
-        nextGuidelines.forEach(guideline => {
+        nextGuidelines.forEach((guideline) => {
             const element = guideline.element!;
             const rect = guideline.elementRect!.rect;
             if (rect[names.end]! < targetStart) {
@@ -209,7 +215,6 @@ export function groupByElementGuidelines(
 
                 nextPos2[index] = pos[index];
                 nextPos2[otherIndex] = pos[otherIndex] + guideline.size;
-
 
                 start.push({
                     type,
@@ -250,15 +255,13 @@ export function renderDashedGuidelines(
     guidelines: SnapGuideline[],
     targetPos: number[],
     targetRect: SnapDirectionPoses,
-    React: Renderer,
+    React: Renderer
 ): any[] {
-    const {
-        isDisplayInnerSnapDigit,
-    } = moveable.props;
+    const { isDisplayInnerSnapDigit } = moveable.props;
     const rendered: any[] = [];
 
-    (["vertical", "horizontal"] as const).forEach(type => {
-        const nextGuidelines = guidelines.filter(guideline => guideline.type === type);
+    (["vertical", "horizontal"] as const).forEach((type) => {
+        const nextGuidelines = guidelines.filter((guideline) => guideline.type === type);
         const index = type === "vertical" ? 1 : 0;
         const otherIndex = index ? 0 : 1;
 
@@ -273,7 +276,7 @@ export function renderDashedGuidelines(
 
             let prevRect = targetRect;
 
-            start.forEach(guideline => {
+            start.forEach((guideline) => {
                 const nextRect = guideline.elementRect!.rect;
                 const size = prevRect[mainNames.start]! - nextRect[mainNames.end]!;
 
@@ -283,22 +286,24 @@ export function renderDashedGuidelines(
                     renderPos[index] = targetPos[index] + prevRect[mainNames.start]! - targetStart - size;
                     renderPos[otherIndex] = sidePos;
 
-                    rendered.push(renderDigitLine(
-                        moveable,
-                        type,
-                        "dashed",
-                        rendered.length,
-                        size,
-                        renderPos,
-                        guideline.className,
-                        React
-                    ));
+                    rendered.push(
+                        renderDigitLine(
+                            moveable,
+                            type,
+                            "dashed",
+                            rendered.length,
+                            size,
+                            renderPos,
+                            guideline.className,
+                            React
+                        )
+                    );
                 }
                 prevRect = nextRect;
             });
 
             prevRect = targetRect;
-            end.forEach(guideline => {
+            end.forEach((guideline) => {
                 const nextRect = guideline.elementRect!.rect;
                 const size = nextRect[mainNames.start]! - prevRect[mainNames.end]!;
 
@@ -308,21 +313,23 @@ export function renderDashedGuidelines(
                     renderPos[index] = targetPos[index] + prevRect[mainNames.end]! - targetStart;
                     renderPos[otherIndex] = sidePos;
 
-                    rendered.push(renderDigitLine(
-                        moveable,
-                        type,
-                        "dashed",
-                        rendered.length,
-                        size,
-                        renderPos,
-                        guideline.className,
-                        React
-                    ));
+                    rendered.push(
+                        renderDigitLine(
+                            moveable,
+                            type,
+                            "dashed",
+                            rendered.length,
+                            size,
+                            renderPos,
+                            guideline.className,
+                            React
+                        )
+                    );
                 }
                 prevRect = nextRect;
             });
 
-            inner.forEach(guideline => {
+            inner.forEach((guideline) => {
                 const nextRect = guideline.elementRect!.rect;
 
                 const size1 = targetStart - nextRect[mainNames.start]!;
@@ -336,26 +343,30 @@ export function renderDashedGuidelines(
                 renderPos2[index] = targetPos[index] + targetEnd - targetStart;
                 renderPos2[otherIndex] = sidePos;
 
-                rendered.push(renderDigitLine(
-                    moveable,
-                    type,
-                    "dashed",
-                    rendered.length,
-                    size1,
-                    renderPos1,
-                    guideline.className,
-                    React
-                ));
-                rendered.push(renderDigitLine(
-                    moveable,
-                    type,
-                    "dashed",
-                    rendered.length,
-                    size2,
-                    renderPos2,
-                    guideline.className,
-                    React
-                ));
+                rendered.push(
+                    renderDigitLine(
+                        moveable,
+                        type,
+                        "dashed",
+                        rendered.length,
+                        size1,
+                        renderPos1,
+                        guideline.className,
+                        React
+                    )
+                );
+                rendered.push(
+                    renderDigitLine(
+                        moveable,
+                        type,
+                        "dashed",
+                        rendered.length,
+                        size2,
+                        renderPos2,
+                        guideline.className,
+                        React
+                    )
+                );
             });
         });
     });
@@ -369,8 +380,8 @@ export function renderGapGuidelines(
     React: any
 ): any[] {
     const rendered: any[] = [];
-    (["horizontal", "vertical"] as const).forEach(type => {
-        const nextGuidelines = guidelines.filter(guideline => guideline.type === type).slice(0, 1);
+    (["horizontal", "vertical"] as const).forEach((type) => {
+        const nextGuidelines = guidelines.filter((guideline) => guideline.type === type).slice(0, 1);
         const index = type === "vertical" ? 0 : 1;
         const otherIndex = index ? 0 : 1;
         const mainNames = index ? HORIZONTAL_NAMES_MAP : VERTICAL_NAMES_MAP;
@@ -380,19 +391,12 @@ export function renderGapGuidelines(
         const targetSideStart = targetRect[sideNames.start]!;
         const targetSideEnd = targetRect[sideNames.end]!;
 
-
         nextGuidelines.forEach(({ gap, gapRects }) => {
-            const sideStartPos = Math.max(
-                targetSideStart,
-                ...gapRects!.map(({ rect }) => rect[sideNames.start]!),
-            );
-            const sideEndPos = Math.min(
-                targetSideEnd,
-                ...gapRects!.map(({ rect }) => rect[sideNames.end]!),
-            );
+            const sideStartPos = Math.max(targetSideStart, ...gapRects!.map(({ rect }) => rect[sideNames.start]!));
+            const sideEndPos = Math.min(targetSideEnd, ...gapRects!.map(({ rect }) => rect[sideNames.end]!));
             const sideCenterPos = (sideStartPos + sideEndPos) / 2;
 
-            if (sideStartPos === sideEndPos || sideCenterPos === (targetSideStart + targetSideEnd)/ 2) {
+            if (sideStartPos === sideEndPos || sideCenterPos === (targetSideStart + targetSideEnd) / 2) {
                 return;
             }
             gapRects!.forEach(({ rect, className }) => {
@@ -407,16 +411,18 @@ export function renderGapGuidelines(
                 }
 
                 renderPos[otherIndex] += sideCenterPos - targetSideStart;
-                rendered.push(renderDigitLine(
-                    moveable,
-                    index ? "vertical" : "horizontal",
-                    "gap",
-                    rendered.length,
-                    gap!,
-                    renderPos,
-                    className,
-                    React
-                ));
+                rendered.push(
+                    renderDigitLine(
+                        moveable,
+                        index ? "vertical" : "horizontal",
+                        "gap",
+                        rendered.length,
+                        gap!,
+                        renderPos,
+                        className,
+                        React
+                    )
+                );
             });
         });
     });

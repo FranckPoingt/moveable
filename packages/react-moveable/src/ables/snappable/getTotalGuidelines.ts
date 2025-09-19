@@ -1,26 +1,29 @@
 import { convertUnitSize, dot, flat, isNumber, isObject, throttle } from "../../utils";
 import { diff } from "@egjs/children-differ";
 import {
-    MoveableManagerInterface, SnappableProps,
-    SnappableState, SnapGuideline, SnapDirectionPoses,
-    PosGuideline, ElementGuidelineValue,
+    MoveableManagerInterface,
+    SnappableProps,
+    SnappableState,
+    SnapGuideline,
+    SnapDirectionPoses,
+    PosGuideline,
+    ElementGuidelineValue,
     SnapElementRect,
     NumericPosGuideline,
 } from "../../types";
-import { getRect, getAbsolutePosesByState, getRefTarget, calculateInversePosition, prefix, abs } from "../../utils";
+import { getRect, getAbsolutePosesByState, getRefTarget, calculateInversePosition, prefix, abs } from "../../utilities";
 import {
-    splitSnapDirectionPoses, getSnapDirections,
-    HORIZONTAL_NAMES_MAP, VERTICAL_NAMES_MAP, calculateContainerPos, SNAP_SKIP_NAMES_MAP,
+    splitSnapDirectionPoses,
+    getSnapDirections,
+    HORIZONTAL_NAMES_MAP,
+    VERTICAL_NAMES_MAP,
+    calculateContainerPos,
+    SNAP_SKIP_NAMES_MAP,
 } from "./utils";
 
-export function getTotalGuidelines(
-    moveable: MoveableManagerInterface<SnappableProps, SnappableState>,
-) {
+export function getTotalGuidelines(moveable: MoveableManagerInterface<SnappableProps, SnappableState>) {
     const state = moveable.state;
-    const {
-        containerClientRect,
-        hasFixed,
-    } = state;
+    const { containerClientRect, hasFixed } = state;
     const {
         overflow,
         scrollHeight: containerHeight,
@@ -43,14 +46,10 @@ export function getTotalGuidelines(
     const elementGuidelines = getElementGuidelines(moveable);
     let totalGuidelines: SnapGuideline[] = [...elementGuidelines];
 
-    const snapThresholdMultiples = (state.snapThresholdInfo?.multiples ?? [1, 1]).map(n => n * snapThreshold);
+    const snapThresholdMultiples = (state.snapThresholdInfo?.multiples ?? [1, 1]).map((n) => n * snapThreshold);
 
     if (snapGap) {
-        totalGuidelines.push(...getGapGuidelines(
-            moveable,
-            targetRect,
-            snapThresholdMultiples,
-        ));
+        totalGuidelines.push(...getGapGuidelines(moveable, targetRect, snapThresholdMultiples));
     }
     const snapOffset = {
         ...(state.snapOffset || {
@@ -61,16 +60,17 @@ export function getTotalGuidelines(
         }),
     };
 
-    totalGuidelines.push(...getGridGuidelines(
-        moveable,
-        overflow ? containerWidth! : containerClientWidth!,
-        overflow ? containerHeight! : containerClientHeight!,
-        clientLeft,
-        clientTop,
-        snapOffset,
-        isDisplayGridGuidelines,
-    ));
-
+    totalGuidelines.push(
+        ...getGridGuidelines(
+            moveable,
+            overflow ? containerWidth! : containerClientWidth!,
+            overflow ? containerHeight! : containerClientHeight!,
+            clientLeft,
+            clientTop,
+            snapOffset,
+            isDisplayGridGuidelines
+        )
+    );
 
     if (hasFixed) {
         const { left, top } = containerClientRect;
@@ -81,15 +81,17 @@ export function getTotalGuidelines(
         snapOffset.bottom += top;
     }
 
-    totalGuidelines.push(...getDefaultGuidelines(
-        horizontalGuidelines || false,
-        verticalGuidelines || false,
-        overflow ? containerWidth! : containerClientWidth!,
-        overflow ? containerHeight! : containerClientHeight!,
-        clientLeft,
-        clientTop,
-        snapOffset,
-    ));
+    totalGuidelines.push(
+        ...getDefaultGuidelines(
+            horizontalGuidelines || false,
+            verticalGuidelines || false,
+            overflow ? containerWidth! : containerClientWidth!,
+            overflow ? containerHeight! : containerClientHeight!,
+            clientLeft,
+            clientTop,
+            snapOffset
+        )
+    );
 
     totalGuidelines = totalGuidelines.filter(({ element, elementRect, type }) => {
         if (!element || !elementRect) {
@@ -106,12 +108,9 @@ export function getTotalGuidelines(
 export function getGapGuidelines(
     moveable: MoveableManagerInterface<SnappableProps, SnappableState>,
     targetRect: SnapDirectionPoses,
-    snapThresholds: number[],
+    snapThresholds: number[]
 ) {
-    const {
-        maxSnapElementGuidelineDistance = Infinity,
-        maxSnapElementGapDistance = Infinity,
-    } = moveable.props;
+    const { maxSnapElementGuidelineDistance = Infinity, maxSnapElementGapDistance = Infinity } = moveable.props;
     const elementRects = moveable.state.elementRects;
     const gapGuidelines: SnapGuideline[] = [];
     [
@@ -142,22 +141,24 @@ export function getGapGuidelines(
                 return -1;
             }
         }
-        const nextElementRects = elementRects.filter(elementRect => {
-            const rect = elementRect.rect;
+        const nextElementRects = elementRects
+            .filter((elementRect) => {
+                const rect = elementRect.rect;
 
-            if (rect[sideNames.start]! > targetEnd2 || rect[sideNames.end]! < targetStart2) {
-                return false;
-            }
+                if (rect[sideNames.start]! > targetEnd2 || rect[sideNames.end]! < targetStart2) {
+                    return false;
+                }
 
-            return getDist(elementRect) > 0;
-        }).sort((a, b) => {
-            return getDist(a) - getDist(b);
-        });
+                return getDist(elementRect) > 0;
+            })
+            .sort((a, b) => {
+                return getDist(a) - getDist(b);
+            });
 
         const groups: SnapElementRect[][] = [];
 
-        nextElementRects.forEach(snapRect1 => {
-            nextElementRects.forEach(snapRect2 => {
+        nextElementRects.forEach((snapRect1) => {
+            nextElementRects.forEach((snapRect2) => {
                 if (snapRect1 === snapRect2) {
                     return;
                 }
@@ -195,7 +196,7 @@ export function getGapGuidelines(
             if (rect1End <= targetStart && targetEnd <= rect2Start) {
                 // (l)element1(r) : (l)target(r) : (l)element2(r)
                 isCenter = true;
-                gap = ((rect2Start - rect1End) - (targetEnd - targetStart)) / 2;
+                gap = (rect2Start - rect1End - (targetEnd - targetStart)) / 2;
                 pos = rect1End + gap + (targetEnd - targetStart) / 2;
 
                 if (abs(pos - targetCenter) > snapThreshold) {
@@ -257,31 +258,19 @@ export function startGridGroupGuidelines(
     moveable: MoveableManagerInterface<SnappableProps, SnappableState>,
     clientLeft: number,
     clientTop: number,
-    snapOffset: { left: number, top: number, right: number, bottom: number },
+    snapOffset: { left: number; top: number; right: number; bottom: number }
 ) {
     const props = moveable.props;
     const state = moveable.state;
-    const {
-        snapGridAll,
-    } = props;
-    const {
-        snapGridWidth = 0,
-        snapGridHeight = 0,
-    } = props;
-    const {
-        snapRenderInfo,
-    } = state;
+    const { snapGridAll } = props;
+    const { snapGridWidth = 0, snapGridHeight = 0 } = props;
+    const { snapRenderInfo } = state;
     const hasDirection = snapRenderInfo && (snapRenderInfo.direction?.[0] || snapRenderInfo.direction?.[1]);
     const moveables = moveable.moveables;
     const ignores = [false, false];
 
     // snap group's all child to grid.
-    if (
-        snapGridAll
-        && moveables
-        && hasDirection
-        && (snapGridWidth || snapGridHeight)
-    ) {
+    if (snapGridAll && moveables && hasDirection && (snapGridWidth || snapGridHeight)) {
         if (state.snapThresholdInfo) {
             return;
         }
@@ -294,25 +283,22 @@ export function startGridGroupGuidelines(
         const children = rect.children;
         const direction = snapRenderInfo.direction!;
 
-
         if (children) {
             const result = direction.map((dir, i) => {
-                const {
-                    snapSize,
-                    posName,
-                    sizeName,
-                    clientOffset,
-                } = i === 0 ? {
-                    snapSize: snapGridWidth,
-                    posName: "left",
-                    sizeName: "width",
-                    clientOffset: snapOffset.left - clientLeft,
-                } as const : {
-                    snapSize: snapGridHeight,
-                    posName: "top",
-                    sizeName: "height",
-                    clientOffset: snapOffset.top - clientTop,
-                } as const;
+                const { snapSize, posName, sizeName, clientOffset } =
+                    i === 0
+                        ? ({
+                              snapSize: snapGridWidth,
+                              posName: "left",
+                              sizeName: "width",
+                              clientOffset: snapOffset.left - clientLeft,
+                          } as const)
+                        : ({
+                              snapSize: snapGridHeight,
+                              posName: "top",
+                              sizeName: "height",
+                              clientOffset: snapOffset.top - clientTop,
+                          } as const);
 
                 if (!snapSize) {
                     return {
@@ -326,26 +312,32 @@ export function startGridGroupGuidelines(
                 const rectPos = rect[posName];
 
                 // 사이즈보다 만약 작다면 어떻게 해야되죠?
-                const childSizes = flat(children.map(child => {
-                    return [
-                        (child[posName] - rectPos),
-                        (child[sizeName]),
-                        (rectSize - child[sizeName] - child[posName] + rectPos),
-                    ];
-                })).filter(v => v).sort((a, b) => {
-                    return a - b;
-                });
+                const childSizes = flat(
+                    children.map((child) => {
+                        return [
+                            child[posName] - rectPos,
+                            child[sizeName],
+                            rectSize - child[sizeName] - child[posName] + rectPos,
+                        ];
+                    })
+                )
+                    .filter((v) => v)
+                    .sort((a, b) => {
+                        return a - b;
+                    });
 
                 const firstChildSize = childSizes[0];
-                const childSnapSizes = childSizes.map(size => throttle(size / firstChildSize, 0.1) * snapSize);
+                const childSnapSizes = childSizes.map((size) => throttle(size / firstChildSize, 0.1) * snapSize);
                 let n = 1;
 
                 const rectRatio = throttle(rectSize / firstChildSize, 0.1);
 
                 for (n = 1; n <= 10; ++n) {
-                    if (childSnapSizes.every(childSize => {
-                        return childSize * n % 1 === 0;
-                    })) {
+                    if (
+                        childSnapSizes.every((childSize) => {
+                            return (childSize * n) % 1 === 0;
+                        })
+                    ) {
                         break;
                     }
                 }
@@ -355,11 +347,7 @@ export function startGridGroupGuidelines(
                 // dir -1 (fixed 1)
 
                 const ratio = (-dir + 1) / 2;
-                const offsetPos = dot(
-                    rectPos - clientOffset,
-                    rectPos - clientOffset + rectSize,
-                    ratio, 1 - ratio,
-                );
+                const offsetPos = dot(rectPos - clientOffset, rectPos - clientOffset + rectSize, ratio, 1 - ratio);
 
                 return {
                     multiple: rectRatio * n,
@@ -369,9 +357,9 @@ export function startGridGroupGuidelines(
                 };
             });
 
-            const multiples = result.map(r => r.multiple || 1);
+            const multiples = result.map((r) => r.multiple || 1);
             state.snapThresholdInfo.multiples = multiples;
-            state.snapThresholdInfo.offset = result.map(r => r.snapOffset);
+            state.snapThresholdInfo.offset = result.map((r) => r.snapOffset);
 
             result.forEach((r, i) => {
                 if (r.snapSize) {
@@ -384,35 +372,23 @@ export function startGridGroupGuidelines(
     }
 }
 
-
 export function getGridGuidelines(
     moveable: MoveableManagerInterface<SnappableProps, SnappableState>,
     containerWidth: number,
     containerHeight: number,
     clientLeft = 0,
     clientTop = 0,
-    snapOffset: { left: number, top: number, right: number, bottom: number },
-    isDisplayGridGuidelines?: boolean,
+    snapOffset: { left: number; top: number; right: number; bottom: number },
+    isDisplayGridGuidelines?: boolean
 ): SnapGuideline[] {
     const props = moveable.props;
     const state = moveable.state;
-    let {
-        snapGridWidth = 0,
-        snapGridHeight = 0,
-    } = props;
+    let { snapGridWidth = 0, snapGridHeight = 0 } = props;
     const guidelines: SnapGuideline[] = [];
-    const {
-        left: snapOffsetLeft,
-        top: snapOffsetTop,
-    } = snapOffset;
+    const { left: snapOffsetLeft, top: snapOffsetTop } = snapOffset;
     let startOffset = [0, 0];
 
-    startGridGroupGuidelines(
-        moveable,
-        clientLeft,
-        clientTop,
-        snapOffset,
-    );
+    startGridGroupGuidelines(moveable, clientLeft, clientTop, snapOffset);
 
     const snapThresholdInfo = state.snapThresholdInfo;
     const defaultSnapGridWidth = snapGridWidth;
@@ -477,71 +453,73 @@ export function checkBetweenRects(
     rect1: SnapDirectionPoses,
     rect2: SnapDirectionPoses,
     type: "horizontal" | "vertical",
-    distance: number,
+    distance: number
 ) {
     if (type === "horizontal") {
-        return abs(rect1.right! - rect2.left!) <= distance
-            || abs(rect1.left! - rect2.right!) <= distance
-            || rect1.left! <= rect2.right! && rect2.left! <= rect1.right!;
+        return (
+            abs(rect1.right! - rect2.left!) <= distance ||
+            abs(rect1.left! - rect2.right!) <= distance ||
+            (rect1.left! <= rect2.right! && rect2.left! <= rect1.right!)
+        );
     } else if (type === "vertical") {
-        return abs(rect1.bottom! - rect2.top!) <= distance
-            || abs(rect1.top! - rect2.bottom!) <= distance
-            || rect1.top! <= rect2.bottom! && rect2.top! <= rect1.bottom!;
+        return (
+            abs(rect1.bottom! - rect2.top!) <= distance ||
+            abs(rect1.top! - rect2.bottom!) <= distance ||
+            (rect1.top! <= rect2.bottom! && rect2.top! <= rect1.bottom!)
+        );
     }
     return true;
 }
 
-
-export function getElementGuidelines(
-    moveable: MoveableManagerInterface<SnappableProps, SnappableState>,
-) {
+export function getElementGuidelines(moveable: MoveableManagerInterface<SnappableProps, SnappableState>) {
     const state = moveable.state;
 
-    const {
-        elementGuidelines = [],
-    } = moveable.props;
+    const { elementGuidelines = [] } = moveable.props;
 
     if (!elementGuidelines.length) {
         state.elementRects = [];
         return [];
     }
 
-    const prevValues = (state.elementRects || []).filter(snapRect => !snapRect.refresh);
-    const nextElementGuidelines = elementGuidelines.map(el => {
-        if (isObject(el) && "element" in el) {
+    const prevValues = (state.elementRects || []).filter((snapRect) => !snapRect.refresh);
+    const nextElementGuidelines = elementGuidelines
+        .map((el) => {
+            if (isObject(el) && "element" in el) {
+                return {
+                    ...el,
+                    element: getRefTarget(el.element, true)!,
+                };
+            }
             return {
-                ...el,
-                element: getRefTarget(el.element, true)!,
+                element: getRefTarget(el, true)!,
             };
-        }
-        return {
-            element: getRefTarget(el, true)!,
-        };
-    }).filter(value => {
-        return value.element;
-    }) as ElementGuidelineValue[];
+        })
+        .filter((value) => {
+            return value.element;
+        }) as ElementGuidelineValue[];
 
-    const {
-        maintained,
-        added,
-    } = diff(prevValues.map(v => v.element), nextElementGuidelines.map(v => v.element));
-
+    const { maintained, added } = diff(
+        prevValues.map((v) => v.element),
+        nextElementGuidelines.map((v) => v.element)
+    );
 
     const nextValues: SnapElementRect[] = [];
     maintained.forEach(([prevIndex, nextIndex]) => {
         nextValues[nextIndex] = prevValues[prevIndex];
     });
 
-    getSnapElementRects(moveable, added.map(index => nextElementGuidelines[index])).map((rect, i) => {
+    getSnapElementRects(
+        moveable,
+        added.map((index) => nextElementGuidelines[index])
+    ).map((rect, i) => {
         nextValues[added[i]] = rect;
     });
-
 
     state.elementRects = nextValues;
     const elementSnapDirections = getSnapDirections(moveable.props.elementSnapDirections);
     const nextGuidelines: SnapGuideline[] = [];
 
-    nextValues.forEach(snapRect => {
+    nextValues.forEach((snapRect) => {
         const {
             element,
             top: topValue = elementSnapDirections.top,
@@ -553,19 +531,17 @@ export function getElementGuidelines(
             className,
             rect,
         } = snapRect;
-        const {
-            horizontal,
-            vertical,
-            horizontalNames,
-            verticalNames,
-        } = splitSnapDirectionPoses({
-            top: topValue,
-            right: rightValue,
-            left: leftValue,
-            bottom: bottomValue,
-            center: centerValue,
-            middle: middleValue,
-        }, rect);
+        const { horizontal, vertical, horizontalNames, verticalNames } = splitSnapDirectionPoses(
+            {
+                top: topValue,
+                right: rightValue,
+                left: leftValue,
+                bottom: bottomValue,
+                center: centerValue,
+                middle: middleValue,
+            },
+            rect
+        );
         const rectTop = rect.top!;
         const rectLeft = rect.left!;
         const width = rect.right! - rectLeft;
@@ -574,10 +550,10 @@ export function getElementGuidelines(
 
         vertical.forEach((pos, i) => {
             nextGuidelines.push({
-                type: "vertical", element, pos: [
-                    throttle(pos, 0.1),
-                    rectTop,
-                ], size: height,
+                type: "vertical",
+                element,
+                pos: [throttle(pos, 0.1), rectTop],
+                size: height,
                 sizes,
                 className,
                 elementRect: snapRect,
@@ -589,10 +565,7 @@ export function getElementGuidelines(
             nextGuidelines.push({
                 type: "horizontal",
                 element,
-                pos: [
-                    rectLeft,
-                    throttle(pos, 0.1),
-                ],
+                pos: [rectLeft, throttle(pos, 0.1)],
                 size: width,
                 sizes,
                 className,
@@ -606,24 +579,25 @@ export function getElementGuidelines(
     return nextGuidelines;
 }
 
-
 function getObjectGuidelines(
     guidelines: Array<PosGuideline | number | string> | false,
-    containerSize: number,
+    containerSize: number
 ): NumericPosGuideline[] {
-    return guidelines ? guidelines.map(info => {
-        const posGuideline = isObject(info) ? info : { pos: info };
-        const pos = posGuideline.pos;
+    return guidelines
+        ? guidelines.map((info) => {
+              const posGuideline = isObject(info) ? info : { pos: info };
+              const pos = posGuideline.pos;
 
-        if (isNumber(pos)) {
-            return posGuideline as NumericPosGuideline;
-        } else {
-            return {
-                ...posGuideline,
-                pos: convertUnitSize(pos, containerSize),
-            };
-        }
-    }) : [];
+              if (isNumber(pos)) {
+                  return posGuideline as NumericPosGuideline;
+              } else {
+                  return {
+                      ...posGuideline,
+                      pos: convertUnitSize(pos, containerSize),
+                  };
+              }
+          })
+        : [];
 }
 
 export function getDefaultGuidelines(
@@ -633,37 +607,26 @@ export function getDefaultGuidelines(
     height: number,
     clientLeft = 0,
     clientTop = 0,
-    snapOffset = { left: 0, top: 0, right: 0, bottom: 0 },
+    snapOffset = { left: 0, top: 0, right: 0, bottom: 0 }
 ): SnapGuideline[] {
     const guidelines: SnapGuideline[] = [];
-    const {
-        left: snapOffsetLeft,
-        top: snapOffsetTop,
-        bottom: snapOffsetBottom,
-        right: snapOffsetRight,
-    } = snapOffset;
+    const { left: snapOffsetLeft, top: snapOffsetTop, bottom: snapOffsetBottom, right: snapOffsetRight } = snapOffset;
     const snapWidth = width! + snapOffsetRight - snapOffsetLeft;
     const snapHeight = height! + snapOffsetBottom - snapOffsetTop;
 
-    getObjectGuidelines(horizontalGuidelines, snapHeight).forEach(posInfo => {
+    getObjectGuidelines(horizontalGuidelines, snapHeight).forEach((posInfo) => {
         guidelines.push({
             type: "horizontal",
-            pos: [
-                snapOffsetLeft,
-                throttle(posInfo.pos - clientTop + snapOffsetTop, 0.1),
-            ],
+            pos: [snapOffsetLeft, throttle(posInfo.pos - clientTop + snapOffsetTop, 0.1)],
             size: snapWidth,
             className: posInfo.className,
             direction: "",
         });
     });
-    getObjectGuidelines(verticalGuidelines, snapWidth).forEach(posInfo => {
+    getObjectGuidelines(verticalGuidelines, snapWidth).forEach((posInfo) => {
         guidelines.push({
             type: "vertical",
-            pos: [
-                throttle(posInfo.pos - clientLeft + snapOffsetLeft, 0.1),
-                snapOffsetTop,
-            ],
+            pos: [throttle(posInfo.pos - clientLeft + snapOffsetLeft, 0.1), snapOffsetTop],
             size: snapHeight,
             className: posInfo.className,
             direction: "",
@@ -672,11 +635,9 @@ export function getDefaultGuidelines(
     return guidelines;
 }
 
-
-
 export function getSnapElementRects(
     moveable: MoveableManagerInterface<SnappableProps, SnappableState>,
-    values: ElementGuidelineValue[],
+    values: ElementGuidelineValue[]
 ): SnapElementRect[] {
     if (!values.length) {
         return [];
@@ -708,7 +669,7 @@ export function getSnapElementRects(
     const offsetLeft = groupable ? 0 : offsetDelta[0];
     const offsetTop = groupable ? 0 : offsetDelta[1];
 
-    return values.map(value => {
+    return values.map((value) => {
         const rect = value.element.getBoundingClientRect();
         const left = rect.left - containerLeft - offsetLeft;
         const top = rect.top - containerTop - offsetTop;
@@ -730,4 +691,3 @@ export function getSnapElementRects(
         };
     });
 }
-

@@ -3,9 +3,8 @@ import { refs } from "framework-utils";
 import MoveableManager from "../MoveableManager";
 import { renderLine } from "../renderDirections";
 import { Renderer, MoveableGroupInterface, GroupableProps } from "../types";
-import { flat, watchValue } from "../utils";
-
-
+import { flat } from "../utils";
+import { watchValue } from "../utilities";
 
 export default {
     name: "groupable",
@@ -33,58 +32,54 @@ export default {
         } else {
             persistDatChildren = [];
         }
-        const parentPosition = watchValue(
-            moveable,
-            "parentPosition",
-            [left, top],
-            styles => styles.join(","),
-        );
-        const requestStyles = watchValue(
-            moveable,
-            "requestStyles",
-            moveable.getRequestChildStyles(),
-            styles => styles.join(","),
+        const parentPosition = watchValue(moveable, "parentPosition", [left, top], (styles) => styles.join(","));
+        const requestStyles = watchValue(moveable, "requestStyles", moveable.getRequestChildStyles(), (styles) =>
+            styles.join(",")
         );
 
         moveable.moveables = moveable.moveables.slice(0, targets.length);
         return [
             ...targets.map((target, i) => {
-                return <MoveableManager<GroupableProps>
-                    key={"moveable" + i}
-                    ref={refs(moveable, "moveables", i)}
-                    target={target}
-                    origin={false}
-                    requestStyles={requestStyles}
-                    cssStyled={props.cssStyled}
-                    customStyledMap={props.customStyledMap}
-                    useResizeObserver={props.useResizeObserver}
-                    useMutationObserver={props.useMutationObserver}
-                    hideChildMoveableDefaultLines={props.hideChildMoveableDefaultLines}
-                    parentMoveable={moveable}
-                    parentPosition={[left, top]}
-                    persistData={persistDatChildren[i]}
-                    zoom={zoom}
-                />;
+                return (
+                    <MoveableManager<GroupableProps>
+                        key={"moveable" + i}
+                        ref={refs(moveable, "moveables", i)}
+                        target={target}
+                        origin={false}
+                        requestStyles={requestStyles}
+                        cssStyled={props.cssStyled}
+                        customStyledMap={props.customStyledMap}
+                        useResizeObserver={props.useResizeObserver}
+                        useMutationObserver={props.useMutationObserver}
+                        hideChildMoveableDefaultLines={props.hideChildMoveableDefaultLines}
+                        parentMoveable={moveable}
+                        parentPosition={[left, top]}
+                        persistData={persistDatChildren[i]}
+                        zoom={zoom}
+                    />
+                );
             }),
-            ...flat(renderGroupRects.map(({ pos1, pos2, pos3, pos4 }, i) => {
-                const poses = [pos1, pos2, pos3, pos4];
+            ...flat(
+                renderGroupRects.map(({ pos1, pos2, pos3, pos4 }, i) => {
+                    const poses = [pos1, pos2, pos3, pos4];
 
-                return [
-                    [0, 1],
-                    [1, 3],
-                    [3, 2],
-                    [2, 0],
-                ].map(([from, to], j) => {
-                    return renderLine(
-                        React,
-                        "",
-                        minus(poses[from], parentPosition),
-                        minus(poses[to], parentPosition),
-                        zoom,
-                        `group-rect-${i}-${j}`,
-                    );
-                });
-            })),
+                    return [
+                        [0, 1],
+                        [1, 3],
+                        [3, 2],
+                        [2, 0],
+                    ].map(([from, to], j) => {
+                        return renderLine(
+                            React,
+                            "",
+                            minus(poses[from], parentPosition),
+                            minus(poses[to], parentPosition),
+                            zoom,
+                            `group-rect-${i}-${j}`
+                        );
+                    });
+                })
+            ),
         ];
     },
 };

@@ -1,10 +1,10 @@
 import { Snappable } from "src/Snappable";
-import { } from "overlap-area";
+import { getOverlapPoints } from "overlap-area";
 describe("aa", () => {
     it("aa", () => {
         const points1 = [
             [0, 0],
-        ]
-        getOverlapPoints
+        ];
+        // getOverlapPoints test implementation would go here
     });
 });

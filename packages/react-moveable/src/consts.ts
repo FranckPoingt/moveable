@@ -1,5 +1,5 @@
 import getAgent from "@egjs/agent";
-import { IObject } from "./utils/";
+import { IObject } from "./utils";
 import { MoveableInterface } from "./types";
 
 export const DIRECTIONS4 = ["n", "w", "s", "e"];

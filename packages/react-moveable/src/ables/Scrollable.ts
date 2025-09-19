@@ -1,18 +1,11 @@
-
-import {
-    ScrollableProps, OnScroll, MoveableManagerInterface,
-    MoveableGroupInterface, MoveableRefType,
-} from "../types";
-import { triggerEvent, fillParams, getRefTarget } from "../utils";
+import { ScrollableProps, OnScroll, MoveableManagerInterface, MoveableGroupInterface, MoveableRefType } from "../types";
+import { triggerEvent, fillParams, getRefTarget } from "../utilities";
 import DragScroll from "@scena/dragscroll";
 
-function getDefaultScrollPosition(e: { scrollContainer: HTMLElement, direction: number[] }) {
+function getDefaultScrollPosition(e: { scrollContainer: HTMLElement; direction: number[] }) {
     const scrollContainer = e.scrollContainer;
 
-    return [
-        scrollContainer.scrollLeft,
-        scrollContainer.scrollTop,
-    ];
+    return [scrollContainer.scrollLeft, scrollContainer.scrollTop];
 }
 /**
  * @namespace Moveable.Scrollable
@@ -29,17 +22,11 @@ export default {
         "getScrollPosition",
         "scrollOptions",
     ] as const,
-    events: [
-        "scroll",
-        "scrollGroup",
-    ] as const,
+    events: ["scroll", "scrollGroup"] as const,
     dragRelation: "strong",
     dragStart(moveable: MoveableManagerInterface<ScrollableProps, Record<string, any>>, e: any) {
         const props = moveable.props;
-        const {
-            scrollContainer = moveable.getContainer() as HTMLElement,
-            scrollOptions,
-        } = props;
+        const { scrollContainer = moveable.getContainer() as HTMLElement, scrollOptions } = props;
 
         const dragScroll = new DragScroll();
         const scrollContainerElement = getRefTarget<HTMLElement>(scrollContainer, true);
@@ -50,22 +37,25 @@ export default {
         const gestoName = e.isControl ? "controlGesto" : "targetGesto";
         const targets = e.targets;
 
-        dragScroll.on("scroll", ({ container, direction }) => {
-            const params = fillParams<OnScroll>(moveable, e, {
-                scrollContainer: container,
-                direction,
-            }) as any;
+        dragScroll
+            .on("scroll", ({ container, direction }) => {
+                const params = fillParams<OnScroll>(moveable, e, {
+                    scrollContainer: container,
+                    direction,
+                }) as any;
 
-            const eventName = targets ? "onScrollGroup" : "onScroll" as any;
-            if (targets) {
-                params.targets = targets;
-            }
-            triggerEvent(moveable, eventName, params);
-        }).on("move", ({ offsetX, offsetY, inputEvent }) => {
-            moveable[gestoName].scrollBy(offsetX, offsetY, inputEvent.inputEvent, false);
-        }).on("scrollDrag", ({ next }) => {
-            next(moveable[gestoName].getCurrentEvent());
-        });
+                const eventName = targets ? "onScrollGroup" : ("onScroll" as any);
+                if (targets) {
+                    params.targets = targets;
+                }
+                triggerEvent(moveable, eventName, params);
+            })
+            .on("move", ({ offsetX, offsetY, inputEvent }) => {
+                moveable[gestoName].scrollBy(offsetX, offsetY, inputEvent.inputEvent, false);
+            })
+            .on("scrollDrag", ({ next }) => {
+                next(moveable[gestoName].getCurrentEvent());
+            });
         dragScroll.dragStart(e, {
             container: scrollContainerElement!,
             ...scrollOptions,

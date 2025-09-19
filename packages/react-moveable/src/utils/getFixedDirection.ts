@@ -1,11 +1,7 @@
-import { calculatePosition } from "../utils";
+import { calculatePosition } from "../utilities";
 import { getDirectionByPos, getPosByDirection } from "../gesto/GestoUtils";
 
-
-export function getFixedDirectionInfo(
-    startPositions: number[][],
-    fixedDirection: number[],
-) {
+export function getFixedDirectionInfo(startPositions: number[][], fixedDirection: number[]) {
     const fixedPosition = getPosByDirection(startPositions, fixedDirection);
     const fixedOffset = [0, 0];
 
@@ -23,20 +19,12 @@ export function getOffsetFixedDirectionInfo(
         width: number;
         height: number;
     },
-    fixedDirection: number[],
+    fixedDirection: number[]
 ) {
     // for start
-    const {
-        allMatrix,
-        is3d,
-        width,
-        height,
-    } = state;
+    const { allMatrix, is3d, width, height } = state;
     const n = is3d ? 4 : 3;
-    const nextFixedOffset = [
-        width / 2 * (1 + fixedDirection[0]),
-        height / 2 * (1 + fixedDirection[1]),
-    ];
+    const nextFixedOffset = [(width / 2) * (1 + fixedDirection[0]), (height / 2) * (1 + fixedDirection[1])];
     const fixedPosition = calculatePosition(allMatrix, nextFixedOffset, n);
     const fixedOffset = [0, 0];
 
@@ -47,7 +35,6 @@ export function getOffsetFixedDirectionInfo(
     };
 }
 
-
 export function getOffsetFixedPositionInfo(
     state: {
         allMatrix: number[];
@@ -55,22 +42,14 @@ export function getOffsetFixedPositionInfo(
         width: number;
         height: number;
     },
-    offsetFixedPosition: number[],
+    offsetFixedPosition: number[]
 ) {
     // for start
-    const {
-        allMatrix,
-        is3d,
-        width,
-        height,
-    } = state;
+    const { allMatrix, is3d, width, height } = state;
     const n = is3d ? 4 : 3;
     const fixedDirection = getDirectionByPos(offsetFixedPosition, width, height);
     const nextFixedPosition = calculatePosition(allMatrix, offsetFixedPosition, n);
-    const fixedOffset = [
-        width ? 0 : offsetFixedPosition[0],
-        height ? 0 : offsetFixedPosition[1],
-    ];
+    const fixedOffset = [width ? 0 : offsetFixedPosition[0], height ? 0 : offsetFixedPosition[1]];
 
     return {
         fixedPosition: nextFixedPosition,

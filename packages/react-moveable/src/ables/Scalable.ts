@@ -12,7 +12,7 @@ import {
     sign,
     countEach,
     abs,
-} from "../utils";
+} from "../utilities";
 import { MIN_SCALE } from "../consts";
 import {
     setDragStart,
@@ -47,7 +47,7 @@ import Draggable from "./Draggable";
 import { calculate, createRotateMatrix, plus, minus } from "@scena/matrix";
 import CustomGesto from "../gesto/CustomGesto";
 import { checkSnapScale } from "./Snappable";
-import { isArray, IObject, getDist, throttle, calculateBoundSize } from "../utils/";
+import { isArray, IObject, getDist, throttle, calculateBoundSize } from "../utils";
 import { getFixedDirectionInfo } from "../utils/getFixedDirection";
 
 const directionCondition = getDirectionCondition("scalable");

@@ -43,7 +43,6 @@
   "homepage": "https://daybrush.com/moveable/",
   "scripts": {
     "bootstrap": "npm install",
-    "storybook": "npm run storybook --prefix ./packages/react-moveable",
     "bake": "npm run bake --prefix ./packages/react-moveable",
     "build": "npm run build --prefix ./packages/react-moveable",
     "packages:update": "npm run update-type-consts",
@@ -54,8 +53,7 @@
     "changeset:publish": "changeset publish",
     "changeset:status": "changeset status",
     "doc": "rm -rf ./doc && jsdoc -c jsdoc.json",
-    "build:storybook": "npm run build:storybook --prefix ./packages/react-moveable",
-    "demo:build": "npm run packages:build && npm run doc && npm run build:storybook",
+    "demo:build": "npm run packages:build && npm run doc",
     "demo:deploy": "gh-pages -d ./demo --dest=./ --add --remote origin",
     "deploy": "echo 'Deploy script disabled - update as needed'",
     "release": "echo 'Release script disabled - update as needed'"
@@ -83,13 +81,6 @@
   "overrides": {
     "@types/react": "^19.0.0",
     "typescript": "^5.0.0",
-    "@storybook/react": "^8.0.0",
-    "@storybook/addon-actions": "^8.0.0",
-    "@storybook/addon-controls": "^8.0.0",
-    "@storybook/addon-docs": "^8.0.0",
-    "@storybook/addon-links": "^8.0.0",
-    "@storybook/addon-viewport": "^8.0.0",
-    "@storybook/manager-api": "^8.0.0",
     "@egjs/agent": "^2.2.1",
     "@egjs/children-differ": "^1.0.1",
     "@egjs/list-differ": "^1.0.0",

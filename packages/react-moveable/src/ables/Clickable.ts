@@ -1,5 +1,5 @@
 import { MoveableManagerInterface, MoveableGroupInterface, ClickableProps, OnClick, OnClickGroup } from "../types";
-import { triggerEvent, fillParams } from "../utils";
+import { triggerEvent, fillParams } from "../utilities";
 import { findIndex } from "../utils/index";
 import { makeAble } from "./AbleManager";
 

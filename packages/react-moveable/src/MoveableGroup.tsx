@@ -13,10 +13,10 @@ import {
     isDeepArrayEquals,
     sign,
     getRefTarget,
-} from "./utils";
+} from "./utilities";
 import { minus, plus } from "@scena/matrix";
 import { getIntersectionPointsByConstants, getMinMaxs } from "overlap-area";
-import { find, isArray, throttle } from "./utils/";
+import { find, isArray, throttle } from "./utils";
 import { getMoveableTargetInfo } from "./utils/getMoveableTargetInfo";
 import { solveC, solveConstantsDistance } from "./Snappable/utils";
 import { setStoreCache } from "./store/Store";

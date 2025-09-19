@@ -1,4 +1,4 @@
-import { convertCSSSize } from "../../utils";
+import { convertCSSSize } from "../../utilities";
 import { ControlPose } from "../../types";
 import { convertUnitSize } from "../../utils/index";
 

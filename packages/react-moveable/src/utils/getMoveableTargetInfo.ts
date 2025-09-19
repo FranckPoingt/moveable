@@ -3,12 +3,14 @@ import { getCachedClientRect, getCachedStyle } from "../store/Store";
 import { MoveableClientRect, Writable } from "../types";
 import {
     calculateInversePosition,
-    getClientRect, getClientRectByPosition, getOffsetInfo, resetClientRect,
+    getClientRect,
+    getClientRectByPosition,
+    getOffsetInfo,
+    resetClientRect,
     getTransformOriginArray,
-} from "../utils";
+} from "../utilities";
 import { calculateElementInfo, MoveableElementInfo } from "./getElementInfo";
 import { calculateElementPosition } from "./calculateElementPosition";
-
 
 export interface MoveableTargetInfo extends MoveableElementInfo {
     targetClientRect: MoveableClientRect;
@@ -17,7 +19,7 @@ export interface MoveableTargetInfo extends MoveableElementInfo {
     rootContainerClientRect: MoveableClientRect;
     beforeDirection: 1 | -1;
     beforeOrigin: number[];
-    offsetDelta: number[],
+    offsetDelta: number[];
     originalBeforeOrigin: number[];
     target: HTMLElement | SVGElement | null | undefined;
     style: Partial<Writable<CSSStyleDeclaration>>;
@@ -29,7 +31,7 @@ export function getMoveableTargetInfo(
     container?: HTMLElement | SVGElement | null,
     parentContainer?: HTMLElement | SVGElement | null,
     rootContainer?: HTMLElement | SVGElement | null,
-    requestStyles: Array<keyof CSSStyleDeclaration> = [],
+    requestStyles: Array<keyof CSSStyleDeclaration> = []
 ): MoveableTargetInfo {
     let beforeDirection: 1 | -1 = 1;
     let beforeOrigin = [0, 0];
@@ -40,62 +42,66 @@ export function getMoveableTargetInfo(
     let offsetDelta = [0, 0];
     const style: Partial<Writable<CSSStyleDeclaration>> = {};
 
-    const result = calculateElementInfo(
-        target, container!, rootContainer!,
-        true,
-    );
+    const result = calculateElementInfo(target, container!, rootContainer!, true);
     if (target) {
         const getStyle = getCachedStyle(target);
 
-        requestStyles.forEach(name => {
+        requestStyles.forEach((name) => {
             (style as any)[name] = getStyle(name as any);
         });
         const n = result.is3d ? 4 : 3;
         const beforePosition = calculateElementPosition(
             result.offsetMatrix,
             plus(result.transformOrigin, getOrigin(result.targetMatrix, n)),
-            result.width, result.height,
+            result.width,
+            result.height
         );
         beforeDirection = beforePosition.direction;
-        beforeOrigin = plus(
-            beforePosition.origin,
-            [beforePosition.left - result.left, beforePosition.top - result.top],
-        );
+        beforeOrigin = plus(beforePosition.origin, [
+            beforePosition.left - result.left,
+            beforePosition.top - result.top,
+        ]);
 
         rootContainerClientRect = getClientRect(result.offsetRootContainer!);
 
-
-        const offsetContainer = getOffsetInfo(parentContainer, parentContainer, true).offsetParent
-            || result.offsetRootContainer!;
+        const offsetContainer =
+            getOffsetInfo(parentContainer, parentContainer, true).offsetParent || result.offsetRootContainer!;
 
         if (result.hasZoom) {
             const absoluteTargetPosition = calculateElementPosition(
                 multiply(result.originalRootMatrix, result.allMatrix),
                 result.transformOrigin,
-                result.width, result.height,
+                result.width,
+                result.height
             );
             const absoluteContainerPosition = calculateElementPosition(
                 result.originalRootMatrix,
-                getTransformOriginArray(getCachedStyle(offsetContainer)("transformOrigin")).map(pos => parseFloat(pos)),
-                offsetContainer.offsetWidth, offsetContainer.offsetHeight,
+                getTransformOriginArray(getCachedStyle(offsetContainer)("transformOrigin")).map((pos) =>
+                    parseFloat(pos)
+                ),
+                offsetContainer.offsetWidth,
+                offsetContainer.offsetHeight
             );
             targetClientRect = getClientRectByPosition(absoluteTargetPosition, rootContainerClientRect);
             containerClientRect = getClientRectByPosition(
                 absoluteContainerPosition,
                 rootContainerClientRect,
                 offsetContainer,
-                true,
+                true
             );
 
             if (moveableElement) {
                 const left = absoluteTargetPosition.left;
                 const top = absoluteTargetPosition.top;
-                moveableClientRect = getClientRectByPosition({
-                    left,
-                    top,
-                    bottom: top,
-                    right: top,
-                }, rootContainerClientRect);
+                moveableClientRect = getClientRectByPosition(
+                    {
+                        left,
+                        top,
+                        bottom: top,
+                        right: top,
+                    },
+                    rootContainerClientRect
+                );
             }
         } else {
             targetClientRect = getClientRect(target);
@@ -115,10 +121,10 @@ export function getMoveableTargetInfo(
                 targetClientRect.top - containerClientRectTop,
             ];
 
-            offsetDelta = minus(
-                calculateInversePosition(result.rootMatrix, clientDelta, 4),
-                [containterClientLeft! + result.left, containerClientTop! + result.top],
-            );
+            offsetDelta = minus(calculateInversePosition(result.rootMatrix, clientDelta, 4), [
+                containterClientLeft! + result.left,
+                containerClientTop! + result.top,
+            ]);
         }
     }
 

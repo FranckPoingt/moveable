@@ -1,4 +1,4 @@
-import { prefix, makeMatrixCSS, getPaddingBox } from "../utils";
+import { prefix, makeMatrixCSS, getPaddingBox } from "../utilities";
 import { Renderer, MoveableManagerInterface } from "../types";
 import { createWarpMatrix } from "@scena/matrix";
 import { makeAble } from "./AbleManager";
@@ -10,19 +10,8 @@ export default makeAble("padding", {
         if (props.dragArea) {
             return [];
         }
-        const {
-            left,
-            top,
-            right,
-            bottom,
-        } = getPaddingBox(props.padding || {});
-        const {
-            renderPoses,
-            pos1,
-            pos2,
-            pos3,
-            pos4,
-        } = moveable.getState();
+        const { left, top, right, bottom } = getPaddingBox(props.padding || {});
+        const { renderPoses, pos1, pos2, pos3, pos4 } = moveable.getState();
 
         const poses = [pos1, pos2, pos3, pos4];
         const paddingDirections: number[][] = [];
@@ -53,14 +42,20 @@ export default makeAble("padding", {
                 paddingPos1,
                 paddingPos2,
                 paddingPos3,
-                paddingPos4,
+                paddingPos4
             );
             if (!h.length) {
                 return undefined;
             }
-            return (<div key={`padding${i}`} className={prefix("padding")} style={{
-                transform: makeMatrixCSS(h, true),
-            }}></div>);
+            return (
+                <div
+                    key={`padding${i}`}
+                    className={prefix("padding")}
+                    style={{
+                        transform: makeMatrixCSS(h, true),
+                    }}
+                ></div>
+            );
         });
     },
 });

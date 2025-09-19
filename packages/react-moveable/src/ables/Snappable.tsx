@@ -26,8 +26,8 @@ import {
     getDirectionCondition,
     abs,
     watchValue,
-} from "../utils";
-import { find, findIndex, hasClass, throttle } from "../utils/";
+} from "../utilities";
+import { find, findIndex, hasClass, throttle } from "../utils";
 import { getDragDist, scaleMatrix, getPosByDirection } from "../gesto/GestoUtils";
 import { minus, rotate, plus } from "@scena/matrix";
 import { dragControlCondition as rotatableDragControlCondtion } from "./Rotatable";

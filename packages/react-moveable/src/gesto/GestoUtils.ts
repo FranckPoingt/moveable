@@ -17,8 +17,8 @@ import {
     calculateInversePosition,
     convertTransformInfo,
     fillCSSObject,
-} from "../utils";
-import { splitUnit, isArray, splitSpace, findIndex, dot, find, isString } from "../utils/";
+} from "../utilities";
+import { splitUnit, isArray, splitSpace, findIndex, dot, find, isString } from "../utils";
 import {
     MoveableManagerState,
     ResizableProps,

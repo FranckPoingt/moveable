@@ -7,7 +7,7 @@ import {
     fillEndParams,
     convertCSSSize,
     fillCSSObject,
-} from "../utils";
+} from "../utilities";
 import {
     OnDragOriginStart,
     OnDragOrigin,
@@ -17,7 +17,7 @@ import {
     OriginDraggableProps,
     MoveableGroupInterface,
 } from "../types";
-import { hasClass, IObject } from "../utils/";
+import { hasClass, IObject } from "../utils";
 import { setDragStart, getDragDist, getNextMatrix } from "../gesto/GestoUtils";
 import { minus, plus } from "@scena/matrix";
 import Draggable from "./Draggable";

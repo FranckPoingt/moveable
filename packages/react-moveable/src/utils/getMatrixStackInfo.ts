@@ -1,19 +1,26 @@
 import {
-    convertCSStoMatrix, convertDimension,
-    createIdentityMatrix, createOriginMatrix, createScaleMatrix,
+    convertCSStoMatrix,
+    convertDimension,
+    createIdentityMatrix,
+    createOriginMatrix,
+    createScaleMatrix,
 } from "@scena/matrix";
 import { getCachedStyle } from "../store/Store";
 import { IS_WEBKIT, IS_SAFARI_ABOVE15, IS_FIREFOX, IS_CHROMIUM109 } from "../consts";
 import { MatrixInfo } from "../types";
 import {
-    getOffsetInfo, getElementTransform,
-    getTransformMatrix, getPositionFixedInfo,
-    convert3DMatrixes, getOffsetPosInfo,
-    getSVGMatrix, getBodyOffset, getAbsoluteMatrix,
-} from "../utils";
+    getOffsetInfo,
+    getElementTransform,
+    getTransformMatrix,
+    getPositionFixedInfo,
+    convert3DMatrixes,
+    getOffsetPosInfo,
+    getSVGMatrix,
+    getBodyOffset,
+    getAbsoluteMatrix,
+} from "../utilities";
 import { getDocumentBody, getDocumentElement } from "./index";
 import { parseMat } from "css-to-mat";
-
 
 export function getShadowRoot(parentElement: HTMLElement | SVGElement) {
     if (parentElement && parentElement.getRootNode) {
@@ -25,7 +32,6 @@ export function getShadowRoot(parentElement: HTMLElement | SVGElement) {
     }
     return;
 }
-
 
 function getIndividualTransforms(getStyle: (property: string) => any) {
     const scale = getStyle("scale") as string;
@@ -58,12 +64,12 @@ export interface MatrixStackInfo {
 export function getMatrixStackInfo(
     target: SVGElement | HTMLElement,
     container?: SVGElement | HTMLElement | null,
-    checkContainer?: boolean,
+    checkContainer?: boolean
 ): MatrixStackInfo {
     let el: SVGElement | HTMLElement | null = target;
     const matrixes: MatrixInfo[] = [];
     const documentElement = getDocumentElement(target) || getDocumentBody(target);
-    let requestEnd = !checkContainer && target === container || target === documentElement;
+    let requestEnd = (!checkContainer && target === container) || target === documentElement;
     let isEnd = requestEnd;
     let is3d = false;
     let n = 3;
@@ -119,18 +125,8 @@ export function getMatrixStackInfo(
         if (is3d && length === 9) {
             matrix = convertDimension(matrix, 3, 4);
         }
-        const {
-            tagName,
-            hasOffset,
-            isSVG,
-            origin,
-            targetOrigin,
-            offset: offsetPos,
-        } = getOffsetPosInfo(el, target);
-        let [
-            offsetLeft,
-            offsetTop,
-        ] = offsetPos;
+        const { tagName, hasOffset, isSVG, origin, targetOrigin, offset: offsetPos } = getOffsetPosInfo(el, target);
+        let [offsetLeft, offsetTop] = offsetPos;
 
         // no target with svg
         if (tagName === "svg" && !(el as SVGSVGElement).ownerSVGElement && targetMatrix) {
@@ -146,7 +142,6 @@ export function getMatrixStackInfo(
                 matrix: createIdentityMatrix(n),
             });
         }
-
 
         const targetZoom = parseFloat(getStyle("zoom")) || 1;
 
@@ -188,15 +183,17 @@ export function getMatrixStackInfo(
         }
 
         if (
-            IS_WEBKIT && !IS_SAFARI_ABOVE15
-            && hasOffset && !isSVG && isStatic
-            && (position === "relative" || position === "static")
+            IS_WEBKIT &&
+            !IS_SAFARI_ABOVE15 &&
+            hasOffset &&
+            !isSVG &&
+            isStatic &&
+            (position === "relative" || position === "static")
         ) {
             offsetLeft -= offsetParent.offsetLeft;
             offsetTop -= offsetParent.offsetTop;
             requestEnd = requestEnd || isOffsetEnd;
         }
-
 
         if (isFixed) {
             if (hasOffset && fixedInfo.hasTransform) {
@@ -245,10 +242,13 @@ export function getMatrixStackInfo(
             matrixes.push({
                 type: "offset",
                 target: el,
-                matrix: createOriginMatrix([
-                    offsetLeft - scrollLeft + parentClientLeft - fixedClientLeft,
-                    offsetTop - scrollTop + parentClientTop - fixedClientTop,
-                ], n),
+                matrix: createOriginMatrix(
+                    [
+                        offsetLeft - scrollLeft + parentClientLeft - fixedClientLeft,
+                        offsetTop - scrollTop + parentClientTop - fixedClientTop,
+                    ],
+                    n
+                ),
             });
         } else {
             // svg

@@ -7,7 +7,7 @@ import {
     fillCSSObject,
     catchEvent,
     getComputedStyle,
-} from "../utils";
+} from "../utilities";
 import {
     Renderer,
     RoundableProps,
@@ -22,7 +22,7 @@ import {
     OnRoundGroupStart,
     OnRoundGroupEnd,
 } from "../types";
-import { splitSpace } from "../utils/";
+import { splitSpace } from "../utils";
 import { setDragStart, getDragDist, calculatePointerDist } from "../gesto/GestoUtils";
 import { minus, plus } from "@scena/matrix";
 import { getRadiusValues, getRadiusStyles, splitRadiusPoses } from "./roundable/borderRadius";

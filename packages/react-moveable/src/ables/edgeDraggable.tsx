@@ -1,6 +1,6 @@
-import { hasClass } from "../utils/";
+import { hasClass } from "../utils";
 import { DraggableProps, MoveableGroupInterface, MoveableManagerInterface, Renderer } from "../types";
-import { prefix } from "../utils";
+import { prefix } from "../utilities";
 import Draggable from "./Draggable";
 import { makeAble } from "./AbleManager";
 import { renderEdgeLines } from "../renderDirections";

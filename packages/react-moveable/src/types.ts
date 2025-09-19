@@ -1,4 +1,4 @@
-import { IObject } from "./utils/";
+import { IObject } from "./utils";
 import Gesto, * as GestoTypes from "gesto";
 import CustomGesto from "./gesto/CustomGesto";
 import { MoveableTargetInfo } from "./utils/getMoveableTargetInfo";

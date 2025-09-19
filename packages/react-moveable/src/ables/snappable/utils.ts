@@ -1,23 +1,23 @@
-import { TINY_NUM } from "../../utils";
 import { throttle } from "../../utils";
 import {
-    MoveableClientRect, MoveableManagerInterface,
+    MoveableClientRect,
+    MoveableManagerInterface,
     SnapDirectionPoses,
-    SnapDirections, SnappableProps,
+    SnapDirections,
+    SnappableProps,
     SnappableState,
 } from "../../types";
-import {
-    calculatePosition,
-} from "../../utils";
+import { calculatePosition } from "../../utilities";
+import { TINY_NUM } from "../../consts";
 export const VERTICAL_NAMES = ["left", "right", "center"] as const;
 export const HORIZONTAL_NAMES = ["top", "bottom", "middle"] as const;
 export const SNAP_SKIP_NAMES_MAP = {
-    "left": "start",
-    "right": "end",
-    "center": "center",
-    "top": "start",
-    "bottom": "end",
-    "middle": "center",
+    left: "start",
+    right: "end",
+    center: "center",
+    top: "start",
+    bottom: "end",
+    middle: "center",
 };
 
 export const VERTICAL_NAMES_MAP = {
@@ -31,8 +31,6 @@ export const HORIZONTAL_NAMES_MAP = {
     center: "middle",
 } as const;
 
-
-
 export function getInitialBounds() {
     return {
         left: false,
@@ -41,7 +39,6 @@ export function getInitialBounds() {
         bottom: false,
     };
 }
-
 
 export function hasGuidelines(
     moveable: MoveableManagerInterface<any, any>,
@@ -60,11 +57,7 @@ export function hasGuidelines(
         state: { guidelines, enableSnap },
     } = moveable;
 
-    if (
-        !snappable ||
-        !enableSnap ||
-        (ableName && snappable !== true && snappable.indexOf(ableName) < 0)
-    ) {
+    if (!snappable || !enableSnap || (ableName && snappable !== true && snappable.indexOf(ableName) < 0)) {
         return false;
     }
     if (
@@ -92,7 +85,7 @@ export function getSnapDirections(snapDirections: SnapDirections | boolean | und
 
 export function mapSnapDirectionPoses(
     snapDirections: SnapDirections | boolean | undefined,
-    snapPoses: SnapDirectionPoses,
+    snapPoses: SnapDirectionPoses
 ) {
     const nextSnapDirections = getSnapDirections(snapDirections);
     const nextSnapPoses: SnapDirectionPoses = {};
@@ -107,32 +100,24 @@ export function mapSnapDirectionPoses(
 
 export function splitSnapDirectionPoses(
     snapDirections: SnapDirections | boolean | undefined,
-    snapPoses: SnapDirectionPoses,
+    snapPoses: SnapDirectionPoses
 ) {
     const nextSnapPoses = mapSnapDirectionPoses(snapDirections, snapPoses);
-    const horizontalNames = HORIZONTAL_NAMES.filter(name => name in nextSnapPoses);
-    const verticalNames = VERTICAL_NAMES.filter(name => name in nextSnapPoses);
+    const horizontalNames = HORIZONTAL_NAMES.filter((name) => name in nextSnapPoses);
+    const verticalNames = VERTICAL_NAMES.filter((name) => name in nextSnapPoses);
 
     return {
         horizontalNames,
         verticalNames,
-        horizontal: horizontalNames.map(name => nextSnapPoses[name]!),
-        vertical: verticalNames.map(name => nextSnapPoses[name]!),
+        horizontal: horizontalNames.map((name) => nextSnapPoses[name]!),
+        vertical: verticalNames.map((name) => nextSnapPoses[name]!),
     };
 }
 
-export function calculateContainerPos(
-    rootMatrix: number[],
-    containerRect: MoveableClientRect,
-    n: number,
-) {
-    const clientPos = calculatePosition(
-        rootMatrix, [containerRect.clientLeft!, containerRect.clientTop!], n);
+export function calculateContainerPos(rootMatrix: number[], containerRect: MoveableClientRect, n: number) {
+    const clientPos = calculatePosition(rootMatrix, [containerRect.clientLeft!, containerRect.clientTop!], n);
 
-    return [
-        containerRect.left + clientPos[0],
-        containerRect.top + clientPos[1],
-    ];
+    return [containerRect.left + clientPos[0], containerRect.top + clientPos[1]];
 }
 
 export function solveLineConstants([point1, point2]: number[][]): [number, number, number] {
@@ -168,5 +153,5 @@ export function solveLineConstants([point1, point2]: number[][]): [number, numbe
         c = a * point1[0] - point1[1];
     }
 
-    return [a, b, c].map(v => throttle(v, TINY_NUM)) as [number, number, number];
+    return [a, b, c].map((v) => throttle(v, TINY_NUM)) as [number, number, number];
 }

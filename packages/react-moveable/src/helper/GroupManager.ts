@@ -1,5 +1,5 @@
 /* eslint-disable no-cond-assign */
-import { deepFlat, isArray } from "../utils/";
+import { deepFlat, isArray } from "../utils";
 import { ArrayChild, SingleChild } from "./groups";
 import { GroupChild, TargetGroupsObject, TargetGroupsType, TargetList } from "./types";
 

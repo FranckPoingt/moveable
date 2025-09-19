@@ -1,6 +1,6 @@
 import { createIdentityMatrix } from "@scena/matrix";
 import { ElementSizes, MoveablePosition } from "../types";
-import { getSize, getRotationRad } from "../utils";
+import { getSize, getRotationRad } from "../utilities";
 import { calculateMatrixStack, MoveableElementMatrixInfo } from "./calculateMatrixStack";
 import { calculateElementPosition } from "./calculateElementPosition";
 
@@ -14,7 +14,7 @@ export function calculateElementInfo(
     target?: SVGElement | HTMLElement | null,
     container?: SVGElement | HTMLElement | null,
     rootContainer: HTMLElement | SVGElement | null | undefined = container,
-    isAbsolute3d?: boolean,
+    isAbsolute3d?: boolean
 ): MoveableElementInfo {
     let width = 0;
     let height = 0;
@@ -33,22 +33,16 @@ export function calculateElementInfo(
             target,
             container,
             rootContainer,
-            isAbsolute3d,
+            isAbsolute3d
             // prevMatrix, prevRootMatrix, prevN,
         );
 
-        const position = calculateElementPosition(
-            result.allMatrix,
-            result.transformOrigin,
-            width, height,
-        );
+        const position = calculateElementPosition(result.allMatrix, result.transformOrigin, width, height);
         allResult = {
             ...result,
             ...position,
         };
-        const rotationPosition = calculateElementPosition(
-            result.allMatrix, [50, 50], 100, 100,
-        );
+        const rotationPosition = calculateElementPosition(result.allMatrix, [50, 50], 100, 100);
         rotation = getRotationRad([rotationPosition.pos1, rotationPosition.pos2], rotationPosition.direction);
     }
     const n = isAbsolute3d ? 4 : 3;
@@ -88,11 +82,10 @@ export function calculateElementInfo(
     };
 }
 
-
 export function getElementInfo(
     target: SVGElement | HTMLElement,
     container?: SVGElement | HTMLElement | null,
-    rootContainer: SVGElement | HTMLElement | null | undefined = container,
+    rootContainer: SVGElement | HTMLElement | null | undefined = container
 ) {
     return calculateElementInfo(target, container, rootContainer, true);
 }

@@ -24,7 +24,7 @@ import {
     fillCSSObject,
     abs,
     sign,
-} from "../utils";
+} from "../utilities";
 import { plus, minus, multiply } from "@scena/matrix";
 import { getDragDist, calculatePointerDist, setDragStart } from "../gesto/GestoUtils";
 import {

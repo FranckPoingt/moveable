@@ -1,5 +1,5 @@
-import { find, getWindow } from "../utils/";
-import { getClientRect } from "../utils";
+import { find, getWindow } from "../utils";
+import { getClientRect } from "../utilities";
 import { MoveableClientRect } from "../types";
 import { getMatrixStackInfo, MatrixStackInfo } from "../utils/getMatrixStackInfo";
 

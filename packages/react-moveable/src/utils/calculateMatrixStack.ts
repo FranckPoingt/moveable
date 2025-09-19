@@ -1,6 +1,6 @@
 import { createIdentityMatrix, convertDimension, multiply, createOriginMatrix, ignoreDimension } from "@scena/matrix";
 import { getCachedMatrixContainerInfo } from "../store/Store";
-import { convert3DMatrixes, getOffsetInfo, getSVGOffset, makeMatrixCSS } from "../utils";
+import { convert3DMatrixes, getOffsetInfo, getSVGOffset, makeMatrixCSS } from "../utilities";
 import { getMatrixStackInfo } from "./getMatrixStackInfo";
 import { getDocumentBody } from "./index";
 import { MatrixInfo } from "../types";
@@ -28,7 +28,7 @@ export function calculateMatrixStack(
     target: SVGElement | HTMLElement,
     container?: SVGElement | HTMLElement | null,
     rootContainer: SVGElement | HTMLElement | null | undefined = container,
-    isAbsolute3d?: boolean,
+    isAbsolute3d?: boolean
     // prevMatrix?: number[],
     // prevRootMatrix?: number[],
     // prevN?: number,
@@ -66,12 +66,14 @@ export function calculateMatrixStack(
     let beforeMatrix = createIdentityMatrix(n);
     let offsetMatrix = createIdentityMatrix(n);
     const length = matrixes.length;
-    const nextRootMatrixes = rootMatrixes.map(info => {
-        return {
-            ...info,
-            matrix: info.matrix ? [...info.matrix] : undefined,
-        };
-    }).reverse();
+    const nextRootMatrixes = rootMatrixes
+        .map((info) => {
+            return {
+                ...info,
+                matrix: info.matrix ? [...info.matrix] : undefined,
+            };
+        })
+        .reverse();
     matrixes.reverse();
 
     if (!is3d && isNext3d) {
@@ -83,18 +85,17 @@ export function calculateMatrixStack(
         convert3DMatrixes(nextRootMatrixes);
     }
 
-
     // rootMatrix = (...) -> container -> offset -> absolute -> offset -> absolute(targetMatrix)
     // rootMatrixBeforeOffset = lastOffsetMatrix -> (...) -> container
     // beforeMatrix = (... -> container -> offset -> absolute) -> offset -> absolute(targetMatrix)
     // offsetMatrix = (... -> container -> offset -> absolute -> offset) -> absolute(targetMatrix)
 
-    nextRootMatrixes.forEach(info => {
+    nextRootMatrixes.forEach((info) => {
         rootMatrix = multiply(rootMatrix, info.matrix!, n);
     });
     const originalRootContainer = rootContainer || getDocumentBody(target);
-    const endContainer = nextRootMatrixes[0]?.target
-        || getOffsetInfo(originalRootContainer, originalRootContainer, true).offsetParent;
+    const endContainer =
+        nextRootMatrixes[0]?.target || getOffsetInfo(originalRootContainer, originalRootContainer, true).offsetParent;
     const rootMatrixBeforeOffset = nextRootMatrixes.slice(1).reduce((matrix, info) => {
         return multiply(matrix, info.matrix!, n);
     }, createIdentityMatrix(n));
@@ -116,7 +117,7 @@ export function calculateMatrixStack(
                 nextInfo,
                 endContainer,
                 n,
-                multiply(rootMatrixBeforeOffset, allMatrix, n),
+                multiply(rootMatrixBeforeOffset, allMatrix, n)
             );
             info.matrix = createOriginMatrix(offset, n);
         }
@@ -128,9 +129,8 @@ export function calculateMatrixStack(
         targetMatrix = createIdentityMatrix(isMatrix3d ? 4 : 3);
     }
     const targetTransform = makeMatrixCSS(
-        isSVGGraphicElement && targetMatrix.length === 16
-            ? convertDimension(targetMatrix, 4, 3) : targetMatrix,
-        isMatrix3d,
+        isSVGGraphicElement && targetMatrix.length === 16 ? convertDimension(targetMatrix, 4, 3) : targetMatrix,
+        isMatrix3d
     );
 
     const originalRootMatrix = rootMatrix;
