@@ -19,3 +19,10 @@ export { MOVEABLE_EVENTS, MOVEABLE_PROPS, MOVEABLE_REACT_EVENTS } from "./ables/
 
 // makeMoveable function for creating custom components with specific ables
 export { makeMoveable } from "./makeMoveable";
+
+// Dynamic loading functionality
+export { DynamicMoveable, useDynamicMoveable } from "./DynamicMoveable";
+export * from "./ables/DynamicAbleLoader";
+
+// Factory functions for advanced use cases
+export { createMoveableClass, createDynamicMoveableClass, MoveablePresets } from "./MoveableFactory";

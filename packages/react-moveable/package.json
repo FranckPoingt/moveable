@@ -50,6 +50,26 @@
       "import": "./dist/ables/*.js",
       "require": "./dist/ables/*.cjs"
     },
+    "./presets/basic": {
+      "types": "./dist/declaration/presets/basic.d.ts",
+      "import": "./dist/micro/presets/basic.js",
+      "require": "./dist/micro/presets/basic.cjs"
+    },
+    "./presets/advanced": {
+      "types": "./dist/declaration/presets/advanced.d.ts",
+      "import": "./dist/micro/presets/advanced.js",
+      "require": "./dist/micro/presets/advanced.cjs"
+    },
+    "./presets/full": {
+      "types": "./dist/declaration/presets/full.d.ts",
+      "import": "./dist/micro/presets/full.js",
+      "require": "./dist/micro/presets/full.cjs"
+    },
+    "./micro/*": {
+      "types": "./dist/declaration/*.d.ts",
+      "import": "./dist/micro/*.js",
+      "require": "./dist/micro/*.cjs"
+    },
     "./package.json": "./package.json"
   },
   "sideEffects": false,
@@ -71,9 +91,14 @@
     "build:esm-cjs": "vite build",
     "build:umd": "BUILD_UMD=true vite build",
     "build:subpaths": "vite build --config vite.subpaths.config.ts",
+    "build:micro": "vite build --config vite.config.micro.ts",
+    "build:cdn": "vite build --config vite.config.cdn.ts",
+    "build:all": "npm run build && npm run build:micro && npm run build:cdn",
     "analyze": "vite-bundle-analyzer dist/",
+    "analyze:micro": "vite-bundle-analyzer dist/micro/",
     "size-limit": "size-limit",
     "build:analyze": "npm run build && npm run analyze",
+    "build:analyze:micro": "npm run build:micro && npm run analyze:micro",
     "build:size": "npm run build && bundlesize"
   },
   "keywords": [
