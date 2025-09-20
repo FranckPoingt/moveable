@@ -15,6 +15,41 @@
       "require": "./dist/moveable.cjs.js",
       "default": "./dist/moveable.esm.js"
     },
+    "./core": {
+      "types": "./declaration/core.d.ts",
+      "import": "./dist/core.js",
+      "require": "./dist/core.cjs"
+    },
+    "./ables": {
+      "types": "./declaration/ables/index.d.ts",
+      "import": "./dist/ables/index.js",
+      "require": "./dist/ables/index.cjs"
+    },
+    "./ables/basic": {
+      "types": "./declaration/ables/basic.d.ts",
+      "import": "./dist/ables/basic.js",
+      "require": "./dist/ables/basic.cjs"
+    },
+    "./ables/advanced": {
+      "types": "./declaration/ables/advanced.d.ts",
+      "import": "./dist/ables/advanced.js",
+      "require": "./dist/ables/advanced.cjs"
+    },
+    "./ables/utils": {
+      "types": "./declaration/ables/utils.d.ts",
+      "import": "./dist/ables/utils.js",
+      "require": "./dist/ables/utils.cjs"
+    },
+    "./ables/visual": {
+      "types": "./declaration/ables/visual.d.ts",
+      "import": "./dist/ables/visual.js",
+      "require": "./dist/ables/visual.cjs"
+    },
+    "./ables/*": {
+      "types": "./declaration/ables/*.d.ts",
+      "import": "./dist/ables/*.js",
+      "require": "./dist/ables/*.cjs"
+    },
     "./package.json": "./package.json"
   },
   "sideEffects": false,
@@ -32,9 +67,10 @@
     "test:ui": "vitest --ui",
     "test:type": "tsc -p tsconfig.test.json",
     "coverage": "vitest run --coverage",
-    "build": "npm run lint && npm run test:type && npm run build:esm-cjs && npm run build:umd && print-sizes ./dist",
+    "build": "npm run lint && npm run test:type && npm run build:esm-cjs && npm run build:umd && npm run build:subpaths && print-sizes ./dist",
     "build:esm-cjs": "vite build",
     "build:umd": "BUILD_UMD=true vite build",
+    "build:subpaths": "vite build --config vite.subpaths.config.ts",
     "analyze": "vite-bundle-analyzer dist/",
     "size-limit": "size-limit",
     "build:analyze": "npm run build && npm run analyze",
