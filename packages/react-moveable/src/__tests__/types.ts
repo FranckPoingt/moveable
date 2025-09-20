@@ -1,43 +1,61 @@
 import {
-    DraggableEvents, ResizableEvents,
-    ScalableEvents, RotatableEvents, DraggableOptions,
-    ResizableOptions, ScalableOptions, RotatableOptions, WarpableOptions,
-    WarpableEvents, GroupableOptions, SnappableEvents, SnappableOptions,
-    RenderableEvents, ClickableEvents, RoundableEvents, RoundableOptions,
-    ClippableOptions, ClippableEvents, OriginDraggableEvents,
+    DraggableEvents,
+    ResizableEvents,
+    ScalableEvents,
+    RotatableEvents,
+    DraggableOptions,
+    ResizableOptions,
+    ScalableOptions,
+    RotatableOptions,
+    WarpableOptions,
+    WarpableEvents,
+    GroupableOptions,
+    SnappableEvents,
+    SnappableOptions,
+    RenderableEvents,
+    ClickableEvents,
+    RoundableEvents,
+    RoundableOptions,
+    ClippableOptions,
+    ClippableEvents,
+    OriginDraggableEvents,
     DefaultOptions,
-    DragAreaOptions, PinchableOptions, PinchableEvents, ScrollableEvents,
+    DragAreaOptions,
+    PinchableOptions,
+    PinchableEvents,
+    ScrollableEvents,
     ScrollableOptions,
-
     OriginOptions,
-    PaddingOptions, OriginDraggableOptions,
-    MoveableOptions, BeforeRenderableEvents, ClickableOptions, MoveableEvents, MoveableDefaultEvents,
-} from "../src";
+    PaddingOptions,
+    OriginDraggableOptions,
+    MoveableOptions,
+    BeforeRenderableEvents,
+    ClickableOptions,
+    MoveableEvents,
+    MoveableDefaultEvents,
+} from "..";
 
-import Draggable from "../src/ables/Draggable";
-import Resizable from "../src/ables/Resizable";
-import Scalable from "../src/ables/Scalable";
-import Rotatable from "../src/ables/Rotatable";
-import Warpable from "../src/ables/Warpable";
-import Groupable from "../src/ables/Groupable";
-import Snappable from "../src/ables/Snappable";
-import Default from "../src/ables/Default";
-import DragArea from "../src/ables/DragArea";
-import Roundable from "../src/ables/Roundable";
-import Clippable from "../src/ables/Clippable";
-import OriginDraggable from "../src/ables/OriginDraggable";
-import Pinchable from "../src/ables/Pinchable";
-import Scrollable from "../src/ables/Scrollable";
-import Origin from "../src/ables/Origin";
-import Padding from "../src/ables/Padding";
-import Renderable from "../src/ables/Renderable";
-import BeforeRenderable from "../src/ables/BeforeRenderable";
-import Clickable from "../src/ables/Clickable";
+import Draggable from "../ables/Draggable";
+import Resizable from "../ables/Resizable";
+import Scalable from "../ables/Scalable";
+import Rotatable from "../ables/Rotatable";
+import Warpable from "../ables/Warpable";
+import Groupable from "../ables/Groupable";
+import Snappable from "../ables/Snappable";
+import Default from "../ables/Default";
+import DragArea from "../ables/DragArea";
+import Roundable from "../ables/Roundable";
+import Clippable from "../ables/Clippable";
+import OriginDraggable from "../ables/OriginDraggable";
+import Pinchable from "../ables/Pinchable";
+import Scrollable from "../ables/Scrollable";
+import Origin from "../ables/Origin";
+import Padding from "../ables/Padding";
+import Renderable from "../ables/Renderable";
+import BeforeRenderable from "../ables/BeforeRenderable";
+import Clickable from "../ables/Clickable";
 
-type MatchTypes<
-    T extends { [key in keyof Required<E>]: any },
-    E extends  { [key in keyof Required<T>]: any },
-> = any;
+type MatchTypes<T extends { [key in keyof Required<E>]: any }, E extends { [key in keyof Required<T>]: any }> = any;
 // type Writable<T> = { -readonly [key in keyof T]: any };
 
 type PropsTester<Able extends { props: readonly string[] }, Props extends Record<string, any> = MoveableOptions> = {
@@ -47,7 +65,7 @@ type EventsTester<Able extends { events: readonly string[] }, Events extends Rec
     -readonly [key in Able["events"][number] as `on${Capitalize<key>}`]: Events[key];
 };
 
-interface EmptyOptions { }
+interface EmptyOptions {}
 
 export type TestProps = [
     MatchTypes<PropsTester<typeof Default>, Required<DefaultOptions>>,
@@ -69,7 +87,7 @@ export type TestProps = [
     MatchTypes<PropsTester<typeof Groupable>, Required<GroupableOptions>>,
     MatchTypes<PropsTester<typeof Clippable>, Required<ClippableOptions>>,
     MatchTypes<PropsTester<typeof Snappable>, Required<SnappableOptions>>,
-    MatchTypes<PropsTester<typeof Roundable>, Required<RoundableOptions>>,
+    MatchTypes<PropsTester<typeof Roundable>, Required<RoundableOptions>>
 ];
 
 export type TestProps2 = [
@@ -92,5 +110,5 @@ export type TestProps2 = [
     MatchTypes<EventsTester<typeof Groupable>, Required<EmptyOptions>>,
     MatchTypes<EventsTester<typeof Clippable>, Required<ClippableEvents>>,
     MatchTypes<EventsTester<typeof Snappable>, Required<SnappableEvents>>,
-    MatchTypes<EventsTester<typeof Roundable>, Required<RoundableEvents>>,
+    MatchTypes<EventsTester<typeof Roundable>, Required<RoundableEvents>>
 ];

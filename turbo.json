@@ -1,0 +1,41 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "ui": "tui",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["src/**", "package.json", "tsconfig*.json", "vite.config.*", "rollup.config.*"],
+      "outputs": ["dist/**", "declaration/**"]
+    },
+    "lint": {
+      "inputs": ["src/**", ".eslintrc*", "eslint.config.*"],
+      "outputs": []
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "inputs": ["src/**", "test/**", "tests/**", "**/*.test.*", "**/*.spec.*", "vitest.config.*", "tsconfig*.json"],
+      "outputs": ["coverage/**"]
+    },
+    "test:type": {
+      "inputs": ["src/**", "tsconfig*.json"],
+      "outputs": []
+    },
+    "coverage": {
+      "dependsOn": ["^build"],
+      "inputs": ["src/**", "test/**", "tests/**", "**/*.test.*", "**/*.spec.*", "vitest.config.*", "tsconfig*.json"],
+      "outputs": ["coverage/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "storybook": {
+      "cache": false,
+      "persistent": true
+    }
+  },
+  "globalDependencies": [
+    "package.json",
+    "tsconfig.json"
+  ]
+}
