@@ -30,7 +30,7 @@ export const AdvancedAbles = [
 ] as const;
 
 export class AdvancedMoveable extends InitialMoveable<MoveableProps> {
-    public static defaultAbles = AdvancedAbles;
+    public static defaultAbles = AdvancedAbles as any;
 }
 
 export default AdvancedMoveable;

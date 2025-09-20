@@ -3,7 +3,7 @@ import { Able, MoveableProps } from "./types";
 import { InitialMoveable } from "./InitialMoveable";
 import { loadAbles, preloadAbles } from "./ables/DynamicAbleLoader";
 
-export interface DynamicMoveableProps extends MoveableProps {
+export interface DynamicMoveableProps extends Omit<MoveableProps, "ables"> {
     /**
      * Names of ables to load dynamically
      */
@@ -84,7 +84,7 @@ export class DynamicMoveable extends React.Component<DynamicMoveableProps, Dynam
             this.setState({
                 loadedAbles,
                 isLoading: false,
-                error: null
+                error: null,
             });
             this.props.onAblesLoaded?.(loadedAbles);
         } catch (error) {
@@ -92,21 +92,14 @@ export class DynamicMoveable extends React.Component<DynamicMoveableProps, Dynam
             this.setState({
                 loadedAbles: [],
                 isLoading: false,
-                error: err
+                error: err,
             });
             this.props.onAblesLoadError?.(err);
         }
     }
 
     render() {
-        const {
-            ables,
-            preloadAbles,
-            onAblesLoaded,
-            onAblesLoadError,
-            loading,
-            ...moveableProps
-        } = this.props;
+        const { ables, preloadAbles, onAblesLoaded, onAblesLoadError, loading, ...moveableProps } = this.props;
         const { loadedAbles, isLoading, error } = this.state;
 
         // Show loading state

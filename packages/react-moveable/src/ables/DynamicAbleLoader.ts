@@ -16,10 +16,10 @@ const ABLE_REGISTRY: AbleRegistry = {
     Scalable: () => import("./Scalable"),
     Warpable: () => import("./Warpable"),
     Pinchable: () => import("./Pinchable"),
-    Snappable: () => import("./Snappable"),
-    Scrollable: () => import("./Scrollable"),
+    Snappable: () => import("./Snappable") as Promise<{ default: Able }>,
+    Scrollable: () => import("./Scrollable") as Promise<{ default: Able }>,
     Clippable: () => import("./Clippable"),
-    Roundable: () => import("./Roundable"),
+    Roundable: () => import("./Roundable") as Promise<{ default: Able }>,
     Origin: () => import("./Origin"),
     OriginDraggable: () => import("./OriginDraggable"),
     Padding: () => import("./Padding"),
@@ -72,13 +72,15 @@ export async function loadAbles(ableNames: string[]): Promise<Able[]> {
  * Preloads ables for faster access later
  */
 export function preloadAbles(ableNames: string[]): Promise<void[]> {
-    return Promise.all(ableNames.map(async (name) => {
-        try {
-            await loadAble(name);
-        } catch (error) {
-            console.warn(`Failed to preload able ${name}:`, error);
-        }
-    }));
+    return Promise.all(
+        ableNames.map(async (name) => {
+            try {
+                await loadAble(name);
+            } catch (error) {
+                console.warn(`Failed to preload able ${name}:`, error);
+            }
+        })
+    );
 }
 
 /**

@@ -10,7 +10,7 @@ import { MOVEABLE_ABLES } from "../ables/consts";
 export const FullAbles = MOVEABLE_ABLES;
 
 export class FullMoveable extends InitialMoveable<MoveableProps> {
-    public static defaultAbles = FullAbles;
+    public static defaultAbles = FullAbles as any;
 }
 
 export default FullMoveable;

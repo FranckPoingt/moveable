@@ -7,8 +7,10 @@
   "sideEffects": false,
   "types": "declaration/index.d.ts",
   "scripts": {
-    "start": "rollup -c -w",
-    "build": "rollup -c && npm run declaration && print-sizes ./dist",
+    "start": "vite build --watch",
+    "build": "npm run build:esm-cjs && npm run build:umd && npm run declaration && print-sizes ./dist",
+    "build:esm-cjs": "vite build",
+    "build:umd": "BUILD_UMD=true vite build",
     "declaration": "rm -rf declaration && tsc -p tsconfig.declaration.json",
     "doc": "rm -rf ./doc && jsdoc -c jsdoc.json",
     "storybook": "cd storybook && npm run build && cd ../",
@@ -70,7 +72,6 @@
     "react-moveable": "~0.56.0"
   },
   "devDependencies": {
-    "@daybrush/builder": "^0.2.4",
     "@types/react": "^16.9.17",
     "@types/react-dom": "^16.9.4",
     "gh-pages": "^2.0.1",
@@ -78,9 +79,9 @@
     "pvu": "^0.6.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
-    "rollup-plugin-css-bundle": "^1.0.4",
-    "rollup-plugin-react-compat": "^0.1.1",
     "tslib": "^2.3.1",
-    "typescript": "^4.8 <4.9"
+    "typescript": "^4.8 <4.9",
+    "vite": "^5.0.0",
+    "vite-plugin-dts": "^3.7.0"
   }
 }
